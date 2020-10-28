@@ -1,40 +1,68 @@
 <template>
   <el-dialog
+    width= "90%"
     :title="!dataForm.orderId ? '新增(只需添加物品信息)' : '订单详情'"
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm"  ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
       <el-row>
-        <el-col :span="8">
+        <el-col :span="4">
     <el-form-item label="订单号">
-      <el-input v-model="dataForm.orderId" placeholder="订单号" readonly></el-input>
+      <el-input v-model="dataForm.order_no" placeholder="订单号" readonly></el-input>
     </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <el-form-item label="订单发起人" >
-            <el-input v-model="dataForm.promoterName" placeholder="订单发起人" readonly></el-input>
+        <el-col :span="5">
+          <el-form-item label="发起人工号">
+            <el-input v-model="dataForm.job_no" placeholder="发起人工号" readonly></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <el-form-item label="物件总数量">
-            <el-input v-model="dataForm.num" placeholder="物件总数量" readonly></el-input>
+        <el-col :span="4">
+          <el-form-item label="总金额">
+            <el-input v-model="dataForm.alltotal" placeholder="总金额" readonly></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="5">
+          <el-form-item label="审核人">
+            <el-input v-model="dataForm.review_fir" placeholder="审核人" readonly></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="5">
+          <el-form-item label="审核时间">
+            <el-input v-model="dataForm.exp_date" placeholder="审核时间" readonly></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="8">
-          <el-form-item label="总价格">
-            <el-input v-model="dataForm.alltotal" placeholder="总价格" readonly></el-input>
+        <el-col :span="4">
+          <el-form-item label="实际金额">
+            <el-input v-model="dataForm.reall_total" placeholder="实际金额" readonly></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <el-form-item label="订单状态">
-            <el-input v-model="dataForm.orderStata" placeholder="订单状态" readonly></el-input>
+        <el-col :span="5">
+          <el-form-item label="创建时间">
+            <el-input v-model="dataForm.stime" placeholder="创建时间" readonly></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="4">
           <el-form-item label="订单类型">
-            <el-input v-model="dataForm.orderType" placeholder="订单类型" readonly>
+            <el-input v-model="dataForm.exam_type" placeholder="订单类型" readonly>
+            </el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="5">
+          <el-form-item label="发起人姓名">
+            <el-input v-model="dataForm.name" placeholder="发起人姓名" readonly></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="5">
+          <el-form-item label="审核类型">
+            <el-input v-model="dataForm.exam_type" placeholder="审核类型" readonly>
+              <template scope="scope">
+                <div v-if="dataForm.exam_type==1">待EHS审核</div>
+                <div v-if="dataForm.exam_type==2">待主管审核</div>
+                <div v-if="dataForm.exam_type==3">待经理审核</div>
+                <div v-if="dataForm.exam_type==4">待厂长审核</div>
+              </template>
             </el-input>
           </el-form-item>
         </el-col>
@@ -55,35 +83,60 @@
       <!--width="50">-->
       <!--</el-table-column>-->
       <el-table-column
-        prop="zdd_order_id"
+        prop="id"
         header-align="center"
         align="center"
         label="子订单号">
       </el-table-column>
       <el-table-column
-        prop="goodsName"
+        prop="article_name"
         header-align="center"
         align="center"
         label="物品名称">
       </el-table-column>
       <el-table-column
-        prop="num"
+        prop="volume"
         header-align="center"
         align="center"
-        label="物品总数量">
+        label="体积">
+      </el-table-column>
+      <el-table-column
+        prop="qunatity"
+        header-align="center"
+        align="center"
+        label="订单数量">
+      </el-table-column>
+      <el-table-column
+        prop="actual_mount"
+        header-align="center"
+        align="center"
+        label="实际数量">
       </el-table-column>
       <el-table-column
         prop="price"
         header-align="center"
         align="center"
-        label="总价格">
+        label="单价">
       </el-table-column>
       <el-table-column
-        prop="zddType"
+        prop="unit"
         header-align="center"
         align="center"
-        label="订单类型">
+        label="单位">
       </el-table-column>
+      <el-table-column
+        prop="specs"
+        header-align="center"
+        align="center"
+        label="规格">
+      </el-table-column>
+      <el-table-column
+        prop="dremark"
+        header-align="center"
+        align="center"
+        label="备注">
+      </el-table-column>
+
       <!--<el-table-column-->
         <!--fixed="right"-->
         <!--header-align="center"-->
@@ -112,15 +165,18 @@
       return {
         visible: false,
         dataForm: {
-          goodsId: '',
-          name: '',
+          id: '',
+          order_no: '',
+          order_type: '',
+          job_no: '',
           alltotal: '',
-          num: '',
-          orderId: '',
-          promoterName: '',
-          orderStata: '',
-          orderType: ''
-
+          reall_total: '',
+          stime: '',
+          exam_type: '',
+          review_fir: '',
+          etime: '',
+          name: '',
+          exp_date: ''
         },
         stata: '',
         dataList: [],
@@ -146,11 +202,30 @@
       AddOrUpdate
     },
     methods: {
-      init (id, type) {
+      getOrderType (val) {
+        switch (val) {
+          case 1:
+        }
+      },
+      init (val, val2) {
         this.dataListLoading = true
-       if(type == 1){
-         this.dataForm.orderId = id || ''
-       }
+        this.dataForm.id = val.id
+        this.dataForm.order_no = val.order_no
+        this.dataForm.stime = val.stime
+        this.dataForm.job_no = val.job_no
+        this.dataForm.alltotal = val.alltotal
+        this.dataForm.reall_total = val.reall_total
+        this.dataForm.exam_type = val.exam_type
+        this.dataForm.review_fir = val.review_fir
+        this.dataForm.etime = val.etime
+        this.dataForm.name = val.name
+        this.dataForm.exp_date = val.exp_date
+        if (val2 === 1) {
+          this.dataList = val.detail
+        }
+       // if(type == 1){
+       //   this.dataForm.orderId = id || ''
+       // }
         this.visible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
