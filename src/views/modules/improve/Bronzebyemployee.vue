@@ -11,6 +11,9 @@
         <el-input v-model="dataForm.director" placeholder="主管" clearable></el-input>
       </el-form-item>
       <el-form-item>
+        <el-input v-model="dataForm.pjName" placeholder="上级" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
         <el-select  v-model="dataForm.lineType" placeholder="线别" clearable filterable multiple collapse-tags="false">
           <el-option v-for="(item,index) in lineTypes" :key="index" :label="item.lineType" :value="item.lineType" >
           </el-option>
@@ -253,6 +256,7 @@
           lineType: '',
           costCategory: '',
           director: '',
+          pjName: '',
           jobNo: '',
           department: '',
           name: '',
@@ -336,6 +340,7 @@
             'position': this.dataForm.position + '',
             'costCategory': this.dataForm.costCategory + '',
             'director': this.dataForm.director + '',
+            'pjName': this.dataForm.pjName + '',
             'lineType': this.dataForm.lineType + '',
             'keytime': this.dataForm.keyTime + '',
             'valid': this.dataForm.valid + '',
@@ -366,6 +371,7 @@
             'position': this.dataForm.position + '',
             'costCategory': this.dataForm.costCategory + '',
             'director': this.dataForm.director + '',
+            'pjName': this.dataForm.pjName + '',
             'lineType': this.dataForm.lineType + '',
             'keytime': this.dataForm.keyTime + '',
             'valid': this.dataForm.valid + ''

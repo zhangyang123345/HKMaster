@@ -1,54 +1,9 @@
 <template>
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="addOrUpdateHandle()">
-      <el-form-item prop="storeId">
-        <el-select  v-model="dataForm.storeId" placeholder="请选择仓库">
-          <el-option v-for="(item,index) in columeTypeArr" :key="index" :label="item.storename" :value="index" >
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item  prop="goodsName">
-        <!--<el-input  v-model="dataForm.goodsName" placeholder="商品名" clearable></el-input>-->
-        <el-autocomplete
-          v-model="dataForm.goodsName"
-          :fetch-suggestions="querySearchAsync"
-          placeholder="商品名"
-          @select="handleSelect"
-        ></el-autocomplete>
-      </el-form-item>
       <el-form-item  prop="goodsMaterial">
-        <el-input v-model="dataForm.goodsMaterial" placeholder="物料号" clearable></el-input>
+        <el-input v-model="dataForm.goodsMaterial" placeholder="物品码" clearable></el-input>
       </el-form-item>
-      <!--<el-form-item prop="articleNo">-->
-        <!--<el-input v-model="dataForm.articleNo" placeholder="物件号" clearable></el-input>-->
-      <!--</el-form-item >-->
-      <el-form-item prop="manufacturer">
-        <el-input v-model="dataForm.manufacturer" placeholder="厂商" clearable></el-input>
-      </el-form-item >
-      <el-form-item prop="price">
-      <el-input v-model="dataForm.price" type="number" placeholder="单价" clearable></el-input>
-    </el-form-item>
-      <el-form-item prop="specs">
-        <el-input v-model="dataForm.specs" placeholder="规格" clearable></el-input>
-      </el-form-item >
-      <!--<el-form-item prop="materialQuality">-->
-        <!--<el-input v-model="dataForm.materialQuality" placeholder="材质" clearable></el-input>-->
-      <!--</el-form-item>-->
-      <!--<el-form-item prop="life">-->
-        <!--<el-select  v-model="dataForm.life" placeholder="请选择寿命分类">-->
-          <!--<el-option v-for="(item,index) in lifeArr" :key="index" :label="item.value" :value="item.id" >-->
-          <!--</el-option>-->
-        <!--</el-select>-->
-      <!--</el-form-item>-->
-      <el-form-item prop="type">
-        <el-select  v-model="dataForm.type" placeholder="请选择类型">
-          <el-option v-for="(item,index) in typeArr" :key="index" :label="item.value" :value="item.id" >
-          </el-option>
-        </el-select>
-      </el-form-item>
-        <el-form-item prop="num">
-          <el-input v-model="dataForm.num" placeholder="请输入数量" clearable></el-input>
-        </el-form-item>
       <!--</el-form-item>-->
       <!--<el-form-item prop="special">-->
         <!--<el-select  v-model="dataForm.special" placeholder="请选择专案">-->
@@ -58,29 +13,11 @@
       <!--</el-form-item>-->
       <el-form-item>
         <!--<el-button @click="getDataList()">查询</el-button>-->
-        <el-button   type="primary" @click="addOrUpdateHandle()">添加</el-button>
+        <el-button   type="primary" @click="addOrUpdateHandle()">确定</el-button>
         </el-form-item>
       <el-form-item>
         <el-button  type="primary" @click="returnDataList()">返回</el-button>
         </el-form-item>
-        <el-form-item>
-        <el-upload
-          :show-file-list="false"
-          accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-          action="#"
-          :on-success="fileUploadSuccess"
-          :on-error="fileUploadError" :disabled="fileUploadBtnText=='正在导入'"
-          :before-upload="beforeFileUpload" style="display: inline">
-          <el-button  type="success" :loading="fileUploadBtnText=='正在导入'"><i class="fa fa-lg fa-level-up"
-                                                                             style="margin-right: 5px"></i>{{fileUploadBtnText}}
-          </el-button>
-        </el-upload>
-        </el-form-item>
-      <el-form-item>
-        <!--<el-button v-if="isAuth('storemanage:handinput:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
-        <el-button type="success"  @click="export2Exce()"><i></i>导出模板
-        </el-button>
-      </el-form-item>
     </el-form>
     <el-table
       :data="dataListShow"
@@ -316,47 +253,22 @@
     activated () {
       this.getDataList()
     },
+    created () {
+      this.getDataJB()
+    },
     methods: {
-      export2Exce () {
-        require.ensure([], () => {
-          const { export_json_to_excel } = require('../../../../vendor/Export2Excel')
-          const tHeader = ['仓库ID', '物品名', '单价', '厂商', '物件料号', '规格', '类型', '数量', '仓库名']
-          // 上面设置Excel的表格第一行的标题
-          const filterVal = ['storeId', 'goodsName', 'price', 'manufacturer', 'goodsMaterial', 'specs', 'type', 'num', 'storeName']
-          const list = [{storeId: '系统显示的仓库ID', goodsName: '物品名称', price: '物品单价', manufacturer: '物品厂商', goodsMaterial: '物料号', specs: '物品规格', type: '(1.普通;2.刀具类;3.穿戴类;4.化学品)', num: '存入的物品数量', storeName: '仓库的名称'}]
-          const data = this.formatJson(filterVal, list)
-          export_json_to_excel(tHeader, data, '仓库物品导入模板')
-      })
-      },
-      formatJson (filterVal, jsonData) {
-        return jsonData.map(v => filterVal.map(j => v[j]))
-      },
-      fileUploadSuccess (response, file, fileList) {
-        if (response) {
-          this.$message({type: response.status, message: response.msg})
+      // 获取基本参数
+      getDataJB () {
+        this.$http({
+          url: this.$http.adornUrl('/store/stores/list'),
+          method: 'get',
+          data: this.$http.adornData(this.dataList, false)
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+          this.columeTypeArr = data.page.list
+        } else {
         }
-        // this.loadEmps()
-        this.fileUploadBtnText = '导入数据'
-      },
-      fileUploadError (err, file, fileList) {
-        this.fileUploadBtnText = '导入数据'
-      },
-      beforeFileUpload (file) {
-        this.status = 0
-        this.importf(file)
-      //   return
-      //   this.fileUploadBtnText = '正在导入'
-      //   let formData = new FormData()
-      //   formData.append('file', file)
-      //   this.$http.post(this.$http.adornUrl('/store/goods/import'), formData)
-      //     .then(({data}) => {
-      //     if (data.msg === '导入成功!') {
-      //     this.getDataList()
-      //   } else {
-      //     this.$message.error(data.msg)
-      //   }
-      //   this.fileUploadBtnText = '导入数据'
-      // })
+      })
       },
       //最终确认
       dataFormSubmit1 () {
@@ -428,16 +340,7 @@
       },
       // 获取数据列表
       getDataList () {
-        this.$http({
-          url: this.$http.adornUrl('/store/stores/list'),
-          method: 'get',
-          data: this.$http.adornData(this.dataList, false)
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-          this.columeTypeArr = data.page.list
-        } else {
-        }
-      })
+
       },
       // 每页数
       sizeChangeHandle (val) {
@@ -464,6 +367,17 @@
         this.status = 0
         this.$refs['dataForm'].validate((valid) => {
           var map = {}
+          this.$http({
+          url: this.$http.adornUrl('/stock/stockmanage/save'),
+          method: 'post',
+          data: this.$http.adornData(msg, false)
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
           map.storeName = this.columeTypeArr[this.dataForm.storeId].storename
         // map.storeName = this.dataForm.storeId
         map.goodsId = this.dataForm.goodsId
