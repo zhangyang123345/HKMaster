@@ -6,20 +6,8 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('store:goods:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <!--<el-button v-if="isAuth('store:goods:save')"  type="warning" @click="">excel导入</el-button>-->
-        <el-upload
-          :show-file-list="false"
-          accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-          action=""
-          :on-success="fileUploadSuccess"
-          :on-error="fileUploadError" :disabled="fileUploadBtnText=='正在导入'"
-          :before-upload="beforeFileUpload" style="display: inline">
-          <el-button  type="success" :loading="fileUploadBtnText=='正在导入'"><i class="fa fa-lg fa-level-up"
-                                                                                        style="margin-right: 5px"></i>{{fileUploadBtnText}}
-          </el-button>
-        </el-upload>
-        <el-button v-if="isAuth('store:goods:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('generator:tbgoods3:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('generator:tbgoods3:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -35,82 +23,34 @@
         width="50">
       </el-table-column>
       <el-table-column
-        prop="article_no"
+        prop="goodsId"
         header-align="center"
         align="center"
-        label="商品编码">
+        label="商品ID">
       </el-table-column>
       <el-table-column
-        prop="article_name"
+        prop="name"
         header-align="center"
         align="center"
         label="商品名称">
       </el-table-column>
       <el-table-column
-        prop="manufacturer_name"
+        prop="intro"
         header-align="center"
         align="center"
-        label="厂商">
-      </el-table-column>
-      <el-table-column
-      prop="fam_name"
-      header-align="center"
-      align="center"
-      label="大类">
-      </el-table-column>
-      <el-table-column
-      prop="kin_name"
-      header-align="center"
-      align="center"
-      label="二类">
-      </el-table-column>
-      <el-table-column
-      prop="clas_name"
-      header-align="center"
-      align="center"
-      label="三类">
+        label="介绍">
       </el-table-column>
       <el-table-column
         prop="price"
         header-align="center"
         align="center"
-        label="单价">
+        label="价格">
       </el-table-column>
       <el-table-column
-        prop="unit_name"
+        prop="num"
         header-align="center"
         align="center"
-        label="单位">
-      </el-table-column>
-      <el-table-column
-        prop="specs_name"
-        header-align="center"
-        align="center"
-        label="规格">
-      </el-table-column>
-      <el-table-column
-        prop="life"
-        header-align="center"
-        align="center"
-        label="寿命(天)">
-      </el-table-column>
-      <el-table-column
-        prop="type"
-        header-align="center"
-        align="center"
-        label="类型">
-        <template scope="scope">
-          <div v-if="scope.row.type==1">普通</div>
-          <div v-if="scope.row.type==2">刀具类</div>
-          <div v-if="scope.row.type==3">穿戴类</div>
-          <div v-if="scope.row.type==4">化学品</div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="create_time"
-        header-align="center"
-        align="center"
-        label="创建时间">
+        label="数量">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -139,14 +79,13 @@
 </template>
 
 <script>
-  import AddOrUpdate from './goods-add-or-update'
+  import AddOrUpdate from './tbgoods3-add-or-update'
   export default {
     data () {
       return {
         dataForm: {
           key: ''
         },
-        fileUploadBtnText: '导入数据',
         dataList: [],
         pageIndex: 1,
         pageSize: 10,
@@ -163,45 +102,21 @@
       this.getDataList()
     },
     methods: {
-      fileUploadSuccess (response, file, fileList) {
-        if (response) {
-          this.$message({type: response.status, message: response.msg})
-        }
-        // this.loadEmps()
-        this.fileUploadBtnText = '导入数据'
-      },
-      fileUploadError (err, file, fileList) {
-        this.fileUploadBtnText = '导入数据'
-      },
-      beforeFileUpload (file) {
-        this.fileUploadBtnText = '正在导入'
-        let formData = new FormData()
-        formData.append('file', file)
-        this.$http.post(this.$http.adornUrl('/code/import'), formData)
-          .then(({data}) => {
-        if (data.msg === '导入成功!') {
-          this.getDataList()
-        } else {
-          this.$message.error(data.msg)
-        }
-        this.fileUploadBtnText = '导入数据'
-      })
-      },
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/code/queryArtic'),
+          url: this.$http.adornUrl('/generator/tbgoods3/list'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
-            'rows': this.pageSize,
-            'goods_name': this.dataForm.key
+            'limit': this.pageSize,
+            'key': this.dataForm.key
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
-            this.dataList = data.article.list
-            this.totalPage = data.article.total
+            this.dataList = data.page.list
+            this.totalPage = data.page.totalCount
           } else {
             this.dataList = []
             this.totalPage = 0
@@ -242,7 +157,7 @@
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/store/goods/delete'),
+            url: this.$http.adornUrl('/generator/tbgoods3/delete'),
             method: 'post',
             data: this.$http.adornData(ids, false)
           }).then(({data}) => {

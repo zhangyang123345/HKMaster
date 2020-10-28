@@ -35,40 +35,28 @@
         width="50">
       </el-table-column>
       <el-table-column
-        prop="article_no"
+        prop="goodsId"
         header-align="center"
         align="center"
-        label="商品编码">
+        label="商品ID">
       </el-table-column>
       <el-table-column
-        prop="article_name"
+        prop="goodsName"
         header-align="center"
         align="center"
         label="商品名称">
       </el-table-column>
       <el-table-column
-        prop="manufacturer_name"
+        prop="goodsMaterial"
+        header-align="center"
+        align="center"
+        label="物料号">
+      </el-table-column>
+      <el-table-column
+        prop="manufacturer"
         header-align="center"
         align="center"
         label="厂商">
-      </el-table-column>
-      <el-table-column
-      prop="fam_name"
-      header-align="center"
-      align="center"
-      label="大类">
-      </el-table-column>
-      <el-table-column
-      prop="kin_name"
-      header-align="center"
-      align="center"
-      label="二类">
-      </el-table-column>
-      <el-table-column
-      prop="clas_name"
-      header-align="center"
-      align="center"
-      label="三类">
       </el-table-column>
       <el-table-column
         prop="price"
@@ -77,23 +65,28 @@
         label="单价">
       </el-table-column>
       <el-table-column
-        prop="unit_name"
-        header-align="center"
-        align="center"
-        label="单位">
-      </el-table-column>
-      <el-table-column
-        prop="specs_name"
+        prop="specs"
         header-align="center"
         align="center"
         label="规格">
       </el-table-column>
-      <el-table-column
-        prop="life"
-        header-align="center"
-        align="center"
-        label="寿命(天)">
-      </el-table-column>
+      <!--<el-table-column-->
+        <!--prop="materialQuality"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="材质">-->
+      <!--</el-table-column>-->
+      <!--<el-table-column-->
+        <!--prop="life"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="寿命分类">-->
+        <!--<template scope="scope">-->
+          <!--<div v-if="scope.row.life==1">有寿命</div>-->
+          <!--<div v-if="scope.row.life==2">无寿命</div>-->
+          <!--<div v-if="scope.row.life==''">暂无数据</div>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
       <el-table-column
         prop="type"
         header-align="center"
@@ -107,10 +100,16 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="create_time"
+        prop="createtime"
         header-align="center"
         align="center"
         label="创建时间">
+      </el-table-column>
+      <el-table-column
+        prop="updatetime"
+        header-align="center"
+        align="center"
+        label="修改时间">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -177,7 +176,7 @@
         this.fileUploadBtnText = '正在导入'
         let formData = new FormData()
         formData.append('file', file)
-        this.$http.post(this.$http.adornUrl('/code/import'), formData)
+        this.$http.post(this.$http.adornUrl('/store/goods/import'), formData)
           .then(({data}) => {
         if (data.msg === '导入成功!') {
           this.getDataList()
@@ -191,17 +190,18 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/code/queryArtic'),
+          url: this.$http.adornUrl('/store/goods/list'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
-            'rows': this.pageSize,
-            'goods_name': this.dataForm.key
+            'limit': this.pageSize,
+            'goodsName': this.dataForm.key
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
-            this.dataList = data.article.list
-            this.totalPage = data.article.total
+            console.log(data.page.list)
+            this.dataList = data.page.list
+            this.totalPage = data.page.totalCount
           } else {
             this.dataList = []
             this.totalPage = 0
