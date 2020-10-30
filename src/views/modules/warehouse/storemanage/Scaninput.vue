@@ -137,7 +137,7 @@
         fixed="right"
         header-align="center"
         align="center"
-        width="150"
+        width="80"
         label="操作">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.order_no)">处理</el-button>
