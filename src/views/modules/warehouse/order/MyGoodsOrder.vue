@@ -22,113 +22,98 @@
         <!--width="50">-->
       <!--</el-table-column>-->
       <el-table-column
-        prop="orderId"
+        prop="order_type"
+        header-align="center"
+        align="center"
+        label="订单类型">
+        <template scope="scope">
+          <div v-if="scope.row.order_type==1">入库</div>
+          <div v-if="scope.row.order_type==2">出库</div>
+          <div v-if="scope.row.order_type==3">报废</div>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="order_no"
         header-align="center"
         align="center"
         label="订单号">
       </el-table-column>
       <el-table-column
-        prop="promoterName"
+        prop="job_no"
         header-align="center"
         align="center"
         label="发起人">
       </el-table-column>
       <el-table-column
-        prop="num"
+        prop="order_state"
         header-align="center"
         align="center"
-        label="物件总数量">
+        label="订单状态">
+        <template scope="scope">
+          <div v-if="scope.row.order_state==0">待提交</div>
+          <div v-if="scope.row.order_state==1">待EHS审核</div>
+          <div v-if="scope.row.order_state==2">待主管审核</div>
+          <div v-if="scope.row.order_state==3">待经理审核</div>
+          <div v-if="scope.row.order_state==4">待厂长审核</div>
+          <div v-if="scope.row.order_state==5">待处理</div>
+          <div v-if="scope.row.order_state==6">待结单</div>
+          <div v-if="scope.row.order_state==7">完成</div>
+        </template>
       </el-table-column>
       <el-table-column
         prop="alltotal"
         header-align="center"
         align="center"
-        label="总价格">
+        label="订单总金额">
       </el-table-column>
       <el-table-column
-        prop="orderType"
+        prop="reall_total"
         header-align="center"
         align="center"
-        label="订单类型">
+        label="实际处理金额">
+      </el-table-column>
+      <el-table-column
+        prop="stime"
+        header-align="center"
+        align="center"
+        label="创建时间">
+      </el-table-column>
+      <el-table-column
+        prop="etime"
+        header-align="center"
+        align="center"
+        label="结单时间">
+      </el-table-column>
+      <el-table-column
+        prop="exam_type"
+        header-align="center"
+        align="center"
+        label="审核类型">
         <template scope="scope">
-          <div v-if="scope.row.orderType==1">普通</div>
-          <div v-if="scope.row.orderType==2">刀具类</div>
-          <div v-if="scope.row.orderType==3">衣裤鞋子类</div>
-          <div v-if="scope.row.orderType==4">化学品</div>
-          <div v-if="scope.row.orderType==''">暂无数据</div>
+          <div v-if="scope.row.exam_type==1">待EHS审核</div>
+          <div v-if="scope.row.exam_type==2">待课级主管审核</div>
+          <div v-if="scope.row.exam_type==3">待经理审核</div>
+          <div v-if="scope.row.exam_type==4">待厂长审核</div>
         </template>
+
       </el-table-column>
       <el-table-column
-        prop="orderStata"
+        prop="review_fir"
         header-align="center"
         align="center"
-        label="当前状态">
-        <template scope="scope">
-          <div v-if="scope.row.orderStata==-2">订单异常结束</div>
-          <div v-if="scope.row.orderStata==-1">存在异常</div>
-          <div v-if="scope.row.orderStata==0">待提交</div>
-          <div v-if="scope.row.orderStata==1">待一级审核</div>
-          <div v-if="scope.row.orderStata==2">待二级审核</div>
-          <div v-if="scope.row.orderStata==3">待三级审核</div>
-          <div v-if="scope.row.orderStata==4">待四级审核</div>
-          <div v-if="scope.row.orderStata==5">待领取</div>
-          <div v-if="scope.row.orderStata==6">待确认</div>
-          <div v-if="scope.row.orderStata==7">完成</div>
-        </template>
+        label="审核人">
       </el-table-column>
       <el-table-column
-        prop="check1Name"
+        prop="exp_date"
         header-align="center"
         align="center"
-        label="一级审核人">
-      </el-table-column>
-      <el-table-column
-        prop="check2Name"
-        header-align="center"
-        align="center"
-        label="二级审核人">
-      </el-table-column>
-      <el-table-column
-        prop="check3Name"
-        header-align="center"
-        align="center"
-        label="三级审核人">
-      </el-table-column>
-      <el-table-column
-        prop="check4Name"
-        header-align="center"
-        align="center"
-        label="四级审核人">
-      </el-table-column>
-      <el-table-column
-        prop="realityAlltotal"
-        header-align="center"
-        align="center"
-        label="实际出库金额">
-      </el-table-column>
-      <el-table-column
-        prop="recheckName"
-        header-align="center"
-        align="center"
-        label="出库人员">
+        label="审核时间">
       </el-table-column>
       <el-table-column
         prop="remarks"
         header-align="center"
         align="center"
         label="备注">
-      </el-table-column>
-      <el-table-column
-        prop="stime"
-        header-align="center"
-        align="center"
-        label="发起时间">
-      </el-table-column>
-      <el-table-column
-        prop="etime"
-        header-align="center"
-        align="center"
-        label="结束时间">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -186,7 +171,7 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/order/goodsOrder/mylist'),
+          url: this.$http.adornUrl('/orders/search'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
@@ -195,8 +180,8 @@
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
-            this.dataList = data.list
-            this.totalPage = data.list.length
+            this.dataList = data.order.list
+            this.totalPage = data.order.totalPage
           } else {
             this.dataList = []
             this.totalPage = 0
@@ -244,37 +229,41 @@
       })
       },
       // 新增
-      addHandle (id) {
-      this.$confirm(`确定新增订单？`, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(() => {
-        this.$http({
-        url: this.$http.adornUrl('/order/goodsOrder/save'),
-        method: 'post',
-        data: this.$http.adornData()
-      }).then(({data}) => {
-        if (data && data.code === 0) {
-          this.$message({
-            message: '操作成功',
-            type: 'success',
-            duration: 1500,
-            onClose: () => {
-            this.getDataList()
-        }
+      addHandle (val, val1) {
+    //   this.$confirm(`确定新增订单？`, '提示', {
+    //   confirmButtonText: '确定',
+    //   cancelButtonText: '取消',
+    //   type: 'warning'
+    // }).then(() => {
+    //     this.$http({
+    //     url: this.$http.adornUrl('/order/goodsOrder/save'),
+    //     method: 'post',
+    //     data: this.$http.adornData()
+    //   }).then(({data}) => {
+    //     if (data && data.code === 0) {
+    //       this.$message({
+    //         message: '操作成功',
+    //         type: 'success',
+    //         duration: 1500,
+    //         onClose: () => {
+    //         this.getDataList()
+    //     }
+    //     })
+    //     } else {
+    //       this.$message.error(data.msg)
+    //     }
+    //   })
+    //   })
+        this.addOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.addOrUpdate.init(val, val1)
         })
-        } else {
-          this.$message.error(data.msg)
-        }
-      })
-      })
       },
        // 详情
       addOrUpdateHandle (id) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(id, 1)
+          this.$refs.addOrUpdate.init(id, 2)
       })
       }
       // // 详情
