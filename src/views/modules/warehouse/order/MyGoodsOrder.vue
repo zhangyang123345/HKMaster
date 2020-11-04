@@ -2,7 +2,35 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-select v-model="dataForm.order_type" placeholder="订单类型">
+          <el-option label="入库" value="1"></el-option>
+          <el-option label="出库" value="2"></el-option>
+          <el-option label="报废" value="3"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-select v-model="dataForm.order_state" placeholder="订单状态">
+          <el-option label="存在异常" value="-1"></el-option>
+          <el-option label="待提交" value="0"></el-option>
+          <el-option label="待EHS审核" value="1"></el-option>
+          <el-option label="待主管审核" value="2"></el-option>
+          <el-option label="待经理审核" value="3"></el-option>
+          <el-option label="待厂长审核" value="4"></el-option>
+          <el-option label="待处理" value="5"></el-option>
+          <el-option label="待结单" value="6"></el-option>
+          <el-option label="完成" value="7"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-date-picker
+          v-model="dataForm.keyTime"
+          unlink-panels
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期">
+        </el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
@@ -122,7 +150,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.orderId)">查看详情</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row,1)">查看</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row,2)">修改</el-button>
           <el-button v-if="scope.row.orderStata==0" type="text" size="small" @click="UpdateHandle(scope.row.orderId)">提交审核</el-button>
         </template>
       </el-table-column>
@@ -148,7 +177,9 @@
     data () {
       return {
         dataForm: {
-          key: ''
+          keyTime: '',
+          order_type: '',
+          order_state: ''
         },
         dataList: [],
         pageIndex: 1,
@@ -167,16 +198,24 @@
       this.getDataList()
     },
     methods: {
-      // 获取数据列表
       getDataList () {
+        // if (this.dataForm.keyTime == '' || this.dataForm.keyTime == null || this.dataForm.keyTime == undefined) {
+        //   if (moment(moment().valueOf()).format('MM-DD') < moment('09-01').format('MM-DD')) {
+        //     this.dataForm.keyTime = [moment(moment().add(-1, 'years').valueOf()).format('YYYY-09-01'), moment(moment().valueOf()).format('YYYY-MM-DD')]
+        //   } else {
+        //     this.dataForm.keyTime = [moment(moment().valueOf()).format('YYYY-09-01'), moment(moment().valueOf()).format('YYYY-MM-DD')]
+        //   }
+        // }
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/orders/search'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
-            'limit': this.pageSize,
-            'key': 2
+            'rows': this.pageSize,
+            'keytime': this.dataForm.keyTime + '',
+            'order_type': this.dataForm.order_type,
+            'order_state': this.dataForm.order_state
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -189,6 +228,28 @@
           this.dataListLoading = false
         })
       },
+      // 获取数据列表
+      // getDataList () {
+      //   this.dataListLoading = true
+      //   this.$http({
+      //     url: this.$http.adornUrl('/orders/search'),
+      //     method: 'get',
+      //     params: this.$http.adornParams({
+      //       'page': this.pageIndex,
+      //       'limit': this.pageSize,
+      //       'key': 2
+      //     })
+      //   }).then(({data}) => {
+      //     if (data && data.code === 0) {
+      //       this.dataList = data.order.list
+      //       this.totalPage = data.order.totalPage
+      //     } else {
+      //       this.dataList = []
+      //       this.totalPage = 0
+      //     }
+      //     this.dataListLoading = false
+      //   })
+      // },
       // 每页数
       sizeChangeHandle (val) {
         this.pageSize = val
@@ -254,16 +315,17 @@
     //     }
     //   })
     //   })
+        console.log("val + val1" + val + val1)
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init(val, val1)
         })
       },
-       // 详情
-      addOrUpdateHandle (id) {
+       // 修改
+      addOrUpdateHandle (val, val1) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(id, 2)
+          this.$refs.addOrUpdate.init(val, val1)
       })
       }
       // // 详情

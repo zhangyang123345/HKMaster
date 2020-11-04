@@ -28,6 +28,11 @@
         header-align="center"
         align="center"
         label="订单类型">
+        <template scope="scope">
+          <div v-if="scope.row.order_type==1">入库</div>
+          <div v-if="scope.row.order_type==2">出库</div>
+          <div v-if="scope.row.order_type==3">报废</div>
+        </template>
       </el-table-column>
       <el-table-column
         prop="order_no"
@@ -208,6 +213,7 @@
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init(val, val2)
+          console.log(val.toString())
       })
       }
     }

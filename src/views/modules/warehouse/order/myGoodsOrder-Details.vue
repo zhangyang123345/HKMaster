@@ -5,57 +5,80 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm"  ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
-      <el-row>
-        <el-col :span="4"  v-if=dataFormState>
-    <el-form-item label="订单号">
-      <el-input v-model="dataForm.order_no"  placeholder="订单号" :disabled=dataFormState></el-input>
-    </el-form-item>
-        </el-col>
-        <el-col :span="5" v-if=dataFormState >
-          <el-form-item label="发起人工号">
-            <el-input v-model="dataForm.job_no" placeholder="发起人工号" :disabled=dataFormState></el-input>
-          </el-form-item>
-        </el-col>
+      <el-row v-if=dataFormState>
         <el-col :span="4">
-          <el-form-item label="总金额">
-            <el-input v-model="dataForm.alltotal" placeholder="总金额" :disabled=dataFormState></el-input>
+          <el-form-item label="订单号" prop="order_no">
+            <el-input v-model="dataForm.order_no"  placeholder="订单号" :disabled=dataFormState></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="5" v-if=dataFormState>
-          <el-form-item label="审核人">
+          <el-form-item label="发起人工号" prop="job_no">
+            <el-input v-model="dataForm.job_no" placeholder="发起人工号" :disabled=dataFormState></el-input>
+          </el-form-item>
+        </el-col>
+        <!--<el-col :span="5" v-if=dataFormState >-->
+          <!--<el-form-item label="发起人姓名">-->
+            <!--<el-input v-model="dataForm.name" placeholder="发起人姓名" :disabled=dataFormState></el-input>-->
+          <!--</el-form-item>-->
+        <!--</el-col>-->
+        <el-col :span="5" v-if=dataFormState>
+          <el-form-item label="审核人" prop="review_fir">
             <el-input v-model="dataForm.review_fir" placeholder="审核人" :disabled=dataFormState></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="5"  v-if=dataFormState >
-          <el-form-item label="审核时间">
-            <el-input v-model="dataForm.exp_date" placeholder="审核时间" :disabled=dataFormState></el-input>
+        <!--<el-col :span="5" v-if=dataFormState>-->
+          <el-col :span="5" v-if="etime != null && etime != ''">
+          <el-form-item label="结单时间" prop="etime">
+            <el-input v-model="dataForm.etime" placeholder="结单时间" :disabled=dataFormState></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="5">
+          <el-form-item label="创建时间" prop="stime">
+            <el-input v-model="dataForm.stime" placeholder="创建时间" :disabled=dataFormState></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="4"  v-if=dataFormState>
-          <el-form-item label="实际金额">
-            <el-input v-model="dataForm.reall_total" placeholder="实际金额" :disabled=dataFormState></el-input>
+        <el-col :span="4">
+          <el-form-item label="订单类型" prop="order_type">
+            <el-input v-if="dataFormState" v-model="dataForm.order_type" placeholder="审核类型" :disabled=dataFormState>
+              <template scope="scope">
+                <div v-if="dataForm.order_type==1">入库</div>
+                <div v-if="dataForm.order_type==2">出库</div>
+                <div v-if="dataForm.order_type==3">报废</div>
+              </template>
+            </el-input>
+            <el-select  v-else  v-model="dataForm.order_type" placeholder="订单类型" >
+              <el-option label="入库" value="1"></el-option>
+              <el-option label="出库" value="2"></el-option>
+              <el-option label="报废" value="3"></el-option>
+            </el-select>
+            <!--<el-input v-if="dataForm.order_type===1">待EHS审核</el-input>-->
+              <!--<el-input v-if="dataForm.order_type===2">待主管审核</el-input>-->
+              <!--<el-input v-if="dataForm.order_type===3">待经理审核</el-input>-->
           </el-form-item>
         </el-col>
         <el-col :span="5">
-          <el-form-item label="创建时间">
-            <el-input v-model="dataForm.stime" placeholder="创建时间" :disabled=dataFormState></el-input>
+          <el-form-item label="预计需求时间" prop="exp_date">
+            <el-date-picker :disabled=dataFormState
+              v-model="dataForm.exp_date"
+              type="date"
+              placeholder="选择日期">
+            </el-date-picker>
           </el-form-item>
         </el-col>
-        <el-col :span="4">
-          <el-form-item label="订单类型">
-            <el-input v-model="dataForm.exam_type" placeholder="订单类型" :disabled=dataFormState>
-            </el-input>
+        <el-col :span="5">
+          <el-form-item label="总金额" prop="alltotal">
+            <el-input v-model="dataForm.alltotal" placeholder="总金额" :disabled=dataFormState></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="5"  v-if=dataFormState>
-          <el-form-item label="发起人姓名">
-            <el-input v-model="dataForm.name" placeholder="发起人姓名" :disabled=dataFormState></el-input>
+          <el-form-item label="实际金额" prop="reall_total">
+            <el-input v-model="dataForm.reall_total" placeholder="实际金额" :disabled=dataFormState></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="5" v-if=dataFormState >
-          <el-form-item label="审核类型">
+          <el-form-item label="审核类型" prop="exam_type">
             <el-input v-model="dataForm.exam_type" placeholder="审核类型" :disabled=dataFormState>
               <template scope="scope">
                 <div v-if="dataForm.exam_type==1">待EHS审核</div>
@@ -67,14 +90,16 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-form-item>
-        <el-button v-if="stata=='待提交'" type="primary" @click="addOrUpdateHandle()">新增子订单</el-button>
-</el-form-item>
+      <el-form-item prop="tableData">
+        <!--<el-button v-if="stata=='待提交'" type="primary" @click="addOrUpdateHandle()">新增子订单</el-button>-->
+
       <el-table
         v-if="!dataFormState"
         :data="dataForm.tableData"
+
         border
         v-loading="dataListLoading"
+        align="left"
         style="width: 100%;">
         <!--<el-table-column-->
         <!--type="selection"-->
@@ -85,8 +110,9 @@
         <el-table-column
           prop="id"
           header-align="center"
-          align="center"
-          label="序号">
+          align="left"
+          label="序号"
+          width="70">
           <template slot-scope="scope">
             <el-form-item>
               {{scope.$index+1}}
@@ -97,7 +123,8 @@
           prop="article_name"
           header-align="center"
           align="center"
-          label="物品名称">
+          label="物品名称"
+          width="450">
           <template slot-scope="scope" width="100%">
             <el-form-item  :prop="'tableData.' + scope.$index + '.article_name'" align="center">
               <el-autocomplete v-if="scope.row.edit"
@@ -114,7 +141,8 @@
           prop="qunatity"
           header-align="center"
           align="center"
-          label="订单数量">
+          label="订单数量"
+          width="140">
           <template slot-scope="scope" width="100%">
             <el-form-item :prop="'tableData.' + scope.$index + '.qunatity'" align="center">
               <el-input  v-if="scope.row.edit" v-model="scope.row.qunatity" placeholder="订单数量" ></el-input>
@@ -126,7 +154,8 @@
           prop="volume"
           header-align="center"
           align="center"
-          label="体积">
+          label="体积"
+          width="140">
           <template slot-scope="scope" width="100%">
             <el-form-item :prop="'tableData.' + scope.$index + '.volume'" align="center">
               <span>{{scope.row.volume}}</span>
@@ -137,7 +166,8 @@
           prop="unit_name"
           header-align="center"
           align="center"
-          label="单位">
+          label="单位"
+          width="140">
           <template slot-scope="scope" width="100%">
             <el-form-item :prop="'tableData.' + scope.$index + '.unit_name'" align="center">
               <span>{{scope.row.unit_name}}</span>
@@ -148,7 +178,8 @@
           prop="price"
           header-align="center"
           align="center"
-          label="单价">
+          label="单价"
+          width="140">
           <template  slot-scope="scope" width="100%" >
             <el-form-item :prop="'tableData.' + scope.$index + '.price'" >
               <span>{{scope.row.price}}</span>
@@ -156,28 +187,31 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="specs"
+          prop="specs_name"
           header-align="center"
           align="center"
-          label="规格">
+          label="规格"
+          width="140">
           <template slot-scope="scope" width="100%" >
-            <el-form-item :prop="'tableData.' + scope.$index + '.specs'" >
-              <el-input  v-model="scope.row.specs" placeholder="规格"></el-input>
+            <el-form-item :prop="'tableData.' + scope.$index + '.specs_name'" >
+              <span>{{scope.row.specs_name}}</span>
             </el-form-item>
           </template>
         </el-table-column>
         <el-table-column
-          prop="dremark"
+          prop="remark"
           header-align="center"
           align="center"
-          label="备注">
+          label="备注"
+          width="140">
           <template slot-scope="scope" width="100%" >
-            <el-form-item :prop="'tableData.' + scope.$index + '.dremark'" >
-              <el-input  v-model="scope.row.dremark" placeholder="备注"></el-input>
+            <el-form-item  :prop="'tableData.' + scope.$index + '.dremark'" >
+              <el-input v-if="scope.row.edit" v-model="scope.row.dremark" placeholder="备注"></el-input>
+              <span v-else>{{scope.row.dremark}}</span>
             </el-form-item>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="170">
           <template slot-scope="scope">
             <el-button v-if="scope.row.edit" type="text" size="medium" @click="confirmAdd(scope.row,scope.$index)">
               <i class="el-icon-check" aria-hidden="true"></i>
@@ -204,6 +238,7 @@
         <!--</template>-->
         <!--</el-table-column>-->
       </el-table>
+      </el-form-item>
     </el-form>
     <el-button type="text" @click="addData">添加数据</el-button>
     <el-divider></el-divider>
@@ -287,7 +322,7 @@
       <!--</el-table-column>-->
     </el-table>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="visible = false">取消</el-button>
+      <el-button @click="handleReset">取消</el-button>
       <el-button type="primary" @click="cehsi()">确定</el-button>
     </span>
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="init"></add-or-update>
@@ -403,24 +438,49 @@
       //     case 1:
       //   }
       // },
+      handleReset() {
+        // this.$nextTick(() => {
+          this.visible = false
+        //   this.$refs['dataForm'].resetFields()
+        //   console.log("取消 ++++++++++++>>>>" + this.dataForm.order_no)
+        // })
+      },
       init (val, val2) {
+        this.dataFormState = false
+
         if (val2 === 1) {
         this.dataListLoading = true
-        this.dataForm.id = val.id
-        this.dataForm.order_no = val.order_no
-        this.dataForm.stime = val.stime
-        this.dataForm.job_no = val.job_no
-        this.dataForm.alltotal = val.alltotal
-        this.dataForm.reall_total = val.reall_total
-        this.dataForm.exam_type = val.exam_type
-        this.dataForm.review_fir = val.review_fir
-        this.dataForm.etime = val.etime
-        this.dataForm.name = val.name
-        this.dataForm.exp_date = val.exp_date
-        this.dataList = val.detail
+          console.log(val)
+        this.dataForm.id = val.id + ''
+        this.dataForm.order_no = val.order_no + ''
+        this.dataForm.order_type = val.order_type + ''
+        this.dataForm.stime = val.stime + ''
+        this.dataForm.job_no = val.job_no + ''
+        this.dataForm.alltotal = val.alltotal + ''
+        this.dataForm.reall_total = val.reall_total + ''
+        this.dataForm.exam_type = val.exam_type + ''
+        this.dataForm.review_fir = val.review_fir + ''
+        this.dataForm.etime = val.etime + ''
+        this.dataForm.name = val.name + ''
+        this.dataForm.exp_date = val.exp_date + ''
+        this.dataList = val.detail + ''
         this.dataFormState = true
         } else if (val2 === 2) {
+          this.dataListLoading = true
+          this.dataForm.id = val.id
+          this.dataForm.order_no = val.order_no
+          this.dataForm.stime = val.stime
+          this.dataForm.job_no = val.job_no
+          this.dataForm.alltotal = val.alltotal
+          this.dataForm.reall_total = val.reall_total
+          this.dataForm.exam_type = val.exam_type
+          this.dataForm.review_fir = val.review_fir
+          this.dataForm.etime = val.etime
+          this.dataForm.name = val.name
+          this.dataForm.exp_date = val.exp_date
+          this.dataList = val.detail
         }
+        console.log("order_no ++++++++++++>>>>" + this.dataForm.order_no)
        // if(type == 1){
        //   this.dataForm.orderId = id || ''
        // }
@@ -472,11 +532,24 @@
         console.log('row ======>' + JSON.stringify(row))
             // this.dataForm.tableDataSave = JSON.parse(JSON.stringify(this.dataForm.tableData))
             // this.dataForm.tableDataCache = JSON.parse(JSON.stringify(this.dataForm.tableDataSave))
-        this.tableDataCache[index].edit = false
         this.tableDataCache[index].qunatity = row.qunatity
+        this.tableDataCache[index].dremark = row.dremark
         this.dataForm.tableData = JSON.parse(JSON.stringify(this.tableDataCache))
-        console.log('aaaaa++++++' + JSON.stringify(this.tableDataCache[index]))
-        console.log('bbbbbb++++++' + JSON.stringify(row))
+        if (this.tableDataCache[index].qunatity != null && this.tableDataCache[index].qunatity != ''){
+          this.tableDataCache[index].edit = false
+        } else {
+          alert("请输入数量")
+        }
+        var alltotal = 0
+        for (var i = 0; i < this.dataForm.tableData.length; i++) {
+          if (this.dataForm.tableData[i].price != null && this.dataForm.tableData[i].price != '') {
+            if (this.dataForm.tableData[i].qunatity != null && this.dataForm.tableData[i].qunatity != '') {
+
+              alltotal = (this.dataForm.tableData[i].price * this.dataForm.tableData[i].qunatity) + alltotal
+            }
+          }
+        }
+        this.dataForm.alltotal = JSON.stringify(alltotal)
       },
       editData (row) {
         row.edit = true
@@ -494,8 +567,12 @@
             this.$http({
               url: this.$http.adornUrl("/orders/addOrUpdate"),
               method: "post",
-              params: this.$http.adornParams({
-                goods_name: data
+              data: this.$http.adornData({
+                "order_no": data.order_no,
+                "order_type": data.order_type,
+                "job_no": data.job_no,
+                "stime":data.stime,
+                "detail":JSON.stringify(this.tableDataSave)
               })
             }).then(({ data }) => {
               // this.newrestaurants = data.article.list
