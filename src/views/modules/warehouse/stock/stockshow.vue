@@ -2,13 +2,13 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.articleId" placeholder="物件号" clearable></el-input>
+        <el-input v-model="dataForm.article_no" placeholder="物件号" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="物品名" clearable></el-input>
+        <el-input v-model="dataForm.article_name" placeholder="物品名" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="addOrUpdateHandle('0')">查询</el-button>
+        <el-button @click="getDataList()">查询</el-button>
         <el-button v-if="isAuth('store:goods:save')" type="primary" @click="back()">返回</el-button>
       </el-form-item>
     </el-form>
@@ -33,119 +33,135 @@
         label="仓库ID">
       </el-table-column>
       <el-table-column
-        prop="storename"
+        prop="store_name"
         header-align="center"
         align="center"
         label="仓库名">
       </el-table-column>
       <el-table-column
-        v-if="status==2"
+        v-if="status==1"
         key="articleshow"
-        prop="articleId"
+        width="250"
+        prop="article_no"
         header-align="center"
         align="center"
         label="物件号">
       </el-table-column>
       <el-table-column
         v-if="status==1||status==2"
-        prop="goods_name"
+        prop="article_name"
         header-align="center"
         align="center"
         label="物品名">
       </el-table-column>
+      <!--<el-table-column-->
+        <!--v-if="status==1||status==2"-->
+        <!--prop="goods_no"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="物料号">-->
+      <!--</el-table-column>-->
       <el-table-column
         v-if="status==1||status==2"
-        prop="goods_material"
-        header-align="center"
-        align="center"
-        label="物料号">
-      </el-table-column>
-      <el-table-column
-        v-if="status==1||status==2"
-        prop="specs"
+        prop="specs_name"
         header-align="center"
         align="center"
         label="规格">
       </el-table-column>
       <el-table-column
         v-if="status==1||status==2"
-        prop="manufacturer"
+        prop="manufacturer_name"
         header-align="center"
         align="center"
         label="厂商">
       </el-table-column>
       <el-table-column
-        v-if="status==0||status==1"
+        v-if="status==1||status==2"
+        prop="unit_name"
+        header-align="center"
+        align="center"
+        label="单位">
+      </el-table-column>
+      <el-table-column
+        v-if="status==1||status==2"
+        prop="price"
+        header-align="center"
+        align="center"
+        label="单价">
+      </el-table-column>
+      <el-table-column
         prop="goods_num"
         header-align="center"
+        key="goods_num"
         align="center"
         label="库存">
       </el-table-column>
       <el-table-column
-        v-if="status==0||status==1"
-        prop="duty_person"
+        prop="duty_user"
+        key="duty_person"
         header-align="center"
         align="center"
         label="仓库负责人">
       </el-table-column>
       <el-table-column
         v-if="status==0"
-        key="storeshwo"
-        prop="storeaddr"
+        key="store_addr"
+        prop="store_addr"
         header-align="center"
         align="center"
         label="仓库地址">
       </el-table-column>
-      <el-table-column
-        v-if="status==0||status==1"
-        prop="new_time"
-        header-align="center"
-        align="center"
-        label="最新入库时间">
-      </el-table-column>
-      <el-table-column
-        v-if="status==2"
-        key="articleshow"
-        prop="inTime"
-        header-align="center"
-        align="center"
-        label="入库时间">
-      </el-table-column>
-      <el-table-column
-        v-if="status==2"
-        key="articleshow"
-        prop="special"
-        header-align="center"
-        align="center"
-        label="专案">
-        <template scope="scope">
-          <div v-show="scope.row.special==1">Alaska</div>
-          <div v-show="scope.row.special==2">Boston</div>
-          <div v-show="scope.row.special==2">Toronto</div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        v-if="status==2"
-        key="articleshow"
-        prop="msgType"
-        header-align="center"
-        align="center"
-        label="状态">
-        <template scope="scope">
-          <div v-show="scope.row.msgType==1">已入库</div>
-          <div v-show="scope.row.msgType==2">待出库</div>
-        </template>
-      </el-table-column>
+      <!--<el-table-column-->
+        <!--prop="new_time"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="最新入库时间">-->
+      <!--</el-table-column>-->
+      <!--<el-table-column-->
+        <!--v-if="status==2"-->
+        <!--key="articleshow"-->
+        <!--prop="inTime"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="入库时间">-->
+      <!--</el-table-column>-->
+      <!--<el-table-column-->
+        <!--v-if="status==2"-->
+        <!--key="articleshow"-->
+        <!--prop="special"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="专案">-->
+        <!--<template scope="scope">-->
+          <!--<div v-show="scope.row.special==1">Alaska</div>-->
+          <!--<div v-show="scope.row.special==2">Boston</div>-->
+          <!--<div v-show="scope.row.special==2">Toronto</div>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
+      <!--<el-table-column-->
+        <!--v-if="status==2"-->
+        <!--key="articleshow"-->
+        <!--prop="msgType"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="状态">-->
+        <!--<template scope="scope">-->
+          <!--<div v-show="scope.row.msgType==1">已入库</div>-->
+          <!--<div v-show="scope.row.msgType==2">待出库</div>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
       <el-table-column
         fixed="right"
+        v-if="status == 0"
+        key="storeConcle"
         header-align="center"
         align="center"
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button  v-if="status==0" type="text" size="small" @click="addOrUpdateHandle(scope.row.store_id)">进入</el-button>
-          <el-button  v-if="status==1" type="text" size="small" @click="storeOut(scope.row.store_id,scope.row.goods_id,scope.row.goods_num,3)">出库</el-button>
-          <el-button  v-if="status==1" type="text" size="small" @click="storeOut(scope.row.store_id,scope.row.goods_id,scope.row.goods_num,4)">报废</el-button>
+          <el-button   type="text" size="small" @click="addOrUpdateHandle(scope.row.store_id)">进入</el-button>
+          <!--<el-button  v-if="status==1" type="text" size="small" @click="storeOut(scope.row.store_id,scope.row.goods_id,scope.row.goods_num,3)">出库</el-button>
+          <el-button  v-if="status==1" type="text" size="small" @click="storeOut(scope.row.store_id,scope.row.goods_id,scope.row.goods_num,4)">报废</el-button>-->
           <!--<el-button  v-if="status==2&&scope.row.msgType==1" type="text" size="small" @click="updateArticle(scope.row.msgId,2)">出库</el-button>-->
           <!--<el-button  v-if="status==2&&scope.row.msgType==2" type="text" size="small" @click="updateArticle(scope.row.msgId,1)">取消</el-button>-->
         </template>
@@ -172,8 +188,8 @@
       return {
         dataForm: {
           key: '',
-
-          articleId: '',
+          article_no : "",
+          article_name: '',
           store_id: '',
           goods_id: ''
         },
@@ -197,34 +213,32 @@
     methods: {
       //返回
       back(){
-        this.totalPage = 0
         this.pageIndex = 1
-        this.dataForm.articleId = ''
-        this.dataForm.key = ''
-        if(this.status == 2 && this.type == 1){
-          this.addOrUpdateHandle(this.dataForm.store_id)
-        }else {
-          this.getDataList()
-        }
+        this.dataForm.article_no = ''
+        this.dataForm.article_name = ''
+        this.dataForm.store_id = ''
+        this.status = 0
+        this.getDataList()
       },
       // 获取数据列表
       getDataList () {
         this.type = 0
-        this.status = 0
         this.dataList = []
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/stock/stockmanage/list'),
+          url: this.$http.adornUrl('/store/storesSave/queryStore'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
-            'key': this.dataForm.key
+            'article_name': this.dataForm.article_name,
+            'article_no': this.dataForm.article_no,
+            'store_id' : this.dataForm.store_id
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
-          this.dataList = data.list
-          this.totalPage = data.list.length
+          this.dataList = data.store.list
+          this.totalPage = data.store.total
         } else {
           this.dataList = []
           this.totalPage = 0
@@ -273,26 +287,7 @@
         this.dataList = []
         // this.totalPage = 0
         this.dataListLoading = true
-        this.$http({
-          url: this.$http.adornUrl('/stock/stockmanage/list_store'),
-          method: 'get',
-          params: this.$http.adornParams({
-            'page': this.pageIndex,
-            'limit': this.pageSize,
-            'key': this.dataForm.key,
-            'articleId': this.dataForm.articleId,
-            'store_id': id
-          })
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-          this.dataList = data.list
-          this.totalPage = data.length
-        } else {
-          this.dataList = []
-          this.totalPage = 0
-        }
-        this.dataListLoading = false
-      })
+        this.getDataList()
       },
       //弹框出库
       storeOut (storeId, id, num, type){
@@ -307,7 +302,7 @@
           this.dataForm.goods_id = id
           this.type = 1
         }
-        this.status = 2
+        this.status = 1
         this.dataList = []
         this.totalPage = 0
         this.dataListLoading = true

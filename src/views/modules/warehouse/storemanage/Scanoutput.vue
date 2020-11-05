@@ -5,10 +5,15 @@
         <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
+        <el-select v-model="dataForm.order_type">
+          <el-option v-for="item in typeOption"
+                     :key="item.value"
+                     :label="item.lable"
+                     :value="item.value"></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button @click="unScan()">入库</el-button>
+        <el-button @click="getDataList()">查询</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -158,18 +163,17 @@
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
-    <UnOrder v-if="instoreVisible" ref="UnOrder" ></UnOrder>
   </div>
 </template>
 
 <script>
-  import AddOrUpdate from './maOrderDetails';
-  import UnOrder from './unOrder';
+  import AddOrUpdate from './outOrderDetails';
   export default {
     data () {
       return {
         dataForm: {
-          key: ''
+          key: '',
+          order_type:2
         },
         dataList: [],
         pageIndex: 1,
@@ -178,23 +182,17 @@
         dataListLoading: false,
         dataListSelections: [],
         addOrUpdateVisible: false,
-        instoreVisible: false
+        instoreVisible: false,
+        typeOption: [{value:2,lable:"出库"},{value:3,lable:"报废"}]
       }
     },
     components: {
       AddOrUpdate,
-      UnOrder,
     },
     activated () {
       this.getDataList()
     },
     methods: {
-      unScan (){
-        this.instoreVisible = true
-        this.$nextTick(() => {
-          this.$refs.UnOrder.open()
-      })
-      },
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true
@@ -205,7 +203,7 @@
             'page': this.pageIndex,
             'rows': this.pageSize,
             'key': 1,
-            'order_type':1,
+            'order_type':this.dataForm.order_type,
             'order_state':5
           })
         }).then(({data}) => {

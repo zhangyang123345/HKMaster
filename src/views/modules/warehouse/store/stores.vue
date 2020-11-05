@@ -2,88 +2,88 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-input v-model="dataForm.store_name" placeholder="仓库" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
         <el-button v-if="isAuth('store:stores:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
         <!--<el-button v-if="isAuth('store:stores:save')"  type="warning" @click="">excel导入</el-button>-->
-        <el-button v-if="isAuth('store:stores:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+       <!-- <el-button v-if="isAuth('store:stores:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
       </el-form-item>
     </el-form>
     <el-table
       :data="dataList"
       border
       v-loading="dataListLoading"
-      @selection-change="selectionChangeHandle"
       style="width: 100%;">
+    <!--@selection-change="selectionChangeHandle"-->
+      <!--<el-table-column-->
+        <!--type="selection"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--width="50">-->
+      <!--</el-table-column>-->
       <el-table-column
-        type="selection"
-        header-align="center"
-        align="center"
-        width="50">
-      </el-table-column>
-      <el-table-column
-        prop="storeId"
+        prop="store_id"
         header-align="center"
         align="center"
         label="仓库id">
       </el-table-column>
       <el-table-column
-        prop="storename"
+        prop="store_name"
         header-align="center"
         align="center"
         label="仓库名称">
       </el-table-column>
       <el-table-column
-        prop="type"
+        prop="store_type"
         header-align="center"
         align="center"
         label="仓库类型">
         <template scope="scope">
-          <div v-if="scope.row.type==0">其他</div>
-          <div v-if="scope.row.type==1">耗材</div>
-          <div v-if="scope.row.type==2">化学</div>
+          <div v-if="scope.row.store_type==0">其他仓</div>
+          <div v-if="scope.row.store_type==1">耗材仓</div>
+          <div v-if="scope.row.store_type==2">化学仓</div>
         </template>
       </el-table-column>
       <el-table-column
-        prop="storevolume"
+        prop="store_volume"
         header-align="center"
         align="center"
         label="仓库容量">
       </el-table-column>
       <el-table-column
-        prop="storeaddr"
+        prop="store_addr"
         header-align="center"
         align="center"
         label="仓库位置">
       </el-table-column>
       <el-table-column
-        prop="dutyPerson"
+        prop="duty_name"
         header-align="center"
         align="center"
         label="仓库负责人">
       </el-table-column>
       <el-table-column
-        prop="personNo"
+        prop="duty_user"
         header-align="center"
         align="center"
         label="负责人工号">
       </el-table-column>
       <el-table-column
-        prop="personTel"
+        prop="phone"
         header-align="center"
         align="center"
         label="负责人电话">
       </el-table-column>
       <el-table-column
-        prop="settime"
+        prop="set_time"
         header-align="center"
         align="center"
         label="创建时间">
       </el-table-column>
       <el-table-column
-        prop="updatetime"
+        prop="modify_time"
         header-align="center"
         align="center"
         label="修改时间">
@@ -95,8 +95,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.storeId)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.storeId)">删除</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.store_id)">修改</el-button>
+          <el-button type="text" size="small" @click="deleteHandle(scope.row.store_id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -120,7 +120,7 @@
     data () {
       return {
         dataForm: {
-          key: ''
+          store_name: ''
         },
         dataList: [],
         pageIndex: 1,
@@ -142,17 +142,17 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/store/stores/list'),
+          url: this.$http.adornUrl('/store/store/findStore'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
-            'key': this.dataForm.key
+            'store_name': this.dataForm.store_name
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
-          this.dataList = data.page.list
-          this.totalPage = data.page.totalCount
+          this.dataList = data.storeData.list
+          this.totalPage = data.storeData.total
         } else {
           this.dataList = []
           this.totalPage = 0
@@ -187,27 +187,23 @@
         var ids = id ? [id] : this.dataListSelections.map(item => {
           return item.storeId
         })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+        this.$confirm(`确定删除?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$http({
-          url: this.$http.adornUrl('/store/stores/delete'),
+          url: this.$http.adornUrl('/store/store/delete'),
           method: 'post',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {
           if (data && data.code === 0) {
+          this.getDataList()
           this.$message({
             message: '操作成功',
-            type: 'success',
-            duration: 1500,
-            onClose: () => {
-            this.getDataList()
-        }
-        })
+            type: 'success' })
         } else {
-          this.$message.error(data.msg)
+          this.$message.error("删除失败！")
         }
       })
       })

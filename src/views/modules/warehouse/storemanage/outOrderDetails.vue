@@ -63,7 +63,7 @@
            <el-row>
              <el-col :span="24">
                <el-form-item label="扫码输入">
-                 <el-input v-model="dataForm.scan_data" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
+                 <el-input v-model="dataForm.scan_data" ref="scanInput" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
                  </el-input>
                </el-form-item>
              </el-col>
@@ -167,7 +167,7 @@
               width="80"
               label=" ">
               <template slot-scope="scope">
-                <el-button type="text" size="small" @click="remove(scope.row.id)">移除</el-button>
+                <el-button type="text" size="small"  @click="remove(scope.row.id,scope.row.goods_no)">移除</el-button>
               </template>
             </el-table-column>
             <el-table-column
@@ -178,7 +178,7 @@
               label="物品编码">
             </el-table-column>
             <el-table-column
-              prop="article_name"
+              prop="goods_name"
               header-align="center"
               align="center"
               label="物品名称">
@@ -196,16 +196,20 @@
               label="规格总量">
             </el-table-column>
             <el-table-column
-              prop="inventory"
+              prop="sept"
               header-align="center"
               align="center"
               label="规格余量">
             </el-table-column>
             <el-table-column
-              prop="inventory"
+              prop="operation"
               header-align="center"
               align="center"
               label="操作数量">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.operation" type="number" size="small" :ref="scope.row.goods_no"
+                          @change="checkNum(scope.row.goods_no,scope.row.operation,scope.row.sept)"></el-input>
+              </template>
             </el-table-column>
             <el-table-column
               prop="amount"
@@ -300,6 +304,12 @@
       open () {
         this.instore = true
       },
+      //确认入缓存
+      inCache () {
+        //TODO
+
+        this.$refs.scanInput.focus()
+      },
       init (order_no) {
         this.dataListLoading = true
         this.visible = true
@@ -342,36 +352,87 @@
       })
         this.dataListLoading = false
       },
-
-      remove (id){
-        this.$http({
-          url: this.$http.adornUrl(`/inoutmsg/deleCache`),
-          method: 'post',
-          params: this.$http.adornParams({"ids": id})
-        }).then(({data}) => {
-          if(data && data.code === 0){
-            for(var ind in this.scanList){
-              if(this.scanList[ind].id == id){
-                var mount = this.scanList[ind].inventory * this.scanList[ind].price
-                for (var sdata in this.details) {
-                  if(this.details[sdata].article_no.indexOf(this.scanList[ind].article_no)>=0){
-                    this.details[sdata].actual_mount = (this.details[sdata].actual_mount - mount).toFixed(2)
-                    this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity - this.scanList[ind].inventory
-                    this.learning()
-                    this.scanList.splice(ind,1)
-                    break
-                  }
-                }
-                break
-              }
-            }
-        }else{
+      //输入检测->入缓存
+      checkNum(goods_no,input,qunatity){
+        if (input > qunatity) {
           this.$message({
-            message: data.msg,
+            message: "操作数量不可大于规格余量！",
             type: 'error'
-          });
+          })
+        } else if (input <= 0) {
+          this.$message({
+            message:  "操作数量不可小于1！" ,
+            type: 'error'
+          })
+        } else {
+          var dataS = null ;
+          for (var index in this.scanList) {
+            if (this.scanList[index].goods_no == goods_no) {
+              dataS = this.scanList[index]
+            }
+          }
+          //TODO
+          this.$http({
+            url: this.$http.adornUrl(`/inoutmsg/saveCache`),
+            method: 'post',
+            params: this.$http.adornParams({ "goods": JSON.stringify(dataS) ,
+                "order_no":this.dataForm.order_no,
+                "order_type":this.dataForm.order_type})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              dataS.id = data.goods.id
+              this.learning()
+          } else {
+            this.$message({
+              message: data.msg,
+              type: 'error'
+            });
+          }
+        })
         }
-      })
+      },
+      remove (id,goods_no) {
+        if (id == null) {
+          for (var ind in this.scanList) {
+            if (this.scanList[ind].goods_no == goods_no) {
+              for (var sdata in this.details) {
+                if (this.details[sdata].article_no.indexOf(this.scanList[ind].goods_no.substring(0,27)) >= 0) {
+                  this.scanList.splice(ind, 1)
+                  this.learning()
+                  break
+                }
+              }
+              break
+            }
+          }
+        } else {
+            this.$http({
+              url: this.$http.adornUrl(`/inoutmsg/deleCache`),
+              method: 'post',
+              params: this.$http.adornParams({"ids": id})
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+              for (var ind in this.scanList) {
+                if (this.scanList[ind].id == id) {
+                  for (var sdata in this.details) {
+                    if (this.details[sdata].article_no.indexOf(this.scanList[ind].goods_no.substring(0,27)) >= 0) {
+                      this.scanList.splice(ind, 1)
+                      this.learning()
+                      break
+                    }
+                  }
+                  break
+                }
+              }
+            }else
+              {
+                this.$message({
+                  message: data.msg,
+                  type: 'error'
+                });
+              }
+            })
+        }
       },
       // 表单提交
       dataFormSubmit (buff) {
@@ -447,12 +508,24 @@
       //扫码提交
       scanSubmit () {
         var buff = false
-        if(this.dataForm.scan_data.length > 27 && this.dataForm.scan_data.length < 36){
+        var msg = "编码错误或不符合本订单!"
+        if (this.dataForm.scan_data.length > 27 && this.dataForm.scan_data.length < 36) {
             for (var sdata in this.details) {
-                if(this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27))>=0){
-                  buff = true
+                if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27)) >= 0) {
+                  if (this.details[sdata].actual_qunatity == this.details[sdata].qunatity) {
+                    msg = "此类物品已满！"
+                  } else {
+                    buff = true
+                  }
                   break
                 }
+            }
+            for (var ind in this.scanList) {
+              if (this.scanList[ind].goods_no.indexOf(this.dataForm.scan_data) >= 0) {
+                  msg = "此物件已扫码！"
+                  buff = false
+                  break
+              }
             }
         }
         if (buff){
@@ -466,14 +539,18 @@
             })
            }).then(({data}) => {
             if(data && data.code === 0){
-            data.article.amount = (data.article.inventory * data.article.price).toFixed(2)
-              this.scanList.unshift(data.article)
-              var mount = data.article.inventory * data.article.price
               for (var sdata in this.details) {
-                if(this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27))>=0){
-                  this.details[sdata].actual_mount = (this.details[sdata].actual_mount + mount).toFixed(2)
-                  this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.inventory
-                  this.learning()
+                if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27)) >= 0) {
+                  var nedNum = this.details[sdata].qunatity - this.details[sdata].actual_qunatity
+                  data.article.operation = data.article.sept > nedNum ? nedNum : data.article.sept
+                  data.article.amount = data.article.operation * data.article.price
+                  this.scanList.unshift(data.article)
+                  var mount = data.article.operation * data.article.price
+                  this.details[sdata].actual_mount = this.details[sdata].actual_mount + mount
+                  this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.operation
+                  //console.log(this.$refs['input_' + this.dataForm.scan_data])
+                  //TODO
+                  this.checkNum(this.dataForm.scan_data , data.article.operation , data.article.sept)
                   break
                 }
               }
@@ -486,30 +563,39 @@
           })
         }else{
           this.$message({
-            message: '编码错误或不符合本订单!',
+            message: msg ,
             type: 'error'
           });
         }
       },
       // 计算
-      learning(){
-        var num = 0 ;
-        for(var index in this.details){
-            num += this.details[index].actual_mount
+      learning () {
+        var daMap = new Map()
+        for (var ind in this.scanList) {
+          this.scanList[ind].amount = (this.scanList[ind].operation * this.scanList[ind].price).toFixed(2)
+          var numpc = isNaN(daMap.get(this.scanList[ind].goods_no.substring(0,27))) ? 0 : daMap.get(this.scanList[ind].goods_no.substring(0,27))
+          daMap.set(this.scanList[ind].goods_no.substring(0,27),parseInt(this.scanList[ind].operation) + parseInt(numpc))
+        }
+        var num = 0
+        for (var index in this.details) {
+           var quNum = isNaN(daMap.get(this.details[index].article_no)) ? parseInt(this.details[index].qunacache) : (parseInt(this.details[index].qunacache) + parseInt(daMap.get(this.details[index].article_no)))
+           this.details[index].actual_qunatity = quNum
+           this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+           num += parseFloat(this.details[index].actual_mount)
         }
         this.dataForm.reall_total = num.toFixed(2)
       },
       //浏览器关闭监控
-      browerStatus(){
+      browerStatus () {
         this.$message({
           message: '确定关闭？',
           type: 'error'
         })
-        return false;
+        return false
       },
       //关闭弹窗
-      close(){
-        if(this.scanList.length > 0){
+      close () {
+        if (this.scanList.length > 0) {
           this.$confirm('关闭则清除当前扫码数据，确认关闭？', '确认信息', {
             distinguishCancelAndClose: true,
             confirmButtonText: '关闭',
@@ -517,23 +603,28 @@
           }).then(() => {
             var ids = ""
             for(var index in this.scanList){
-              ids += this.scanList[index].id + ','
+              if(this.scanList[index].id != null)ids += this.scanList[index].id + ','
             }
-            this.$http({
-              url: this.$http.adornUrl(`/inoutmsg/deleCache`),
-              method: 'post',
-              params: this.$http.adornParams({"ids": ids})
-              }).then(({data}) => {
-                if(data && data.code === 0){
-                this.visible = false
-                this.scanList.splice(0,this.scanList.length)
-                }else{
-                  this.$message({
-                    message: data.msg,
-                    type: 'error'
-                  });
-                }
-              });
+            if(ids!= ""){
+              this.$http({
+                url: this.$http.adornUrl(`/inoutmsg/deleCache`),
+                method: 'post',
+                params: this.$http.adornParams({"ids": ids})
+                }).then(({data}) => {
+                  if(data && data.code === 0){
+                  this.visible = false
+                  this.scanList.splice(0,this.scanList.length)
+                  }else{
+                    this.$message({
+                      message: data.msg,
+                      type: 'error'
+                    });
+                  }
+                })
+            }else{
+              this.visible = false
+              this.scanList.splice(0,this.scanList.length)
+            }
           }).catch(action => {
           });
         }else{
