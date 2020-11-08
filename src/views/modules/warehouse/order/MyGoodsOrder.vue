@@ -53,8 +53,9 @@
         prop="order_type"
         header-align="center"
         align="center"
-        label="订单类型">
-        <template scope="scope">
+        label="订单类型"
+        width="80">
+        <template slot-scope="scope">
           <div v-if="scope.row.order_type==1">入库</div>
           <div v-if="scope.row.order_type==2">出库</div>
           <div v-if="scope.row.order_type==3">报废</div>
@@ -64,20 +65,23 @@
         prop="order_no"
         header-align="center"
         align="center"
-        label="订单号">
+        label="订单号"
+        width="200">
       </el-table-column>
       <el-table-column
         prop="job_no"
         header-align="center"
         align="center"
-        label="发起人">
+        label="发起人"
+        width="130">
       </el-table-column>
       <el-table-column
         prop="order_state"
         header-align="center"
         align="center"
-        label="订单状态">
-        <template scope="scope">
+        label="订单状态"
+        width="140">
+        <template slot-scope="scope">
           <div v-if="scope.row.order_state==0">待提交</div>
           <div v-if="scope.row.order_state==1">待EHS审核</div>
           <div v-if="scope.row.order_state==2">待主管审核</div>
@@ -92,51 +96,55 @@
         prop="alltotal"
         header-align="center"
         align="center"
-        label="订单总金额">
+        label="订单总金额"
+        width="140">
       </el-table-column>
       <el-table-column
         prop="reall_total"
         header-align="center"
         align="center"
-        label="实际处理金额">
+        label="实际处理金额"
+        width="140">
       </el-table-column>
       <el-table-column
         prop="stime"
         header-align="center"
         align="center"
-        label="创建时间">
+        label="创建时间"
+        width="180">
       </el-table-column>
       <el-table-column
         prop="etime"
         header-align="center"
         align="center"
-        label="结单时间">
+        label="结单时间"
+        width="180">
       </el-table-column>
-      <el-table-column
-        prop="exam_type"
-        header-align="center"
-        align="center"
-        label="审核类型">
-        <template scope="scope">
-          <div v-if="scope.row.exam_type==1">待EHS审核</div>
-          <div v-if="scope.row.exam_type==2">待课级主管审核</div>
-          <div v-if="scope.row.exam_type==3">待经理审核</div>
-          <div v-if="scope.row.exam_type==4">待厂长审核</div>
-        </template>
+      <!--<el-table-column-->
+        <!--prop="exam_type"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="审核类型">-->
+        <!--<template slot-scope="scope">-->
+          <!--<div v-if="scope.row.exam_type==1">待EHS审核</div>-->
+          <!--<div v-if="scope.row.exam_type==2">待课级主管审核</div>-->
+          <!--<div v-if="scope.row.exam_type==3">待经理审核</div>-->
+          <!--<div v-if="scope.row.exam_type==4">待厂长审核</div>-->
+        <!--</template>-->
 
-      </el-table-column>
-      <el-table-column
-        prop="review_fir"
-        header-align="center"
-        align="center"
-        label="审核人">
-      </el-table-column>
-      <el-table-column
-        prop="exp_date"
-        header-align="center"
-        align="center"
-        label="审核时间">
-      </el-table-column>
+      <!--</el-table-column>-->
+      <!--<el-table-column-->
+        <!--prop="review_fir"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="审核人">-->
+      <!--</el-table-column>-->
+      <!--<el-table-column-->
+        <!--prop="exp_date"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="审核时间">-->
+      <!--</el-table-column>-->
       <el-table-column
         prop="remarks"
         header-align="center"
@@ -150,8 +158,9 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row,1)">查看</el-button>
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row,2)">修改</el-button>
+          <el-button type="text" size="small" @click="openDetails (scope.row)">查看</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row)">修改</el-button>
+          <el-button type="text" size="small" @click="deleteHandle(scope.row)">删除</el-button>
           <el-button v-if="scope.row.orderStata==0" type="text" size="small" @click="UpdateHandle(scope.row.orderId)">提交审核</el-button>
         </template>
       </el-table-column>
@@ -165,14 +174,18 @@
       :total="totalPage"
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
+    <!-- 弹窗, 明细-->
+    <ViewDetails v-if="DetailsVisible" ref="ViewDetails" @refreshDataList="getDataList"></ViewDetails>
+
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
   </div>
 </template>
 
 <script>
-  import AddOrUpdate from './myGoodsOrder-Details'
-  // import AddOrUpdate from './myGoodsOrder-add-or-update'
+  import AddOrUpdate from './ZddGoodsOrder-add-or-update'
+  import ViewDetails from './myGoodsOrder-Details'
+
   export default {
     data () {
       return {
@@ -192,7 +205,8 @@
       }
     },
     components: {
-      AddOrUpdate
+      AddOrUpdate,
+      ViewDetails
     },
     activated () {
       this.getDataList()
@@ -289,8 +303,14 @@
         }
       })
       },
+      openDetails (val) {
+        this.DetailsVisible = true
+        this.$nextTick(() => {
+          this.$refs.ViewDetails.init(val)
+        })
+      },
       // 新增
-      addHandle (val, val1) {
+      addHandle () {
     //   this.$confirm(`确定新增订单？`, '提示', {
     //   confirmButtonText: '确定',
     //   cancelButtonText: '取消',
@@ -315,18 +335,50 @@
     //     }
     //   })
     //   })
-        console.log("val + val1" + val + val1)
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(val, val1)
+          this.$refs.addOrUpdate.init(1, 1)
         })
       },
        // 修改
-      addOrUpdateHandle (val, val1) {
-        this.addOrUpdateVisible = true
-        this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(val, val1)
-      })
+      addOrUpdateHandle (val) {
+        if (val.order_state === 0){
+          this.addOrUpdateVisible = true
+          this.$nextTick(() => {
+            console.log('================update================')
+            this.$refs.addOrUpdate.init(val, 2)
+          })
+        } else {
+          this.$message.error("已提交，无法修改")
+        }
+      },
+      // 删除
+      deleteHandle (row) {
+        if (row.order_state === 0) {
+          console.log('row.id +++++ ' + row.id)
+          this.$http({
+            url: this.$http.adornUrl('/orders/delete'),
+            method: 'post',
+            params: this.$http.adornParams({
+              'id': row.id
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500,
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        } else {
+          this.$message.error("已提交，无法删除")
+        }
       }
       // // 详情
       // Details (id) {
