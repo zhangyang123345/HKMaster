@@ -57,8 +57,9 @@
         specialArr: [{id: '1', value: '有寿命'}, {id: '2', value: '无寿命'}],
         visible: false,
         dataForm: {
-          goodsId: 0,
-          goodsName: '',
+          article_id: 0,
+          article_no: '',
+          article_name: '',
           goodsMaterial: '',
           price: '',
           specs: '',
@@ -88,16 +89,19 @@
       }
     },
     methods: {
-      init (id) {
-        this.dataForm.goodsId = id || 0
+      init (article_no,article_id) {
+        this.dataForm.article_id = article_id || 0
+        this.dataForm.article_no = article_no || 0
         this.visible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
-          if (this.dataForm.goodsId) {
+          if (this.dataForm.article_id) {
             this.$http({
-              url: this.$http.adornUrl(`/store/goods/info/${this.dataForm.goodsId}`),
+              url: this.$http.adornUrl(`/code/queryArtic`),
               method: 'get',
-              params: this.$http.adornParams()
+              params: this.$http.adornParams({
+                'article_no': this.dataForm.article_no
+              })
             }).then(({data}) => {
               if (data && data.code === 0) {
               this.dataForm.goodsName = data.goods.goodsName

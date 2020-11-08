@@ -2,11 +2,25 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="商品名称" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-input v-model="dataForm.manufacturer" placeholder="厂商" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-input v-model="dataForm.specs" placeholder="规格" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-input v-model="dataForm.unit" placeholder="单位" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-input v-model="dataForm.kind" placeholder="二类" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-input v-model="dataForm.class" placeholder="三类" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('store:goods:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
         <!--<el-button v-if="isAuth('store:goods:save')"  type="warning" @click="">excel导入</el-button>-->
         <el-upload
           :show-file-list="false"
@@ -19,7 +33,9 @@
                                                                                         style="margin-right: 5px"></i>{{fileUploadBtnText}}
           </el-button>
         </el-upload>
-        <el-button v-if="isAuth('store:goods:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('store:goods:save')" type="primary" @click="template()">导出模板</el-button>
+        <el-button v-if="isAuth('store:goods:save')" type="primary" @click="exportArt()">导出信息</el-button>
+        <el-button v-if="isAuth('store:goods:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -38,6 +54,7 @@
         prop="article_no"
         header-align="center"
         align="center"
+        width="250"
         label="商品编码">
       </el-table-column>
       <el-table-column
@@ -94,35 +111,35 @@
         align="center"
         label="寿命(天)">
       </el-table-column>
-      <el-table-column
-        prop="type"
-        header-align="center"
-        align="center"
-        label="类型">
-        <template scope="scope">
-          <div v-if="scope.row.type==1">普通</div>
-          <div v-if="scope.row.type==2">刀具类</div>
-          <div v-if="scope.row.type==3">穿戴类</div>
-          <div v-if="scope.row.type==4">化学品</div>
-        </template>
-      </el-table-column>
+      <!--<el-table-column-->
+        <!--prop="type_no"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="类型">-->
+        <!--<template scope="scope">-->
+          <!--<div v-if="scope.row.type_no==1">普通</div>-->
+          <!--<div v-if="scope.row.type_no==2">刀具类</div>-->
+          <!--<div v-if="scope.row.type_no==3">穿戴类</div>-->
+          <!--<div v-if="scope.row.type_no==4">化学品</div>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
       <el-table-column
         prop="create_time"
         header-align="center"
         align="center"
         label="创建时间">
       </el-table-column>
-      <el-table-column
-        fixed="right"
-        header-align="center"
-        align="center"
-        width="150"
-        label="操作">
-        <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.goodsId)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.goodsId)">删除</el-button>
-        </template>
-      </el-table-column>
+      <!--<el-table-column-->
+        <!--fixed="right"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--width="80"-->
+        <!--label="操作">-->
+        <!--<template slot-scope="scope">-->
+          <!--<el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.article_no,scope.row.article_id)">修改</el-button>-->
+         <!--&lt;!&ndash; <el-button type="text" size="small" @click="deleteHandle(scope.row.goodsId)">删除</el-button>&ndash;&gt;-->
+        <!--</template>-->
+      <!--</el-table-column>-->
     </el-table>
     <el-pagination
       @size-change="sizeChangeHandle"
@@ -144,7 +161,12 @@
     data () {
       return {
         dataForm: {
-          key: ''
+          key: '',
+          manufacturer: '',
+          specs: '',
+          unit: '',
+          class: '',
+          kind: ''
         },
         fileUploadBtnText: '导入数据',
         dataList: [],
@@ -187,6 +209,54 @@
         this.fileUploadBtnText = '导入数据'
       })
       },
+      // 导出模板
+      formatJson (filterVal, jsonData) {
+        return jsonData.map(v => filterVal.map(j => v[j]))
+      },
+      //导出数据
+      exportArt () {
+        this.$http({
+          url: this.$http.adornUrl('/code/export'),
+          method: 'post',
+          params: this.$http.adornParams({
+            'page': this.pageIndex,
+            'rows': this.pageSize,
+            'goods_name': this.dataForm.key,
+            'manufacturer_name':this.dataForm.manufacturer,
+            'specs_name':this.dataForm.specs,
+            'unit_naem':this.dataForm.unit,
+            'kind_naem':this.dataForm.kind,
+            'classification_name':this.dataForm.class
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            var cacheData = data.list
+              require.ensure([], () => {
+                const { export_json_to_excel } = require('@/vendor/Export2Excel')
+                const tHeader = ['物品编码', '品名', '厂商代码', '厂商', '保质期', '单价', '规格', '单位', '一类', '二类', '三类']
+                // 上面设置Excel的表格第一行的标题
+                const filterVal = ['article_no', 'article_name', 'manufacturer_no', 'manufacturer_name', 'life', 'price', 'specs_name', 'unit_name', 'fam_name', 'kin_name', 'clas_name']
+                const data = this.formatJson(filterVal, cacheData)
+                export_json_to_excel(tHeader, data, '物品详细信息')
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+      })
+      },
+      template () {
+        require.ensure([], () => {
+          const { export_json_to_excel } = require('@/vendor/Export2Excel')
+          const tHeader = ['料号', '品名', '厂商代码', '厂商', '保质期', '单价', '规格', '单位', '一类', '二类', '三类']
+          // 上面设置Excel的表格第一行的标题
+          const filterVal = ['article_no', 'article_name', 'manufacturer_no', 'manufacturer_name', 'life', 'price', 'specs', 'unit', 'family', 'kind', 'class']
+          const list = [{'article_no':'CCUN07616', 'article_name':'大美工刀', 'manufacturer_no':'19501028', 'manufacturer_name':'震坤行', 'life':'', 'price':'2.59', 'specs':'1把/包', 'unit':'把', 'family':'耗材', 'kind':'刀具', 'class':'美工刀'},
+                         {'article_no':'CLND04138', 'article_name':'无铁劳保鞋 牛刚王 009', 'manufacturer_no':'250651', 'manufacturer_name':'兴百汇', 'life':'', 'price':'86.182', 'specs':'10双/箱', 'unit':'双', 'family':'耗材', 'kind':'鞋子', 'class':'劳保鞋'},
+            {'article_no':'CLND04139', 'article_name':'无尘服', 'manufacturer_no':'250651', 'manufacturer_name':'兴百汇', 'life':'', 'price':'86.182', 'specs':'50件/箱', 'unit':'件', 'family':'耗材', 'kind':'衣服', 'class':'无尘服'}]
+          const data = this.formatJson(filterVal, list)
+          export_json_to_excel(tHeader, data, '物品信息模板')
+      })
+      },
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true
@@ -196,7 +266,12 @@
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'rows': this.pageSize,
-            'goods_name': this.dataForm.key
+            'goods_name': this.dataForm.key,
+            'manufacturer_name':this.dataForm.manufacturer,
+            'specs_name':this.dataForm.specs,
+            'unit_name':this.dataForm.unit,
+            'kind_name':this.dataForm.kind,
+            'classification_name':this.dataForm.class
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -225,26 +300,27 @@
         this.dataListSelections = val
       },
       // 新增 / 修改
-      addOrUpdateHandle (id) {
+      addOrUpdateHandle (article_no,article_id) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(id)
+          this.$refs.addOrUpdate.init(article_no,article_id)
         })
       },
       // 删除
-      deleteHandle (id) {
-        var ids = id ? [id] : this.dataListSelections.map(item => {
-          return item.goodsId
-        })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+      deleteHandle () {
+        var ids = ''
+        for (var len in this.dataListSelections) {
+          ids += this.dataListSelections[len].article_id + ','
+        }
+        this.$confirm(`确定删除?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/store/goods/delete'),
+            url: this.$http.adornUrl('/code/deletArtic'),
             method: 'post',
-            data: this.$http.adornData(ids, false)
+            params: this.$http.adornParams({"ids" : ids})
           }).then(({data}) => {
             if (data && data.code === 0) {
               this.$message({

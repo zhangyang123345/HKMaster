@@ -2,9 +2,9 @@
 <template>
   <div class="view">
     <el-row :gutter="24" class="el-row head-div" type="flex">
-      <el-col span="12">
-        <el-row >
-          <el-col>
+      <el-col span="12" class=" homeCol">
+        <el-row class=" homeCol">
+          <el-col class=" homeCol">
             <div class="imageBox">
               <el-carousel style="width:100%;height:100%" interval="10000">
                 <el-carousel-item style="width:100%;height:100%" v-for="item in imageList" :key="item">
@@ -15,7 +15,7 @@
           </el-col>
         </el-row>
       </el-col>
-      <el-col span="12">
+      <el-col span="12" class=" homeCol">
         <div class="videoBox">
           <video-player class="video-player vjs-custom-skin"
                         ref="videoPlayer"
@@ -26,19 +26,19 @@
       </el-col>
     </el-row>
     <el-row :gutter="24" class="el-row buttom-div" type="flex">
-      <el-col span="24">
+      <el-col span="24" class=" homeCol">
         <div class="flowBox">
           <div class="boxItme" v-for="item in menuList"
                :key="item" @click="openMenu('menuId'+item.menuId,item.list[0])">
             <el-card class="boxCard"  style="background-color:rgba(245,248,253,0)">
-              <el-row :gutter="24" class="el-row" type="flex">
-                <el-col :span="24">
+              <el-row :gutter="24" class="el-row homeCol" type="flex" >
+                <el-col :span="24" class="homeCol">
                   <svg aria-hidden="true" class="site-sidebar__menu-icon icon-svg" :class="item.sicon"><use xlink:href="" :href="item.icon"></use></svg>
                 </el-col>
               </el-row>
               <el-row>
-                <el-col :span="24">
-                  <p style="position: inherit;" class="homePVD">{{item.name}}</p>
+                <el-col :span="24" class="homeCol">
+                  <p style="position: inherit;" class="homeDiv">{{item.name}}</p>
                 </el-col>
               </el-row>
             </el-card>
@@ -164,6 +164,9 @@
   .buttom-div{
     margin-top:1%;
   }
+  .homeCol{
+    margin-bottom: 0px !important;
+  }
   .imageBox{
     width:100%;
     height: 61vh;
@@ -200,7 +203,7 @@
     color: RGB(54, 163, 247);/*字体颜色*/
     opacity: 1;/*字体的透明度：1：默认样式，0：全透明*/
   }
-  .homePVD{
+  .homeDiv{
     font-family: "宋体","仿宋",sans-serif;/*若电脑不支持宋体，则用仿宋，若不支持仿宋，则在sans-serif中找*/
     font-weight: bold;
     position: absolute;
