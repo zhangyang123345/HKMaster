@@ -110,7 +110,20 @@
             width="120">
             <template slot-scope="scope">
               <el-form-item>
-                {{scope.$index+1}}
+                <span v-if="scope.$index === 0"></span>
+                <span v-else>{{scope.$index}}</span>
+              </el-form-item>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="manufacturer_name"
+            header-align="center"
+            align="center"
+            label="厂商"
+            width="140">
+            <template slot-scope="scope" width="100%">
+              <el-form-item :prop="'tableData.' + scope.$index + '.manufacturer_name'" align="center">
+                <span>{{scope.row.manufacturer_name}}</span>
               </el-form-item>
             </template>
           </el-table-column>
@@ -123,11 +136,19 @@
             <template slot-scope="scope" width="100%" align="left">
               <el-form-item :prop="'tableData.' + scope.$index + '.article_name'" align="center">
                 <el-autocomplete v-if="scope.row.edit"
+                                 popper-class="my-autocomplete"
                                  v-model="scope.row.article_name"
                                  :fetch-suggestions="querySearchAsync"
                                  placeholder="物品名称"
                                  @select="handleSelect"
-                ></el-autocomplete>
+                >
+                  <template slot-scope="{ item }">
+                    <div class="article_name">{{ item.article_name }}</div>
+                    <span class="manufacturer_name">{{ item.manufacturer_name }}</span>
+                    <span class="price">{{ item.price }}</span>
+                    <span class="specs_name">{{ item.specs_name }}</span>
+                  </template>
+                </el-autocomplete>
                 <span v-else>{{scope.row.article_name}}</span>
               </el-form-item>
             </template>
@@ -140,19 +161,20 @@
             width="140">
             <template slot-scope="scope" width="100%">
               <el-form-item :prop="'tableData.' + scope.$index + '.qunatity'" align="center">
-                <el-input  v-model="scope.row.qunatity" @change="calAmount(scope.row,scope.$index)" placeholder="订单数量" ></el-input>
+                <span v-if="scope.$index === 0">{{scope.row.qunatity}}</span>
+                <el-input v-else  v-model="scope.row.qunatity" @change="calAmount(scope.row,scope.$index)" placeholder="订单数量" ></el-input>
               </el-form-item>
             </template>
           </el-table-column>
           <el-table-column
-            prop="volume"
+            prop="article_no"
             header-align="center"
             align="center"
-            label="体积"
+            label="编码"
             width="140">
             <template slot-scope="scope" width="100%">
-              <el-form-item :prop="'tableData.' + scope.$index + '.volume'" align="center">
-                <span>{{scope.row.volume}}</span>
+              <el-form-item :prop="'tableData.' + scope.$index + '.article_no'" align="center">
+                <span>{{scope.row.article_no}}</span>
               </el-form-item>
             </template>
           </el-table-column>
@@ -212,7 +234,8 @@
             width="140">
             <template slot-scope="scope" width="100%" >
               <el-form-item  :prop="'tableData.' + scope.$index + '.dremark'" >
-                <el-input v-model="scope.row.dremark" placeholder="备注"></el-input>
+                <span v-if="scope.$index === 0">{{scope.row.remark}}</span>
+                <el-input v-else v-model="scope.row.dremark" placeholder="备注"></el-input>
               </el-form-item>
             </template>
           </el-table-column>
@@ -245,7 +268,6 @@
         </el-table>
       </el-form-item>
     </el-form>
-    <el-button type="text" @click="addData">添加数据</el-button>
     <el-divider></el-divider>
 
     <span slot="footer" class="dialog-footer">
@@ -255,6 +277,27 @@
     </span>
   </el-dialog>
 </template>
+<style>
+  .my-autocomplete {
+    li {
+        line-height: normal;
+        padding: 7px;
+
+      .name {
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+      .addr {
+        font-size: 12px;
+        color: #b4b4b4;
+      }
+
+      .highlighted .addr {
+        color: #ddd;
+      }
+    }
+  }
+</style>
 
 <script>
   export default {
@@ -293,7 +336,6 @@
     },
     methods: {
       querySearchAsync (queryString, cb) {
-        // var restaurants = this.restaurants;
         this.$http({
 
           url: this.$http.adornUrl('/code/queryArtic'),
@@ -306,10 +348,11 @@
           })
         }).then(({data}) => {
           this.newrestaurants = data.article.list
-        // console.log(this.newrestaurants)
-          for (var i = 0; i < data.article.list.length; i++) {
-            this.newrestaurants[i].value = this.newrestaurants[i].article_name
-          }
+        console.log('this.newrestaurants >>>>>>>>>>>>> ' + this.newrestaurants)
+          // for (var i = 0; i < data.article.list.length; i++) {
+          //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
+          //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
+          // }
         // console.log("this.newrestaurants="+JSON.stringify(this.newrestaurants))
         // var results = queryString ? data.page.list.filter(this.createStateFilter(queryString)) : data.page.list;
 
@@ -470,8 +513,9 @@
                   duration: 1500
                 })
                 this.dataForm.tableData.unshift({edit: true})
+                this.visible = false
               } else {
-                alert(data.code)
+                this.$message.error(data.msg)
               }
             })
           }

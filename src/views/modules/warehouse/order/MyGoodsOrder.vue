@@ -68,8 +68,15 @@
         label="订单号"
         width="200">
       </el-table-column>
+      <!--<el-table-column-->
+        <!--prop="job_no"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="发起人"-->
+        <!--width="130">-->
+      <!--</el-table-column>-->
       <el-table-column
-        prop="job_no"
+        prop="name"
         header-align="center"
         align="center"
         label="发起人"
@@ -286,7 +293,7 @@
           method: 'post',
           data: this.$http.adornData({
             'orderId': id,
-            'orderStata': 1
+            'orderStata': 5
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -360,7 +367,8 @@
             url: this.$http.adornUrl('/orders/delete'),
             method: 'post',
             params: this.$http.adornParams({
-              'id': row.id
+              'id': row.id,
+              'order_no': row.order_no
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
