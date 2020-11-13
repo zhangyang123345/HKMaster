@@ -63,7 +63,7 @@
            <el-row>
              <el-col :span="24">
                <el-form-item label="扫码输入">
-                 <el-input v-model="dataForm.scan_data" ref="scanInput" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
+                 <el-input v-model="underForm.scan_data" ref="scanInput" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
                  </el-input>
                </el-form-item>
              </el-col>
@@ -175,6 +175,7 @@
               header-align="center"
               align="center"
               width="300"
+              :render-header="headerScan"
               label="物品编码">
             </el-table-column>
             <el-table-column
@@ -309,6 +310,16 @@
         //TODO
 
         this.$refs.scanInput.focus()
+      },
+      headerScan (h, { column, $index }) {
+        return h('span',[
+          h('span',column.label),
+          h('el-checkbox',
+            {
+              style:'margin-left:5px;',
+              on:{change:this.change}
+            }),
+        ])
       },
       init (order_no) {
         this.dataListLoading = true
@@ -454,15 +465,15 @@
                     "detail": JSON.stringify(this.details)
                   })
                 }).then(({data}) => {
-                  if(data && data.code === 0){
+                  if (data && data.code === 0) {
                     if(buff)this.visible = false
                     this.scanList.splice(0,this.scanList.length)
                     this.$message({
                       message: data.msg,
                       type: 'success'
-                    });
+                    })
                     this.init(this.dataForm.order_no)
-                  }else{
+                  } else {
                     this.$message({
                       message: data.msg,
                       type: 'error'
@@ -509,9 +520,9 @@
       scanSubmit () {
         var buff = false
         var msg = "编码错误或不符合本订单!"
-        if (this.dataForm.scan_data.length > 27 && this.dataForm.scan_data.length < 36) {
+        if (this.underForm.scan_data.length > 27 && this.underForm.scan_data.length < 36) {
             for (var sdata in this.details) {
-                if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27)) >= 0) {
+                if (this.details[sdata].article_no.indexOf(this.underForm.scan_data.substring(0,27)) >= 0) {
                   if (this.details[sdata].actual_qunatity == this.details[sdata].qunatity) {
                     msg = "此类物品已满！"
                   } else {
@@ -521,7 +532,7 @@
                 }
             }
             for (var ind in this.scanList) {
-              if (this.scanList[ind].goods_no.indexOf(this.dataForm.scan_data) >= 0) {
+              if (this.scanList[ind].goods_no.indexOf(this.underForm.scan_data) >= 0) {
                   msg = "此物件已扫码！"
                   buff = false
                   break
@@ -529,6 +540,7 @@
             }
         }
         if (buff){
+          this.dataForm.scan_data = this.underForm.scan_data
           this.$http({
             url: this.$http.adornUrl(`/inoutmsg/inoutStore`),
             method: 'post',
@@ -539,6 +551,7 @@
             })
            }).then(({data}) => {
             if(data && data.code === 0){
+            this.underForm.scan_data = ''
               for (var sdata in this.details) {
                 if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27)) >= 0) {
                   var nedNum = this.details[sdata].qunatity - this.details[sdata].actual_qunatity
@@ -555,6 +568,7 @@
                 }
               }
             }else{
+              this.underForm.scan_data = ''
               this.$message({
                 message: data.msg,
                 type: 'error'
@@ -562,6 +576,7 @@
             }
           })
         }else{
+          this.underForm.scan_data = ''
           this.$message({
             message: msg ,
             type: 'error'

@@ -15,6 +15,9 @@
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
       </el-form-item>
+      <el-form-item>
+        <el-button @click="unScan()">出库</el-button>
+      </el-form-item>
     </el-form>
     <el-table
       :data="dataList"
@@ -163,11 +166,13 @@
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <un-out v-if="unstoreVisible" ref="unOut" ></un-out>
   </div>
 </template>
 
 <script>
   import AddOrUpdate from './outOrderDetails';
+  import unOut from './unOut';
   export default {
     data () {
       return {
@@ -183,16 +188,25 @@
         dataListSelections: [],
         addOrUpdateVisible: false,
         instoreVisible: false,
+        unstoreVisible: false,
         typeOption: [{value:2,lable:"出库"},{value:3,lable:"报废"}]
       }
     },
     components: {
       AddOrUpdate,
+      unOut
     },
     activated () {
       this.getDataList()
     },
     methods: {
+      //无单
+      unScan (){
+        this.unstoreVisible = true
+        this.$nextTick(() => {
+          this.$refs.unOut.init()
+      })
+      },
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true

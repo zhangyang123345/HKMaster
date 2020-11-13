@@ -58,22 +58,26 @@
               label="厂商">
             </el-table-column>
             <el-table-column
-              prop="inventory"
+              prop="tempNum"
               header-align="center"
               align="center"
               label="规格总量">
             </el-table-column>
-            <el-table-column
-              prop="inventory"
-              header-align="center"
-              align="center"
-              label="规格余量">
-            </el-table-column>
+            <!--<el-table-column-->
+              <!--prop="inventory"-->
+              <!--header-align="center"-->
+              <!--align="center"-->
+              <!--label="规格余量">-->
+            <!--</el-table-column>-->
             <el-table-column
               prop="inventory"
               header-align="center"
               align="center"
               label="操作数量">
+                <template slot-scope="scope">
+                  <el-input v-model="scope.row.inventory" type="number" size="small" :ref="scope.row.goods_no"
+                            @change="checkNum(scope.row.goods_no,scope.row.inventory,scope.row.tempNum)"></el-input>
+                </template>
             </el-table-column>
             <el-table-column
               prop="amount"
@@ -121,6 +125,12 @@
           order_type: 1,
           reall_total: 0
         },
+        dataForm: {
+          scan_data: '',
+          order_no: '',
+          order_type: 1,
+          reall_total: 0
+        },
         details: [],
         scanList: [],
         stata: '',
@@ -158,7 +168,7 @@
       },
       open (){
         this.instore = true
-        this.underForm.order_no = this.guid()
+        this.dataForm.order_no = this.guid().toUpperCase()
         this.underForm.reall_total = 0
         this.underForm.scan_data = ''
       },
@@ -186,6 +196,47 @@
         }
       })
       },
+      //输入检测->入缓存
+      checkNum(goods_no,input,qunatity){
+        if (input > qunatity) {
+          this.$message({
+            message: "操作数量不可大于规格总量！",
+            type: 'error'
+          })
+        } else if (input <= 0) {
+          this.$message({
+            message:  "操作数量不可小于1！" ,
+            type: 'error'
+          })
+        } else {
+          var dataS = null ;
+          for (var index in this.scanList) {
+            if (this.scanList[index].goods_no == goods_no) {
+              this.scanList[index].operation = input
+              //TODO
+              dataS = this.scanList[index]
+            }
+          }
+          //TODO
+          this.$http({
+            url: this.$http.adornUrl(`/inoutmsg/saveCache`),
+            method: 'post',
+            params: this.$http.adornParams({ "goods": JSON.stringify(dataS) ,
+              "order_no":this.dataForm.order_no,
+              "order_type":this.dataForm.order_type})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+            dataS.id = data.goods.id
+            this.learning()
+          } else {
+            this.$message({
+              message: data.msg,
+              type: 'error'
+            });
+          }
+        })
+        }
+      },
       // 表单提交
       underFormSubmit (buff) {
         var msg = buff?"是否确认结单？":"是否确认保存？"
@@ -195,13 +246,13 @@
           cancelButtonText: '取消'
         }).then(() => {
           if(this.scanList.length>0){
-          if(buff)this.underForm.order_state = 6
+          if(buff)this.dataForm.order_state = 6
           this.$http({
             url: this.$http.adornUrl(`/inoutmsg/unOrder`),
             method: 'post',
             params: this.$http.adornParams({
-              "order_no": this.underForm.order_no,
-              "order_type": this.underForm.order_type
+              "order_no": this.dataForm.order_no,
+              "order_type": this.dataForm.order_type
             })
           }).then(({data}) => {
             if(data && data.code === 0){
@@ -220,18 +271,18 @@
             });
           }
         })
-        }else{
-          if(buff){
+        } else {
+          if (buff) {
             this.$http({
               url: this.$http.adornUrl(`/orders/complete`),
               method: 'post',
               params: this.$http.adornParams({
-                "order_no": this.underForm.order_no
+                "order_no": this.dataForm.order_no
               })
             }).then(({data}) => {
-              if(data && data.code === 0){
+              if (data && data.code === 0) {
               this.instore = false
-            }else{
+            } else {
               this.$message({
                 message: data.msg,
                 type: 'error'
@@ -255,22 +306,26 @@
             buff = true
         }
         if (buff){
+          this.dataForm.scan_data = this.underForm.scan_data
           this.$http({
             url: this.$http.adornUrl(`/inoutmsg/inoutStore`),
             method: 'post',
             params: this.$http.adornParams({
-              "order_no": this.underForm.order_no,
-              "order_type": this.underForm.order_type,
-              "goods_no": this.underForm.scan_data
+              "order_no": this.dataForm.order_no,
+              "order_type": this.dataForm.order_type,
+              "goods_no": this.dataForm.scan_data
             })
           }).then(({data}) => {
-            if(data && data.code === 0){
-            data.article.amount = (data.article.inventory*data.article.price).toFixed(2)
+            if (data && data.code === 0) {
+            data.article.amount = (data.article.operation * data.article.price).toFixed(2)
+            data.article.tempNum = data.article.inventory
             this.scanList.unshift(data.article)
-            var mount = data.article.inventory*data.article.price
+            var mount = data.article.operation * data.article.price
             this.underForm.reall_total = this.underForm.reall_total + mount
             this.underForm.reall_total = parseFloat(this.underForm.reall_total.toFixed(2))
-          }else{
+            this.underForm.scan_data = ''
+          } else {
+            this.underForm.scan_data = ''
             this.$message({
               message: data.msg,
               type: 'error'
@@ -278,6 +333,7 @@
           }
         })
         }else{
+          this.underForm.scan_data = ''
           this.$message({
             message: '编码错误或不符合本订单!',
             type: 'error'
@@ -285,12 +341,13 @@
         }
       },
       // 计算
-      learning(){
-        var num = 0 ;
-        for(var index in this.details){
-          num += this.details[index].actual_mount
+      learning () {
+        var num = 0
+        for (var ind in this.scanList) {
+          this.scanList[ind].amount = (this.scanList[ind].operation * this.scanList[ind].price).toFixed(2)
+          num += parseFloat(this.scanList[ind].amount)
         }
-        this.underForm.reall_total = num
+        this.underForm.reall_total = num.toFixed(2)
       },
       //浏览器关闭监控
       browerStatus(){
@@ -309,7 +366,7 @@
             cancelButtonText: '取消'
           }).then(() => {
             var ids = ""
-            for(var index in this.scanList){
+            for (var index in this.scanList) {
             ids += this.scanList[index].id + ','
           }
           this.$http({

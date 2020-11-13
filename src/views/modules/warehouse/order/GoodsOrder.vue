@@ -2,13 +2,41 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-select v-model="dataForm.order_type" placeholder="订单类型">
+          <el-option label="入库" value="1"></el-option>
+          <el-option label="出库" value="2"></el-option>
+          <el-option label="报废" value="3"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-select v-model="dataForm.order_state" placeholder="订单状态">
+          <el-option label="存在异常" value="-1"></el-option>
+          <el-option label="待提交" value="0"></el-option>
+          <el-option label="待EHS审核" value="1"></el-option>
+          <el-option label="待主管审核" value="2"></el-option>
+          <el-option label="待经理审核" value="3"></el-option>
+          <el-option label="待厂长审核" value="4"></el-option>
+          <el-option label="待处理" value="5"></el-option>
+          <el-option label="待结单" value="6"></el-option>
+          <el-option label="完成" value="7"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item >
+        <el-input v-model="dataForm.name"  placeholder="姓名"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-date-picker
+          v-model="dataForm.keyTime"
+          unlink-panels
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期">
+        </el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button @click="getDataList()">新增</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -24,6 +52,12 @@
         <!--width="50">-->
       <!--</el-table-column>-->
       <el-table-column
+        prop="order_no"
+        header-align="center"
+        align="center"
+        label="订单号">
+      </el-table-column>
+      <el-table-column
         prop="order_type"
         header-align="center"
         align="center"
@@ -33,18 +67,6 @@
           <div v-if="scope.row.order_type==2">出库</div>
           <div v-if="scope.row.order_type==3">报废</div>
         </template>
-      </el-table-column>
-      <el-table-column
-        prop="order_no"
-        header-align="center"
-        align="center"
-        label="订单号">
-      </el-table-column>
-      <el-table-column
-        prop="job_no"
-        header-align="center"
-        align="center"
-        label="发起人">
       </el-table-column>
       <el-table-column
         prop="order_state"
@@ -69,22 +91,16 @@
         label="订单总金额">
       </el-table-column>
       <el-table-column
+        prop="name"
+        header-align="center"
+        align="center"
+        label="发起人">
+      </el-table-column>
+      <el-table-column
         prop="reall_total"
         header-align="center"
         align="center"
         label="实际处理金额">
-      </el-table-column>
-      <el-table-column
-        prop="stime"
-        header-align="center"
-        align="center"
-        label="创建时间">
-      </el-table-column>
-      <el-table-column
-        prop="etime"
-        header-align="center"
-        align="center"
-        label="结单时间">
       </el-table-column>
       <el-table-column
         prop="exam_type"
@@ -97,7 +113,6 @@
           <div v-if="scope.row.exam_type==3">待经理审核</div>
           <div v-if="scope.row.exam_type==4">待厂长审核</div>
         </template>
-
       </el-table-column>
       <el-table-column
         prop="review_fir"
@@ -106,10 +121,22 @@
         label="审核人">
       </el-table-column>
       <el-table-column
+        prop="stime"
+        header-align="center"
+        align="center"
+        label="创建时间">
+      </el-table-column>
+      <el-table-column
         prop="exp_date"
         header-align="center"
         align="center"
-        label="审核时间">
+        label="需求时间">
+      </el-table-column>
+      <el-table-column
+        prop="etime"
+        header-align="center"
+        align="center"
+        label="结单时间">
       </el-table-column>
       <el-table-column
         prop="remarks"
@@ -121,10 +148,10 @@
         fixed="right"
         header-align="center"
         align="center"
-        width="150"
+        width="80"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row,1)">查看明细</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row,1)">打开</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -148,7 +175,10 @@
     data () {
       return {
         dataForm: {
-          key: ''
+          keyTime: '',
+          order_type: '',
+          order_state: '',
+          name: ''
         },
         dataList: [],
         pageIndex: 1,
@@ -174,15 +204,16 @@
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
-            'limit': this.pageSize,
-            'key': 1
+            'rows': this.pageSize,
+            'name': this.dataForm.name,
+            'keytime': this.dataForm.keyTime + '',
+            'order_type': this.dataForm.order_type,
+            'order_state': this.dataForm.order_state
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
             this.dataList = data.order.list
-            console.log(this.dataList)
-            this.totalPage = data.order.totalPage
-            console.log(this.totalPage)
+            this.totalPage = data.order.total
           } else {
             this.dataList = []
             this.totalPage = 0
@@ -206,15 +237,13 @@
         this.dataListSelections = val
       },
       findDetail (val) {
-        console.log(val)
       },
       // 详情
       addOrUpdateHandle (val, val2) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init(val, val2)
-          console.log(val.toString())
-      })
+        })
       }
     }
   }

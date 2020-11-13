@@ -97,7 +97,7 @@
         label="库存">
       </el-table-column>
       <el-table-column
-        prop="duty_user"
+        prop="duty_name"
         key="duty_person"
         header-align="center"
         align="center"

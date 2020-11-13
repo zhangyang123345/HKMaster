@@ -17,7 +17,7 @@
         </el-card>
       </el-col>
       <el-col :span="10">
-        <el-card class="box-card" style="min-height: 200px;background-color:rgba(51,94,193,0)" align="middle" >
+        <el-card class="box-card dasDiv" style="min-height: 200px;background-color:rgba(51,94,193,0)" align="middle" >
           <div class=" title1">
             安全库存警报
           </div>
@@ -95,7 +95,7 @@
         </el-card>
       </el-col>
       <el-col :span="10">
-        <el-card class="box-card" style="min-height: 200px;background-color:rgba(51,94,193,0)" align="middle" >
+        <el-card class="box-card dasDiv" style="min-height: 200px;background-color:rgba(51,94,193,0)" align="middle" >
           <div class=" title1">
             各段化学品建浴预警状况
           </div>
@@ -770,7 +770,10 @@
   el-table th, .el-table tr {
     background-color: transparent;
   }
-  .el-table--enable-row-hover .el-table__body tr:hover>td{
+  .dasDiv{
+
+  }
+  .dasDiv .el-table--enable-row-hover .el-table__body tr:hover>td{
     background-color: #1bc227 !important;
   }
   .title {

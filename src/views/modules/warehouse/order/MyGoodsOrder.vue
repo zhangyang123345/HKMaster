@@ -50,18 +50,6 @@
         <!--width="50">-->
       <!--</el-table-column>-->
       <el-table-column
-        prop="order_type"
-        header-align="center"
-        align="center"
-        label="订单类型"
-        width="80">
-        <template slot-scope="scope">
-          <div v-if="scope.row.order_type==1">入库</div>
-          <div v-if="scope.row.order_type==2">出库</div>
-          <div v-if="scope.row.order_type==3">报废</div>
-        </template>
-      </el-table-column>
-      <el-table-column
         prop="order_no"
         header-align="center"
         align="center"
@@ -81,6 +69,18 @@
         align="center"
         label="发起人"
         width="130">
+      </el-table-column>
+      <el-table-column
+        prop="order_type"
+        header-align="center"
+        align="center"
+        label="订单类型"
+        width="120">
+        <template slot-scope="scope">
+          <div v-if="scope.row.order_type==1">入库</div>
+          <div v-if="scope.row.order_type==2">出库</div>
+          <div v-if="scope.row.order_type==3">报废</div>
+        </template>
       </el-table-column>
       <el-table-column
         prop="order_state"
@@ -118,6 +118,13 @@
         header-align="center"
         align="center"
         label="创建时间"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="exp_date"
+        header-align="center"
+        align="center"
+        label="预计需求时间"
         width="180">
       </el-table-column>
       <el-table-column
@@ -162,13 +169,13 @@
         fixed="right"
         header-align="center"
         align="center"
-        width="150"
+        width="120"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="openDetails (scope.row)">查看</el-button>
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row)">修改</el-button>
+          <!--<el-button type="text" size="small" @click="openDetails (scope.row)">查看</el-button>-->
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row)">打开</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row)">删除</el-button>
-          <el-button v-if="scope.row.orderStata==0" type="text" size="small" @click="UpdateHandle(scope.row.orderId)">提交审核</el-button>
+          <el-button v-if="scope.row.order_stata==0" type="text" size="small" @click="UpdateHandle(scope.row.orderId)">提交审核</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -241,7 +248,7 @@
         }).then(({data}) => {
           if (data && data.code === 0) {
             this.dataList = data.order.list
-            this.totalPage = data.order.totalPage
+            this.totalPage = data.order.total
           } else {
             this.dataList = []
             this.totalPage = 0
@@ -349,20 +356,14 @@
       },
        // 修改
       addOrUpdateHandle (val) {
-        if (val.order_state === 0){
           this.addOrUpdateVisible = true
           this.$nextTick(() => {
-            console.log('================update================')
             this.$refs.addOrUpdate.init(val, 2)
           })
-        } else {
-          this.$message.error("已提交，无法修改")
-        }
       },
       // 删除
       deleteHandle (row) {
         if (row.order_state === 0) {
-          console.log('row.id +++++ ' + row.id)
           this.$http({
             url: this.$http.adornUrl('/orders/delete'),
             method: 'post',

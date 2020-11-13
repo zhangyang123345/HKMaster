@@ -1,23 +1,37 @@
 <template>
   <el-dialog
     width= "90%"
-    top="1vh"
-    :title="!dataForm.order_no ? '新增' : '修改'"
+    top="5vh"
     :close-on-click-modal="false"
     append-to-body
     :visible.sync="visible">
-    <el-form :model="dataForm"  ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
+    <el-form :model="dataForm" class="orderStyle"  ref="dataForm"  label-width="120px">
       <el-row>
         <el-col :span="6">
-          <el-form-item label="订单号" prop="order_no">
-            <el-input v-model="dataForm.order_no"  placeholder="订单号" :disabled=true></el-input>
+          <el-form-item label="订 单 号" prop="order_no">
+            <el-input v-model="dataForm.order_no"  placeholder="订单号" readonly></el-input>
           </el-form-item>
         </el-col>
-        <!--<el-col :span="5" v-if=dataFormState>-->
-          <!--<el-form-item label="发起人" prop="name">-->
-            <!--<el-input v-model="dataForm.job_no" placeholder="发起人" :disabled=true></el-input>-->
-          <!--</el-form-item>-->
-        <!--</el-col>-->
+        <el-col :span="6">
+          <el-form-item label="预计需求时间" prop="exp_date">
+            <el-date-picker v-model="dataForm.exp_date"
+                            type="datetime"
+                            style="width:100%;"
+                            @change="dateCheck"
+                            placeholder="选择日期">
+            </el-date-picker>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="结单时间" prop="etime">
+            <el-input v-model="dataForm.etime" placeholder="结单时间" readonly></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="5">
+          <el-form-item label="创建时间" prop="stime">
+            <el-input v-model="dataForm.stime" placeholder="创建时间" readonly></el-input>
+          </el-form-item>
+        </el-col>
         <!--<el-col :span="5" v-if=dataFormState >-->
         <!--<el-form-item label="发起人姓名">-->
         <!--<el-input v-model="dataForm.name" placeholder="发起人姓名" :disabled=dataFormState></el-input>-->
@@ -29,31 +43,21 @@
           <!--</el-form-item>-->
         <!--</el-col>-->
         <!--<el-col :span="5" v-if=dataFormState>-->
-        <el-col :span="6">
-          <el-form-item label="结单时间" prop="etime">
-            <el-input v-model="dataForm.etime" placeholder="结单时间" :disabled=true></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="创建时间" prop="stime">
-            <el-input v-model="dataForm.stime" placeholder="创建时间" :disabled=true></el-input>
-          </el-form-item>
-        </el-col>
+
       </el-row>
       <el-row>
         <el-col :span="6">
+          <el-form-item label="订单金额" prop="alltotal">
+            <el-input v-model="dataForm.alltotal" placeholder="总金额" readonly></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
           <el-form-item label="订单类型" prop="order_type">
-            <el-input v-if="dataFormState" v-model="dataForm.order_type" placeholder="订单类型" :disabled=dataFormState>
-              <template slot-scope="scope">
-                <div v-if="dataForm.order_type==1">入库</div>
-                <div v-if="dataForm.order_type==2">出库</div>
-                <div v-if="dataForm.order_type==3">报废</div>
-              </template>
-            </el-input>
-            <el-select  v-else  v-model="dataForm.order_type" placeholder="订单类型" >
-              <el-option label="入库" value="1"></el-option>
-              <el-option label="出库" value="2"></el-option>
-              <el-option label="报废" value="3"></el-option>
+            <el-select v-model="dataForm.order_type" placeholder="订单类型" style="width:100%;">
+              <el-option v-for="item in typeOption"
+                         :key="item.value"
+                         :label="item.lable"
+                         :value="item.value"></el-option>
             </el-select>
             <!--<el-input v-if="dataForm.order_type===1">待EHS审核</el-input>-->
             <!--<el-input v-if="dataForm.order_type===2">待主管审核</el-input>-->
@@ -61,24 +65,27 @@
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="预计需求时间" prop="exp_date">
-            <el-date-picker :disabled=dataFormState
-                            v-model="dataForm.exp_date"
-                            type="date"
-                            placeholder="选择日期">
-            </el-date-picker>
+          <el-form-item  label="订单状态" prop="order_state">
+            <template slot-scope="scope">
+              <el-input v-if="dataForm.order_state==-2" value = "订单异常结束"></el-input>
+              <el-input v-if="dataForm.order_state==-1"  value = "存在异常"></el-input>
+              <el-input v-if="dataForm.order_state==0"  value = "待提交"></el-input>
+              <el-input v-if="dataForm.order_state==1"  value = "待EHS审核"></el-input>
+              <el-input v-if="dataForm.order_state==2"  value = "待主管审核"></el-input>
+              <el-input v-if="dataForm.order_state==3"  value = "待经理审核"></el-input>
+              <el-input v-if="dataForm.order_state==4"  value = "待厂长审核"></el-input>
+              <el-input v-if="dataForm.order_state==5"   value = "待处理"></el-input>
+              <el-input v-if="dataForm.order_state==6"  value = "待结单"></el-input>
+              <el-input v-if="dataForm.order_state==7"  value = "完成"></el-input>
+            </template>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
-          <el-form-item label="总金额" prop="alltotal">
-            <el-input v-model="dataForm.alltotal" placeholder="总金额" :disabled=dataFormState></el-input>
+        <el-col :span="5" >
+          <el-form-item label="发 起 人" prop="name">
+            <el-input v-model="dataForm.name" placeholder="发起人" readonly></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="6"  v-if=dataFormState>
-          <el-form-item label="实际金额" prop="reall_total">
-            <el-input v-model="dataForm.reall_total" placeholder="实际金额" :disabled=dataFormState></el-input>
-          </el-form-item>
-        </el-col>
+
         <!--<el-col :span="5" v-if=dataFormState >-->
           <!--<el-form-item label="审核类型" prop="exam_type">-->
             <!--<el-input v-model="dataForm.exam_type" placeholder="审核类型" :disabled=dataFormState>-->
@@ -92,27 +99,69 @@
           <!--</el-form-item>-->
         <!--</el-col>-->
       </el-row>
-      <el-form-item align="left" prop="tableData" label-width="0px">
+      <el-row>
+        <el-col :span="6" >
+          <el-form-item label="实际金额" prop="reall_total">
+            <el-input v-model="dataForm.reall_total" placeholder="实际金额" readonly></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="17" >
+          <el-form-item label="备    注" prop="remarks">
+            <el-input v-model="dataForm.remarks" placeholder="备注" ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
         <!--<el-button v-if="stata=='待提交'" type="primary" @click="addOrUpdateHandle()">新增子订单</el-button>-->
-
         <el-table
-          height="350"
-          :data="dataForm.tableData"
+          height="550"
+          :data="tableData"
           border
           v-loading="dataListLoading"
           align="left"
           style="width: 100%;">
+          <!--<el-table-column-->
+            <!--prop="id"-->
+            <!--header-align="center"-->
+            <!--align="center"-->
+            <!--label="序号"-->
+            <!--width="80">-->
+            <!--<template slot-scope="scope">-->
+                <!--<span v-if="scope.$index === 0 && dataForm.order_state == 0"></span>-->
+                <!--<span v-else>{{scope.$index}}</span>-->
+            <!--</template>-->
+          <!--</el-table-column>-->
           <el-table-column
-            prop="id"
+            prop="article_no"
             header-align="center"
             align="center"
-            label="序号"
-            width="120">
-            <template slot-scope="scope">
-              <el-form-item>
-                <span v-if="scope.$index === 0"></span>
-                <span v-else>{{scope.$index}}</span>
-              </el-form-item>
+            label="物品编码"
+            width="250">
+          </el-table-column>
+          <el-table-column
+            prop="article_name"
+            header-align="center"
+            align="center"
+            label="物品名称"
+            width="300">
+            <template slot-scope="scope" width="100%" align="left">
+                <el-autocomplete v-if="scope.row.edit"
+                                 v-model="scope.row.article_name"
+                                 :fetch-suggestions="querySearchAsync"
+                                 popper-class="autoComp"
+                                 placeholder="物品名称"
+                                 @select="handleSelect"
+                >
+                  <template slot-scope="{ item }">
+                    <div>
+                        <div class="inputA">{{ item.article_name }}</div>
+                        <div class="inputM">{{ item.manufacturer_name }}</div>
+                        <div class="inputP">{{ item.price }}</div>
+                        <div class="inputU">{{ item.unit_name }}</div>
+                        <div class="inputS">{{ item.specs_name }}</div>
+                    </div>
+                  </template>
+                </el-autocomplete>
+                <span v-else>{{scope.row.article_name}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -121,37 +170,6 @@
             align="center"
             label="厂商"
             width="140">
-            <template slot-scope="scope" width="100%">
-              <el-form-item :prop="'tableData.' + scope.$index + '.manufacturer_name'" align="center">
-                <span>{{scope.row.manufacturer_name}}</span>
-              </el-form-item>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="article_name"
-            header-align="center"
-            align="left"
-            label="物品名称"
-            width="300">
-            <template slot-scope="scope" width="100%" align="left">
-              <el-form-item :prop="'tableData.' + scope.$index + '.article_name'" align="center">
-                <el-autocomplete v-if="scope.row.edit"
-                                 popper-class="my-autocomplete"
-                                 v-model="scope.row.article_name"
-                                 :fetch-suggestions="querySearchAsync"
-                                 placeholder="物品名称"
-                                 @select="handleSelect"
-                >
-                  <template slot-scope="{ item }">
-                    <div class="article_name">{{ item.article_name }}</div>
-                    <span class="manufacturer_name">{{ item.manufacturer_name }}</span>
-                    <span class="price">{{ item.price }}</span>
-                    <span class="specs_name">{{ item.specs_name }}</span>
-                  </template>
-                </el-autocomplete>
-                <span v-else>{{scope.row.article_name}}</span>
-              </el-form-item>
-            </template>
           </el-table-column>
           <el-table-column
             prop="qunatity"
@@ -160,23 +178,30 @@
             label="订单数量"
             width="140">
             <template slot-scope="scope" width="100%">
-              <el-form-item :prop="'tableData.' + scope.$index + '.qunatity'" align="center">
-                <span v-if="scope.$index === 0">{{scope.row.qunatity}}</span>
-                <el-input v-else  v-model="scope.row.qunatity" @change="calAmount(scope.row,scope.$index)" placeholder="订单数量" ></el-input>
-              </el-form-item>
+                <span v-if="scope.$index === 0 && dataForm.order_state == 0">{{scope.row.qunatity}}</span>
+                <el-input v-else  maxlength="6" v-model="scope.row.qunatity" type="number"  @change="calAmount"  placeholder="订单数量" ></el-input>
             </template>
           </el-table-column>
           <el-table-column
-            prop="article_no"
+            prop="amount"
             header-align="center"
             align="center"
-            label="编码"
+            label="订单金额"
             width="140">
-            <template slot-scope="scope" width="100%">
-              <el-form-item :prop="'tableData.' + scope.$index + '.article_no'" align="center">
-                <span>{{scope.row.article_no}}</span>
-              </el-form-item>
-            </template>
+          </el-table-column>
+          <el-table-column
+            prop="actual_qunatity"
+            header-align="center"
+            align="center"
+            label="已处理数量"
+            width="140">
+          </el-table-column>
+          <el-table-column
+            prop="actual_mount"
+            header-align="center"
+            align="center"
+            label="已处理金额"
+            width="140">
           </el-table-column>
           <el-table-column
             prop="unit_name"
@@ -184,11 +209,6 @@
             align="center"
             label="单位"
             width="140">
-            <template slot-scope="scope" width="100%">
-              <el-form-item :prop="'tableData.' + scope.$index + '.unit_name'" align="center">
-                <span>{{scope.row.unit_name}}</span>
-              </el-form-item>
-            </template>
           </el-table-column>
           <el-table-column
             prop="price"
@@ -196,11 +216,6 @@
             align="center"
             label="单价"
             width="140">
-            <template  scope="scope" width="100%" >
-              <el-form-item :prop="'tableData.' + scope.$index + '.price'" >
-                <span>{{scope.row.price}}</span>
-              </el-form-item>
-            </template>
           </el-table-column>
           <el-table-column
             prop="specs_name"
@@ -208,50 +223,21 @@
             align="center"
             label="规格"
             width="140">
-            <template slot-scope="scope" width="100%" >
-              <el-form-item :prop="'tableData.' + scope.$index + '.specs_name'" >
-                <span>{{scope.row.specs_name}}</span>
-              </el-form-item>
-            </template>
           </el-table-column>
           <el-table-column
-            prop="amount"
+            prop="dremark"
             header-align="center"
             align="center"
-            label="合价"
-            width="140">
-            <template slot-scope="scope" width="100%">
-              <el-form-item :prop="'tableData.' + scope.$index + '.amount'" >
-                <span>{{scope.row.amount}}</span>
-              </el-form-item>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="remark"
-            header-align="center"
-            align="center"
-            label="备注"
-            width="140">
+            label="备注">
             <template slot-scope="scope" width="100%" >
-              <el-form-item  :prop="'tableData.' + scope.$index + '.dremark'" >
-                <span v-if="scope.$index === 0">{{scope.row.remark}}</span>
-                <el-input v-else v-model="scope.row.dremark" placeholder="备注"></el-input>
-              </el-form-item>
+                <span v-if="scope.$index === 0 && dataForm.order_state == 0"></span>
+                <el-input style="width: 100%" v-else v-model="scope.row.dremark" placeholder="备注"></el-input>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="170">
+          <el-table-column label="操作" width="80">
             <template slot-scope="scope">
-              <el-button v-if="scope.row.edit" type="text" size="medium" @click="confirmAdd(scope.row,scope.$index)">
-                <i class="el-icon-check" aria-hidden="true"></i>
-              </el-button>
-              <div v-else>
-                <el-button type="text" size="medium" @click="editData(scope.row)">
-                  <i class="el-icon-edit" aria-hidden="true"></i>
-                </el-button>
-                <el-button type="text" size="medium" @click="deleteData(scope.row,scope.$index)">
-                  <i class="el-icon-delete" aria-hidden="true"></i>
-                </el-button>
-              </div>
+                <span v-if="scope.$index === 0 && dataForm.order_state == 0"></span>
+                <el-button v-else type="text" size="medium" @click="deleteData(scope.row,scope.$index)">移除</el-button>
             </template>
           </el-table-column>
 
@@ -266,14 +252,13 @@
           <!--</template>-->
           <!--</el-table-column>-->
         </el-table>
-      </el-form-item>
     </el-form>
     <el-divider></el-divider>
 
     <span slot="footer" class="dialog-footer">
-      <el-button @click="visible = false">取消</el-button>
-      <el-button type="primary" @click="saveOrUpdateData('dataForm')">保存</el-button>
-      <el-button @click="subData('dataForm')">提交</el-button>
+      <el-button @click="visible = false">关闭</el-button>
+      <el-button  v-if="dataForm.order_state==0" type="primary" @click="saveOrUpdateData('dataForm')">保存</el-button>
+      <el-button  v-if="dataForm.order_state==0" @click="subData('dataForm')">提交</el-button>
     </span>
   </el-dialog>
 </template>
@@ -297,6 +282,39 @@
       }
     }
   }
+  .autoComp{ width:800px;}
+  .autoComp  .el-scrollbar{
+    width:800px;
+  }
+  .inputA{
+     float:left;
+     width: 30%;
+  }
+  .inputM{
+     float:left;
+     width: 30%;
+  }
+  .inputP{
+     float:left;
+     width: 10%;
+  }
+  .inputU{
+     float:left;
+     width: 10%;
+  }
+  .inputS{
+     float:left;
+     width: 20%;
+  }
+  .orderStyle{
+
+  }
+  .orderStyle .el-form-item,.el-col{
+    margin-bottom:0px!important;
+  }
+  .orderStyle .el-row{
+    margin-bottom: 20px;
+  }
 </style>
 
 <script>
@@ -312,18 +330,20 @@
           alltotal: '',
           reall_total: '',
           stime: '',
-          order_state: '',
+          order_state: 0,
           exam_type: '',
           review_fir: '',
+          remarks: '',
           etime: '',
           name: '',
-          tableData: [],
           exp_date: ''
         },
+        tableData: [],
         dataFormState: false,
         dataListLoading: false,
         tableDataCache: [],
         newrestaurants: [],
+        typeOption: [{value:1,lable:"入库"},{value:2,lable:"出库"},{value:3,lable:"报废"}],
         dataRule: {
           goodsName: [
             { required: true, message: '商品名称不能为空', trigger: 'blur' }
@@ -337,78 +357,71 @@
     methods: {
       querySearchAsync (queryString, cb) {
         this.$http({
-
           url: this.$http.adornUrl('/code/queryArtic'),
-
           method: 'get',
-
           params: this.$http.adornParams({
-
             goods_name: queryString
           })
         }).then(({data}) => {
           this.newrestaurants = data.article.list
-        console.log('this.newrestaurants >>>>>>>>>>>>> ' + this.newrestaurants)
           // for (var i = 0; i < data.article.list.length; i++) {
           //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
           //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
           // }
         // console.log("this.newrestaurants="+JSON.stringify(this.newrestaurants))
         // var results = queryString ? data.page.list.filter(this.createStateFilter(queryString)) : data.page.list;
-
         clearTimeout(this.timeout)
-      this.timeout = setTimeout(() => {
-          cb(this.newrestaurants)
-    }, 100 * Math.random())
+          this.timeout = setTimeout(() => {
+              cb(this.newrestaurants)
+        }, 100 * Math.random())
     })
     },
-      calAmount (row, index) {
-        console.log('row ======>' + JSON.stringify(row))
-        // this.dataForm.tableDataSave = JSON.parse(JSON.stringify(this.dataForm.tableData))
-        // this.dataForm.tableDataCache = JSON.parse(JSON.stringify(this.dataForm.tableDataSave))
-        // this.dataForm.tableData = JSON.parse(JSON.stringify(this.tableDataCache))
-        // this.dataForm.tableData[index].amount = JSON.stringify(amo)
+      calAmount () {
         var alltotal = 0
-        for (var i = 1; i < this.dataForm.tableData.length; i++) {
-          if (this.dataForm.tableData[i].price != null && this.dataForm.tableData[i].price != '') {
-            if (this.dataForm.tableData[i].qunatity != null && this.dataForm.tableData[i].qunatity != '') {
-              alltotal = (this.dataForm.tableData[i].price * this.dataForm.tableData[i].qunatity) + alltotal
-              this.dataForm.tableData[i].amount = this.dataForm.tableData[i].price * this.dataForm.tableData[i].qunatity
+        for (var i = 1; i < this.tableData.length; i++) {
+          if (this.tableData[i].price != null && this.tableData[i].price != '') {
+            if (this.tableData[i].qunatity != null && this.tableData[i].qunatity != '') {
+              this.tableData[i].amount = (this.tableData[i].price * this.tableData[i].qunatity).toFixed(2)
+              alltotal = parseFloat(this.tableData[i].amount) + parseFloat(alltotal)
             }
           }
         }
-        this.dataForm.alltotal = JSON.stringify(alltotal)
+        this.dataForm.alltotal = alltotal
+      },
+      dateCheck (){
+        var date = new Date()
+        if (date > this.dataForm.exp_date) {
+           this.dataForm.exp_date = ''
+            this.$message({
+              message: "预计需求时间不可小于当前时间！",
+              type: 'error'
+            });
+        }
       },
       handleSelect (item) {
-        // for (var i = 0; i < this.dataForm.tableData.length; i++) {
-        //   console.log(item.article_name + this.dataForm.tableData[i].article_name + '123456')
-        //   if (item.article_name.equals(this.dataForm.tableData[i].article_name)) {
-        //     console.log(item.article_name + this.dataForm.tableData[i].article_name + '11111')
-        //     alert('列表已存在该物品')
-        //   }
-        // }
-        // console.log(this.dataForm.tableData)
-        item.edit = false
-        item.amount = 0
-        this.dataForm.tableData.push(item)
-        this.dataForm.tableData[0].article_name = ''
-        // this.dataForm.tableData.insert(1, item)
-        // console.log('+++++++++++++' + this.dataForm.tableData)
-        // this.tableDataCache.push(item)
-        // console.log('item========' + JSON.stringify(item))
-        // let testArr = JSON.parse(JSON.stringify(this.tableDataCache))
-        // this.testdata.push(item)
-        // console.log('testdata========' + JSON.stringify(testArr))
-        // this.dataForm.tableData = testArr
-        // console.log(this.dataForm.tableData)
-        // console.log(this.dataForm.tableDataCache)
+        var msg ;
+        var buff = true ;
+        for (var i = 1 , len = this.tableData.length ; i < len ; i ++) {
+          if (this.tableData[i].article_no.indexOf(item.article_no) >= 0 ) {
+            buff = false ;
+            msg = "此物品列表已存在！";
+          }
+        }
+        if (buff) {
+          this.tableData.push(item)
+          this.tableData[0].article_name = ''
+        } else {
+          this.$message({
+            message: msg,
+            type: 'error'
+          });
+        }
       },
       submitData (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
             let data = this.dataForm
             alert(JSON.stringify(data))
-            console.log('ccc======>' + JSON.stringify(data))
             this.$http({
               url: this.$http.adornUrl("/orders/addOrUpdate"),
               method: "post",
@@ -420,12 +433,12 @@
                 "detail":JSON.stringify(this.tableDataSave)
               })
             }).then(({ data }) => {
-              // this.newrestaurants = data.article.list
-              // for (var i = 0; i < data.article.list.length; i++) {
-              //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
-              // }
               if (data.code === 0) {
-                alert("保存成功")
+              this.$message({
+                message: '保存成功！',
+                type: 'success',
+                duration: 1500
+              })
               }
             })
           }
@@ -436,39 +449,28 @@
       subData (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            // var arrT = []
-            // for (var i = 1; i < this.dataForm.tableData.length - 1; i++) {
-            //   arrT.push(this.dataForm.tableData[i])
-            // }
-            // this.dataForm.tableData = JSON.parse(JSON.stringify(arrT))
-            this.dataForm.tableData.shift()
-            // alert(JSON.stringify(data))
-            console.log('ccc======>' + JSON.stringify(this.dataForm))
+            this.tableData.shift()
             this.$http({
               url: this.$http.adornUrl("/orders/addOrUpdate"),
               method: "post",
               data: this.$http.adornData({
                 "order_no": this.dataForm.order_no,
-                "order_state" : 1,
+                "order_state" : 5,
                 "id" : this.dataForm.id,
                 "order_type": this.dataForm.order_type,
                 "job_no": this.dataForm.job_no,
                 "alltotal": this.dataForm.alltotal,
                 "exp_date" : this.dataForm.exp_date,
-                "detail": JSON.stringify(this.dataForm.tableData)
+                "detail": JSON.stringify(this.tableData)
               })
             }).then(({ data }) => {
-              // this.newrestaurants = data.article.list
-              // for (var i = 0; i < data.article.list.length; i++) {
-              //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
-              // }
               if (data.code === 0) {
                 this.$message({
                   message: '操作成功',
                   type: 'success',
                   duration: 1500
                 })
-                this.dataForm.tableData.unshift({edit: true})
+                this.tableData.unshift({edit: true})
                 this.visible = false
               } else {
                 alert(data.code)
@@ -477,57 +479,73 @@
           }
         })
       },
+      check () {
+          var buff = true
+          var cmsg = ""
+          if (this.dataForm.order_type == null || this.dataForm.order_type === "") {
+            cmsg = "订单类型不可为空！"
+            buff = false
+          }
+
+          for (var i = 1; i < this.tableData.length; i++) {
+            if (this.tableData[i].price != null && this.tableData[i].price != '') {
+              if (this.tableData[i].qunatity <= 0) {
+                cmsg = "所有物品数量必须大于零！"
+                buff = false
+              }
+            }
+          }
+          if (!buff) {
+            this.$message.error(cmsg)
+          }
+          return buff;
+      },
       saveOrUpdateData (formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            // var arrT = []
-            // for (var i = 1; i < this.dataForm.tableData.length - 1; i++) {
-            //   arrT.push(this.dataForm.tableData[i])
-            // }
-            // this.dataForm.tableData = JSON.parse(JSON.stringify(arrT))
-            this.dataForm.tableData.shift()
-            // alert(JSON.stringify(data))
-            console.log('ccc======>' + JSON.stringify(this.dataForm))
-            this.$http({
-              url: this.$http.adornUrl("/orders/addOrUpdate"),
-              method: "post",
-              data: this.$http.adornData({
-                "order_no": this.dataForm.order_no,
-                "order_state" : this.dataForm.order_state,
-                "id" : this.dataForm.id,
-                "order_type": this.dataForm.order_type,
-                "job_no": this.dataForm.job_no,
-                "alltotal": this.dataForm.alltotal,
-                "exp_date" : this.dataForm.exp_date,
-                "detail": JSON.stringify(this.dataForm.tableData)
-              })
-            }).then(({ data }) => {
-              // this.newrestaurants = data.article.list
-              // for (var i = 0; i < data.article.list.length; i++) {
-              //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
-              // }
-              if (data.code === 0) {
-                this.$message({
-                  message: '操作成功',
-                  type: 'success',
-                  duration: 1500
+        if (this.check()) {
+          this.$refs[formName].validate((valid) => {
+            if(valid) {
+              this.tableData.shift()
+              this.$http({
+                url: this.$http.adornUrl("/orders/addOrUpdate"),
+                method: "post",
+                data: this.$http.adornData({
+                  "order_no": this.dataForm.order_no,
+                  "order_state": this.dataForm.order_state,
+                  "id": this.dataForm.id,
+                  "order_type": this.dataForm.order_type,
+                  "job_no": this.dataForm.job_no,
+                  "alltotal": this.dataForm.alltotal,
+                  "exp_date": this.dataForm.exp_date,
+                  "remarks": this.dataForm.remarks,
+                  "detail": JSON.stringify(this.tableData)
                 })
-                this.dataForm.tableData.unshift({edit: true})
-                this.visible = false
-              } else {
-                this.$message.error(data.msg)
+              }).then(({data}) => {
+                // this.newrestaurants = data.article.list
+                // for (var i = 0; i < data.article.list.length; i++) {
+                //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
+                // }
+                if ( data.code === 0 ) {
+                  this.$message({
+                    message: '操作成功',
+                    type: 'success',
+                    duration: 1500
+                  })
+                  this.init(data.order, 2)
+                  this.tableData.unshift({edit: true})
+                } else {
+                  this.$message.error(data.msg)
+                }
+              })
               }
             })
           }
-        })
       },
       init (val, val1) {
-        console.log('==========>>>>>>' + val1)
         if (val1 === 1) {
           this.dataForm.id = ''
           this.dataForm.order_no = ''
           this.dataForm.order_type = ''
-          this.dataForm.order_state = ''
+          this.dataForm.order_state = 0
           this.dataForm.job_no = ''
           this.dataForm.alltotal = ''
           this.dataForm.reall_total = ''
@@ -536,27 +554,21 @@
           this.dataForm.review_fir = ''
           this.dataForm.etime = ''
           this.dataForm.name = ''
-          this.dataForm.tableData = []
+          this.tableData = []
           this.dataForm.exp_date = ''
+          this.dataForm.remarks = ''
           this.visible = true
           this.dataListLoading = false
-          this.dataForm.tableData.push({
+          this.tableData.push({
             edit: true
           })
-          console.log('===========zdd' + val1)
         } else if (val1 === 2) {
-          this.$nextTick(() => {
-            // this.$refs['dataForm'].resetFields()
+          this.$nextTick( () => {
             this.visible = true
               this.$http({
                 url: this.$http.adornUrl(`/orders/getDetail`),
                 method: 'post',
-                // params: this.$http.adornParams()
                 params: this.$http.adornParams({
-                  // 'page': this.pageIndex,
-                  // 'rows': this.pageSize,
-                  // 'keytime': this.dataForm.keyTime + '',
-                  // 'order_type': this.dataForm.order_type,
                   'order_no': val.order_no
                 })
               }).then(({data}) => {
@@ -573,73 +585,32 @@
                   this.dataForm.review_fir = data.orders.review_fir
                   this.dataForm.etime = data.orders.etime
                   this.dataForm.name = data.orders.name
-                  this.dataForm.tableData = data.orders.detail
+                  this.tableData = data.orders.detail
                   this.dataForm.exp_date = data.orders.exp_date
+                  this.dataForm.remarks = data.orders.remarks
                   this.dataListLoading = false
-                  this.dataForm.tableData.unshift({
-                    edit: true
-                  })
-                  console.log(this.dataForm.id)
-                  console.log('update ++++++' + JSON.stringify(this.dataForm))
+                  if (data.orders.order_state == 0 ) this.tableData.unshift({edit: true})
                 }
               })
           })
-          console.log('========update' + val.detail[1].order_no)
         }
-        // this.dataForm.id = id || ''
-        // this.dataForm.name = val.name + ''
-        // for (var i = 0; i < this.dataForm.tableData.length; i++) {
-        //   this.dataForm.tableData[i].edit = false
-        // }
       },
       addData () {
-        for (var i = 0; i < this.dataForm.tableData.length; i++) {
-          this.dataForm.tableData[i].edit = false
+        for (var i = 0; i < this.tableData.length; i++) {
+          this.tableData[i].edit = false
         }
-        this.dataForm.tableData.push({
+        this.tableData.push({
           edit: true
         })
         // console.log(this.dataForm.tableData)
       },
       deleteData (row, index) {
-        this.dataForm.tableData.splice(index, 1)
+        this.tableData.splice(index, 1)
         this.tableDataCache.splice(index, 1)
+        this.calAmount ()
       },
       editData (row) {
         row.edit = true
-      },
-      // 表单提交
-      dataFormSubmit () {
-        this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
-            this.$http({
-              url: this.$http.adornUrl(`/order/zddGoodsOrder/${!this.dataForm.zddOrderId ? 'save' : 'update'}`),
-              method: 'post',
-              data: this.$http.adornData({
-                'orderId': this.dataForm.orderId || undefined,
-                'goodsId': this.dataForm.goodsId || undefined,
-                'zddType': this.dataForm.zddType,
-                'num': this.dataForm.num,
-                'price': this.dataForm.price
-              })
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.$message({
-                  message: '操作成功',
-                  type: 'success',
-                  duration: 1500,
-                  onClose: () => {
-                  Object.assign(this.$data, this.$options.data())
-                    this.visible = false
-                    this.$emit('refreshDataList')
-                  }
-                })
-              } else {
-                this.$message.error(data.msg)
-              }
-            })
-          }
-        })
       }
     }
   }

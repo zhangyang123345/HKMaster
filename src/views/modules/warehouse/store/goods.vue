@@ -201,11 +201,15 @@
         formData.append('file', file)
         this.$http.post(this.$http.adornUrl('/code/import'), formData)
           .then(({data}) => {
-        if (data.msg === '导入成功!') {
-          this.getDataList()
-        } else {
-          this.$message.error(data.msg)
-        }
+          if (data && data.code === 0) {
+            this.$message({
+              message: "导入成功！",
+              type: 'success'
+            });
+            this.getDataList()
+          } else {
+            this.$message.error(data.msg)
+          }
         this.fileUploadBtnText = '导入数据'
       })
       },

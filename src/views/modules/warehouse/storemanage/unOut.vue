@@ -3,153 +3,31 @@
     width="90%"
     top="1vh"
     :show-close="false"
-    :title="!dataForm.order_no ? '新增(只需添加物品信息)' : '订单处理'"
+    title="处理"
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm"  ref="dataForm" label-width="80px">
       <el-row>
-         <el-col :span="8">
-           <el-row>
-             <el-col :span="12">
-               <el-form-item label="订单号">
-                 <el-input v-model="dataForm.order_no" placeholder="订单号" readonly></el-input>
-               </el-form-item>
-             </el-col>
-             <el-col :span="12">
-               <el-form-item label="下单人" >
-                 <el-input v-model="dataForm.name" placeholder="下单人" readonly></el-input>
-               </el-form-item>
-             </el-col>
-           </el-row>
-           <el-row>
-             <el-col :span="12">
-               <el-form-item label="订单金额">
-                 <el-input v-model="dataForm.alltotal" placeholder="订单金额" readonly></el-input>
-               </el-form-item>
-             </el-col>
-             <el-col :span="12">
-               <el-form-item label="已处理">
-                 <el-input v-model="dataForm.reall_total" placeholder="已处理" readonly></el-input>
-               </el-form-item>
-             </el-col>
-           </el-row>
-           <el-row>
-             <el-col :span="12">
-               <el-form-item label="订单状态">
-                 <el-input v-model="dataForm.states" placeholder="订单状态" readonly>
-                 </el-input>
-               </el-form-item>
-             </el-col>
-             <el-col :span="12">
-               <el-form-item label="订单类型">
-                 <el-input v-model="dataForm.types" placeholder="订单类型" readonly>
-                 </el-input>
-               </el-form-item>
-             </el-col>
-           </el-row>
-           <el-row>
-             <el-col :span="12">
-               <el-form-item label="下单日期">
-                 <el-input v-model="dataForm.stime" placeholder="下单日期" readonly></el-input>
-               </el-form-item>
-             </el-col>
-             <el-col :span="12">
-               <el-form-item label="需求日期">
-                 <el-input v-model="dataForm.exp_date" placeholder="需求日期" readonly>
-                 </el-input>
-               </el-form-item>
-             </el-col>
-           </el-row>
-           <el-row>
-             <el-col :span="24">
-               <el-form-item label="扫码输入">
-                 <el-input v-model="underForm.scan_data" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
-                 </el-input>
-               </el-form-item>
-             </el-col>
-           </el-row>
-         </el-col>
-        <el-col :span="16">
-          <el-table
-            :data="details"
-            border
-            height="400"
-            v-loading="dataListLoading"
-            style="width: 100%;">
-            <el-table-column
-              prop="article_no"
-              header-align="center"
-              v-if="showT"
-              align="center"
-              label="物品编码">
-            </el-table-column>
-            <el-table-column
-              prop="article_name"
-              header-align="center"
-              align="center"
-              label="物品名称">
-            </el-table-column>
-            <el-table-column
-              prop="manufacturer_name"
-              header-align="center"
-              align="center"
-              label="厂商">
-            </el-table-column>
-            <el-table-column
-              prop="qunatity"
-              header-align="center"
-              align="center"
-              label="订单数量">
-            </el-table-column>
-            <el-table-column
-              prop="actual_qunatity"
-              header-align="center"
-              align="center"
-              label="实际数量">
-            </el-table-column>
-            <!--<el-table-column-->
-              <!--prop="actual_qunatity"-->
-              <!--header-align="center"-->
-              <!--align="center"-->
-              <!--label="现有库存">-->
-            <!--</el-table-column>-->
-            <el-table-column
-              prop="amount"
-              header-align="center"
-              align="center"
-              label="订单金额">
-            </el-table-column>
-            <el-table-column
-              prop="actual_mount"
-              header-align="center"
-              align="center"
-              label="实际金额">
-            </el-table-column>
-            <el-table-column
-              prop="price"
-              header-align="center"
-              align="center"
-              label="单价">
-            </el-table-column>
-            <el-table-column
-              prop="unit_name"
-              header-align="center"
-              align="center"
-              label="单位">
-            </el-table-column>
-            <el-table-column
-              prop="specs_name"
-              header-align="center"
-              align="center"
-              label="规格">
-            </el-table-column>
-            <el-table-column
-              prop="dremark"
-              header-align="center"
-              align="center"
-              label="备注">
-            </el-table-column>
-          </el-table>
+        <el-col :span="12">
+          <el-form-item label="扫码输入">
+            <el-input v-model="underForm.scan_data" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
+            </el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="处理金额">
+            <el-input v-model="dataForm.reall_total" placeholder="处理金额" readonly></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="订单类型">
+              <el-select v-model="dataForm.order_type">
+                <el-option v-for="item in typeOption"
+                           :key="item.value"
+                           :label="item.lable"
+                           :value="item.value"></el-option>
+              </el-select>
+          </el-form-item>
         </el-col>
       </el-row>
       <el-row>
@@ -167,7 +45,7 @@
               width="80"
               label=" ">
               <template slot-scope="scope">
-                <el-button type="text" size="small" @click="remove(scope.row.id)">移除</el-button>
+                <el-button type="text" size="small"  @click="remove(scope.row.id,scope.row.goods_no)">移除</el-button>
               </template>
             </el-table-column>
             <el-table-column
@@ -177,11 +55,40 @@
               width="300"
               label="物品编码">
             </el-table-column>
+            <!-- :render-header="headerScan"-->
             <el-table-column
-              prop="article_name"
+              prop="goods_name"
               header-align="center"
               align="center"
               label="物品名称">
+            </el-table-column>
+            <el-table-column
+              label="领用人"
+              header-align="center"
+              align="center"
+              prop="recipient_name">
+              <!--<el-input v-model="dataForm.duty_name" placeholder="仓库负责人"></el-input>-->
+              <!--</el-form-item>-->
+              <!--<el-form-item>-->
+              <template slot-scope="scope"  align="left">
+                  <el-autocomplete
+                    v-model="scope.row.recipient_name"
+                    :fetch-suggestions="emplosearch"
+                    popper-class="autoComp"
+                    placeholder="请输入查找"
+                    @select="((item) => handleSelect(item,scope.row.goods_no))"
+                  >
+                    <template slot-scope="{ item }" >
+                      <div >
+                        <div class="inputC">{{ item.jobNo }}</div>
+                        <div class="inputC">{{ item.name }}</div>
+                        <div class="inputC">{{ item.department }}</div>
+                        <div class="inputC">{{ item.position }}</div>
+                        <div class="inputC">{{ item.director }}</div>
+                      </div>
+                    </template>
+                  </el-autocomplete>
+              </template>
             </el-table-column>
             <el-table-column
               prop="manufacturer_name"
@@ -196,16 +103,20 @@
               label="规格总量">
             </el-table-column>
             <el-table-column
-              prop="inventory"
+              prop="sept"
               header-align="center"
               align="center"
               label="规格余量">
             </el-table-column>
             <el-table-column
-              prop="inventory"
+              prop="operation"
               header-align="center"
               align="center"
               label="操作数量">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.operation" type="number" size="small" :ref="scope.row.goods_no"
+                          @change="checkNum(scope.row.goods_no,scope.row.operation,scope.row.sept)"></el-input>
+              </template>
             </el-table-column>
             <el-table-column
               prop="amount"
@@ -238,7 +149,7 @@
     <span slot="footer" class="dialog-footer">
       <el-button @click="close">关闭</el-button>
       <el-button type="primary" @click="dataFormSubmit(false)">保存</el-button>
-      <el-button type="primary" @click="dataFormSubmit(true)">结单</el-button>
+      <!--<el-button type="primary" @click="dataFormSubmit(true)">结单</el-button>-->
     </span>
   </el-dialog>
   <!-- 弹窗, 新增 / 修改 -->
@@ -250,7 +161,10 @@
         visible: false,
         instore: false,
         underForm: {
-          scan_data: ''
+          scan_data: '',
+          order_no: '',
+          order_type: 1,
+          reall_total: 0
         },
         dataForm: {
           id: '',
@@ -268,6 +182,7 @@
           scan_data: '',
           exam_type: ''
         },
+        typeOption: [{value:2,lable:"出库"},{value:3,lable:"报废"}],
         details: [],
         scanList: [],
         stata: '',
@@ -297,12 +212,65 @@
       // TODO
     },
     methods: {
+      S4 () {
+        return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+      },
+      guid () {
+        return this.S4()+this.S4()+this.S4()+this.S4()+this.S4();
+      },
+      emplosearch (queryString , cb) {
+        this.$http({
+          url: this.$http.adornUrl('/employee/search'),
+          method: 'post',
+          params: this.$http.adornParams({
+            'page': 1,
+            'rows': 10,
+            'recipient_name': queryString
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+          cb(data.data.list)
+        }
+      })
+      },
+      handleSelect ( item , goods_no ) {
+        for (var index in this.scanList) {
+          if (this.scanList[index].goods_no == goods_no) {
+              this.scanList[index].recipient = item.jobNo
+              this.scanList[index].recipient_name = item.name
+              this.checkNum(goods_no,this.scanList[index].operation,this.scanList[index].sept);
+          }
+        }
+      },
       open () {
-        this.instore = true
+        this.visible = true
+        this.dataForm.order_no = this.guid().toUpperCase()
+        this.dataForm.reall_total = 0
+        this.underForm.scan_data = ''
+      },
+      //确认入缓存
+      inCache () {
+        //TODO
+
+        this.$refs.scanInput.focus()
+      },
+      headerScan (h, { column, $index }) {
+        return h('span',[
+          h('span',column.label),
+          h('el-checkbox',
+            {
+              style:'margin-left:5px;',
+              on:{change:this.change}
+            }),
+        ])
       },
       init (order_no) {
         this.dataListLoading = true
         this.visible = true
+        this.dataForm.order_no = this.guid().toUpperCase()
+        this.dataForm.reall_total = 0
+        this.dataForm.scan_data = ''
+        this.underForm.scan_data = ''
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
           if (order_no != null) {
@@ -342,36 +310,81 @@
       })
         this.dataListLoading = false
       },
-
-      remove (id){
-        this.$http({
-          url: this.$http.adornUrl(`/inoutmsg/deleCache`),
-          method: 'post',
-          params: this.$http.adornParams({"ids": id})
-        }).then(({data}) => {
-          if(data && data.code === 0){
-            for(var ind in this.scanList){
-              if(this.scanList[ind].id == id){
-                var mount = this.scanList[ind].inventory * this.scanList[ind].price
-                for (var sdata in this.details) {
-                  if(this.details[sdata].article_no.indexOf(this.scanList[ind].article_no)>=0){
-                    this.details[sdata].actual_mount = (this.details[sdata].actual_mount - mount).toFixed(2)
-                    this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity - this.scanList[ind].inventory
-                    this.learning()
-                    this.scanList.splice(ind,1)
-                    break
+      //输入检测->入缓存
+      checkNum(goods_no,input,qunatity){
+        if (input > qunatity) {
+          this.$message({
+            message: "操作数量不可大于规格余量！",
+            type: 'error'
+          })
+        } else if (input <= 0) {
+          this.$message({
+            message:  "操作数量不可小于1！" ,
+            type: 'error'
+          })
+        } else {
+          var dataS = null ;
+          for (var index in this.scanList) {
+            if (this.scanList[index].goods_no == goods_no) {
+              dataS = this.scanList[index]
+            }
+          }
+          //TODO
+          this.$http({
+            url: this.$http.adornUrl(`/inoutmsg/saveCache`),
+            method: 'post',
+            params: this.$http.adornParams({ "goods": JSON.stringify(dataS) ,
+                "order_no":this.dataForm.order_no,
+                "order_type":this.dataForm.order_type})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              dataS.id = data.goods.id
+              this.learning()
+          } else {
+            this.$message({
+              message: data.msg,
+              type: 'error'
+            });
+          }
+        })
+        }
+      },
+      remove (id,goods_no) {
+        if (id == null) {
+          for (var ind in this.scanList) {
+            if (this.scanList[ind].goods_no == goods_no) {
+              for (var sdata in this.details) {
+                if (this.details[sdata].article_no.indexOf(this.scanList[ind].goods_no.substring(0,27)) >= 0) {
+                  this.scanList.splice(ind, 1)
+                  this.learning()
+                  break
+                }
+              }
+              break
+            }
+          }
+        } else {
+            this.$http({
+              url: this.$http.adornUrl(`/inoutmsg/deleCache`),
+              method: 'post',
+              params: this.$http.adornParams({"ids": id})
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+                for (var ind in this.scanList) {
+                  if (this.scanList[ind].id == id) {
+                      this.scanList.splice(ind, 1)
+                      this.learning()
                   }
                 }
-                break
-              }
-            }
-        }else{
-          this.$message({
-            message: data.msg,
-            type: 'error'
-          });
+              }else
+                {
+                  this.$message({
+                    message: data.msg,
+                    type: 'error'
+                  });
+                }
+            })
         }
-      })
       },
       // 表单提交
       dataFormSubmit (buff) {
@@ -384,7 +397,7 @@
             if(this.scanList.length>0){
                 if(buff)this.dataForm.order_state = 6
                 this.$http({
-                  url: this.$http.adornUrl(`/inoutmsg/saveStore`),
+                  url: this.$http.adornUrl(`/inoutmsg/saveUnStore`),
                   method: 'post',
                   data: this.$http.adornData({
                     "order_no": this.dataForm.order_no,
@@ -400,7 +413,7 @@
                       message: data.msg,
                       type: 'success'
                     });
-                    this.init(this.dataForm.order_no)
+                    this.init()
                   }else{
                     this.$message({
                       message: data.msg,
@@ -446,14 +459,20 @@
       },
       //扫码提交
       scanSubmit () {
-        var buff = false
-        if(this.underForm.scan_data.length > 27 && this.underForm.scan_data.length < 36){
-            for (var sdata in this.details) {
-                if(this.details[sdata].article_no.indexOf(this.underForm.scan_data.substring(0,27))>=0){
-                  buff = true
+        var buff = true
+        var msg = "编码错误或不符合本订单!"
+        if (this.underForm.scan_data.length > 27 && this.underForm.scan_data.length < 36) {
+            for (var ind in this.scanList) {
+              if (this.scanList[ind].goods_no.indexOf(this.underForm.scan_data) >= 0) {
+                  msg = "此物件已扫码！"
+                  buff = false
                   break
-                }
+              }
             }
+        }
+        if (this.dataForm.order_type == '') {
+          msg = "请选择处理类型！"
+          buff = false
         }
         if (buff){
           this.dataForm.scan_data = this.underForm.scan_data
@@ -467,19 +486,15 @@
             })
            }).then(({data}) => {
             if (data && data.code === 0) {
-              this.underForm.scan_data = ''
-              data.article.amount = (data.article.inventory * data.article.price).toFixed(2)
-              this.scanList.unshift(data.article)
-              var mount = data.article.inventory * data.article.price
-              for (var sdata in this.details) {
-                if(this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27))>=0){
-                  this.details[sdata].actual_mount = (this.details[sdata].actual_mount + mount).toFixed(2)
-                  this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.inventory
-                  this.learning()
-                  break
-                }
-              }
-            }else{
+                  this.underForm.scan_data = ''
+                  data.article.operation = data.article.sept
+                  data.article.amount = data.article.operation * data.article.price
+                  data.article.recipient = ''
+                  data.article.recipient_name = ''
+                  this.scanList.unshift(data.article)
+                  var mount = data.article.operation * data.article.price
+                  this.checkNum(this.dataForm.scan_data , data.article.operation , data.article.sept)
+            } else {
               this.underForm.scan_data = ''
               this.$message({
                 message: data.msg,
@@ -490,30 +505,31 @@
         }else{
           this.underForm.scan_data = ''
           this.$message({
-            message: '编码错误或不符合本订单!',
+            message: msg ,
             type: 'error'
           });
         }
       },
       // 计算
-      learning(){
-        var num = 0 ;
-        for(var index in this.details){
-            num += this.details[index].actual_mount
+      learning () {
+        var num = 0
+        for (var ind in this.scanList) {
+          this.scanList[ind].amount = (this.scanList[ind].operation * this.scanList[ind].price).toFixed(2)
+          num += parseFloat(this.scanList[ind].amount)
         }
         this.dataForm.reall_total = num.toFixed(2)
       },
       //浏览器关闭监控
-      browerStatus(){
+      browerStatus () {
         this.$message({
           message: '确定关闭？',
           type: 'error'
         })
-        return false;
+        return false
       },
       //关闭弹窗
-      close(){
-        if(this.scanList.length > 0){
+      close () {
+        if (this.scanList.length > 0) {
           this.$confirm('关闭则清除当前扫码数据，确认关闭？', '确认信息', {
             distinguishCancelAndClose: true,
             confirmButtonText: '关闭',
@@ -521,23 +537,28 @@
           }).then(() => {
             var ids = ""
             for(var index in this.scanList){
-              ids += this.scanList[index].id + ','
+              if(this.scanList[index].id != null)ids += this.scanList[index].id + ','
             }
-            this.$http({
-              url: this.$http.adornUrl(`/inoutmsg/deleCache`),
-              method: 'post',
-              params: this.$http.adornParams({"ids": ids})
-              }).then(({data}) => {
-                if(data && data.code === 0){
-                this.visible = false
-                this.scanList.splice(0,this.scanList.length)
-                }else{
-                  this.$message({
-                    message: data.msg,
-                    type: 'error'
-                  });
-                }
-              });
+            if(ids!= ""){
+              this.$http({
+                url: this.$http.adornUrl(`/inoutmsg/deleCache`),
+                method: 'post',
+                params: this.$http.adornParams({"ids": ids})
+                }).then(({data}) => {
+                  if(data && data.code === 0){
+                  this.visible = false
+                  this.scanList.splice(0,this.scanList.length)
+                  }else{
+                    this.$message({
+                      message: data.msg,
+                      type: 'error'
+                    });
+                  }
+                })
+            }else{
+              this.visible = false
+              this.scanList.splice(0,this.scanList.length)
+            }
           }).catch(action => {
           });
         }else{
@@ -551,4 +572,14 @@
   .el-col{
     margin-bottom:0px;
   }
+  .inputC{
+     float:left;
+     width:20%;
+   }
+  .autoComp{ width:500px;}
+  .autoComp  .el-scrollbar{
+    width:500px;
+  }
+
+
 </style>
