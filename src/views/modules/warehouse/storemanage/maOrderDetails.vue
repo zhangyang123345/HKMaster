@@ -6,7 +6,7 @@
     :title="!dataForm.order_no ? '新增(只需添加物品信息)' : '订单处理'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm"  ref="dataForm" label-width="80px">
+    <el-form :model="dataForm"  class="outForm"  ref="dataForm" label-width="80px">
       <el-row>
          <el-col :span="8">
            <el-row>
@@ -62,6 +62,10 @@
            </el-row>
            <el-row>
              <el-col :span="24">
+               <el-form-item label="备注">
+                 <el-input type="textarea" :rows="3" v-model="dataForm.remarks"  placeholder="备注">
+                 </el-input>
+               </el-form-item>
                <el-form-item label="扫码输入">
                  <el-input v-model="underForm.scan_data" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
                  </el-input>
@@ -98,12 +102,14 @@
             <el-table-column
               prop="qunatity"
               header-align="center"
+              width="100px"
               align="center"
               label="订单数量">
             </el-table-column>
             <el-table-column
               prop="actual_qunatity"
               header-align="center"
+              width="100px"
               align="center"
               label="实际数量">
             </el-table-column>
@@ -116,12 +122,14 @@
             <el-table-column
               prop="amount"
               header-align="center"
+              width="130px"
               align="center"
               label="订单金额">
             </el-table-column>
             <el-table-column
               prop="actual_mount"
               header-align="center"
+              width="130px"
               align="center"
               label="实际金额">
             </el-table-column>
@@ -129,18 +137,21 @@
               prop="price"
               header-align="center"
               align="center"
+              width="80px"
               label="单价">
             </el-table-column>
             <el-table-column
               prop="unit_name"
               header-align="center"
               align="center"
+              width="80px"
               label="单位">
             </el-table-column>
             <el-table-column
               prop="specs_name"
               header-align="center"
               align="center"
+              width="100px"
               label="规格">
             </el-table-column>
             <el-table-column
@@ -148,6 +159,9 @@
               header-align="center"
               align="center"
               label="备注">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.dremark"  size="small" ></el-input>
+              </template>
             </el-table-column>
           </el-table>
         </el-col>
@@ -394,7 +408,10 @@
                   })
                 }).then(({data}) => {
                   if(data && data.code === 0){
-                    if(buff)this.visible = false
+                    if(buff){
+                      this.visible = false
+                      this.$emit('refreshDataList')
+                    }
                     this.scanList.splice(0,this.scanList.length)
                     this.$message({
                       message: data.msg,
@@ -418,7 +435,8 @@
                   })
                   }).then(({data}) => {
                       if(data && data.code === 0){
-                      this.visible = false
+                        this.visible = false
+                        this.$emit('refreshDataList')
                       }else{
                         this.$message({
                           message: data.msg,
@@ -531,6 +549,7 @@
                 if(data && data.code === 0){
                 this.visible = false
                 this.scanList.splice(0,this.scanList.length)
+                this.$emit('refreshDataList')
                 }else{
                   this.$message({
                     message: data.msg,
@@ -542,13 +561,16 @@
           });
         }else{
           this.visible = false
+          this.$emit('refreshDataList')
         }
       }
     }
   }
 </script>
 <style>
-  .el-col{
+  .outForm{
+  }
+  .outForm .el-row,.el-col{
     margin-bottom:0px;
   }
 </style>

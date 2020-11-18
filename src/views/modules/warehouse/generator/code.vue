@@ -377,9 +377,9 @@
         if (this.dataForm.qrNumb > 0) {
           this.downloadQRD(this.rowData)
         } else {
-          html2canvas(document.getElementById('imgDiv'),{
+          setTimeout( ()=> html2canvas(document.getElementById('imgDiv'),{
             logging: true,
-            scrollY: 20, //  为了解决顶部偏移出现白边，初始化时就直接设置往上偏移-20位置
+            scrollY: 0, //  为了解决顶部偏移出现白边，初始化时就直接设置往上偏移-20位置
             scrollX: 0,
             allowTaint: false,
             useCORS: true// 运行跨域图片资源
@@ -394,7 +394,7 @@
               a.dispatchEvent(new MouseEvent('click'))
               document.getElementById('imgDiv').innerHTML = "";
               this.visible = false
-            });
+            }),1000);
          }
       },
       getQUrl: function (url) {

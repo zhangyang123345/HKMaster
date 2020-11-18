@@ -10,7 +10,7 @@
       </el-form-item>
       <el-form-item>
         <el-select v-model="dataForm.order_state" placeholder="订单状态">
-          <el-option label="退单" value="-1"></el-option>
+          <el-option label="存在异常" value="-1"></el-option>
           <el-option label="待提交" value="0"></el-option>
           <el-option label="待EHS审核" value="1"></el-option>
           <el-option label="待主管审核" value="2"></el-option>
@@ -34,7 +34,6 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('order:goodsOrder:save')" type="primary" @click="addHandle()">新增</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -89,7 +88,6 @@
         label="订单状态"
         width="100">
         <template slot-scope="scope">
-          <div v-if="scope.row.order_state==-1">退单</div>
           <div v-if="scope.row.order_state==0">待提交</div>
           <div v-if="scope.row.order_state==1">待EHS审核</div>
           <div v-if="scope.row.order_state==2">待主管审核</div>
@@ -99,24 +97,6 @@
           <div v-if="scope.row.order_state==6">待结单</div>
           <div v-if="scope.row.order_state==7">完成</div>
         </template>
-      </el-table-column>
-      <el-table-column
-        prop="exam_type"
-        header-align="center"
-        align="center"
-        label="审核类型">
-        <template slot-scope="scope">
-        <div v-if="scope.row.exam_type==1">EHS审核</div>
-        <div v-if="scope.row.exam_type==2">主管审核</div>
-        <div v-if="scope.row.exam_type==3">经理审核</div>
-        <div v-if="scope.row.exam_type==4">厂长审核</div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="review_user"
-        header-align="center"
-        align="center"
-        label="审核主管">
       </el-table-column>
       <el-table-column
         prop="alltotal"
@@ -154,6 +134,25 @@
         width="180">
       </el-table-column>
       <!--<el-table-column-->
+        <!--prop="exam_type"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="审核类型">-->
+        <!--<template slot-scope="scope">-->
+          <!--<div v-if="scope.row.exam_type==1">待EHS审核</div>-->
+          <!--<div v-if="scope.row.exam_type==2">待课级主管审核</div>-->
+          <!--<div v-if="scope.row.exam_type==3">待经理审核</div>-->
+          <!--<div v-if="scope.row.exam_type==4">待厂长审核</div>-->
+        <!--</template>-->
+
+      <!--</el-table-column>-->
+      <!--<el-table-column-->
+        <!--prop="review_fir"-->
+        <!--header-align="center"-->
+        <!--align="center"-->
+        <!--label="审核人">-->
+      <!--</el-table-column>-->
+      <!--<el-table-column-->
         <!--prop="exp_date"-->
         <!--header-align="center"-->
         <!--align="center"-->
@@ -174,8 +173,8 @@
         <template slot-scope="scope">
           <!--<el-button type="text" size="small" @click="openDetails (scope.row)">查看</el-button>-->
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row)">打开</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row)">删除</el-button>
-          <el-button v-if="scope.row.order_stata==0" type="text" size="small" @click="UpdateHandle(scope.row)">提交审核</el-button>
+         <!-- <el-button type="text" size="small" @click="deleteHandle(scope.row)">删除</el-button>
+          <el-button v-if="scope.row.order_stata==0" type="text" size="small" @click="UpdateHandle(scope.row.orderId)">提交审核</el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -188,13 +187,14 @@
       :total="totalPage"
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
+
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
   </div>
 </template>
 
 <script>
-  import AddOrUpdate from './ZddGoodsOrder-add-or-update'
+  import AddOrUpdate from './checkDetail'
 
   export default {
     data () {
@@ -231,7 +231,7 @@
         // }
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/orders/search'),
+          url: this.$http.adornUrl('/orders/checkSearch'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
@@ -245,8 +245,10 @@
             this.dataList = data.order.list
             this.totalPage = data.order.total
           } else {
-            this.dataList = []
-            this.totalPage = 0
+              this.$message({
+            message: data.msg,
+            type: 'error'
+            })
           }
           this.dataListLoading = false
         })
@@ -289,34 +291,28 @@
         this.dataListSelections = val
       },
       // 提交审核
-      UpdateHandle (row) {
-        if (row.order_state === 0) {
-            this.$http({
-              url: this.$http.adornUrl('/order/goodsOrder/update'),
-              method: 'post',
-              data: this.$http.adornData({
-                'orderId': row.order_id,
-                'orderStata': 5
-              })
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.$message({
-                  message: '操作成功',
-                  type: 'success',
-                  duration: 1500,
-                  onClose: () => {
-                    this.getDataList()
-                  }
-                })
-              } else {
-                this.$message.error(data.msg)
-              }
-           })
-        } else if ( row.order_state === -1) {
-          this.$message.error("退单无法在此提交！")
-        } else {
-          this.$message.error("已提交！")
+      UpdateHandle (id) {
+        this.$http({
+          url: this.$http.adornUrl('/order/goodsOrder/update'),
+          method: 'post',
+          data: this.$http.adornData({
+            'orderId': id,
+            'orderStata': 5
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+          this.$message({
+            message: '操作成功',
+            type: 'success',
+            duration: 1500,
+            onClose: () => {
+          this.getDataList()
         }
+        })
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
       },
       openDetails (val) {
         this.DetailsVisible = true
@@ -364,7 +360,7 @@
       },
       // 删除
       deleteHandle (row) {
-        if (row.order_state === 0 || row.order_state === -1) {
+        if (row.order_state === 0) {
           this.$http({
             url: this.$http.adornUrl('/orders/delete'),
             method: 'post',

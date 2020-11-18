@@ -27,29 +27,34 @@
         prop="order_no"
         header-align="center"
         align="center"
+        width="180px"
         label="订单号">
       </el-table-column>
       <el-table-column
         prop="name"
         header-align="center"
         align="center"
+        width="80px"
         label="发起人">
       </el-table-column>
       <el-table-column
         prop="alltotal"
         header-align="center"
+        width="140px"
         align="center"
         label="订单总金额">
       </el-table-column>
       <el-table-column
         prop="reall_total"
         header-align="center"
+        width="140px"
         align="center"
         label="实际处理金额">
       </el-table-column>
       <el-table-column
         prop="exam_type"
         header-align="center"
+        width="100px"
         align="center"
         label="审核类型">
         <template scope="scope">
@@ -62,6 +67,7 @@
       <el-table-column
         prop="order_type"
         header-align="center"
+        width="80px"
         align="center"
         label="订单类型">
         <template scope="scope">
@@ -73,6 +79,7 @@
       <el-table-column
         prop="order_state"
         header-align="center"
+        width="100px"
         align="center"
         label="当前状态">
         <template scope="scope">
@@ -113,14 +120,9 @@
         label="四级审核人">
       </el-table-column>-->
       <el-table-column
-        prop="remarks"
-        header-align="center"
-        align="center"
-        label="备注">
-      </el-table-column>
-      <el-table-column
         prop="stime"
         header-align="center"
+        width="180px"
         align="center"
         label="发起时间">
       </el-table-column>
@@ -128,13 +130,21 @@
         prop="exp_date"
         header-align="center"
         align="center"
+        width="180px"
         label="需求时间">
       </el-table-column>
       <el-table-column
         prop="etime"
         header-align="center"
         align="center"
+        width="180px"
         label="结束时间">
+      </el-table-column>
+      <el-table-column
+        prop="remarks"
+        header-align="center"
+        align="center"
+        label="备注">
       </el-table-column>
       <el-table-column
         fixed="right"

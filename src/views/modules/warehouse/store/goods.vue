@@ -26,6 +26,7 @@
           :show-file-list="false"
           accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
           action=""
+          v-if="isAuth('store:goods:import')"
           :on-success="fileUploadSuccess"
           :on-error="fileUploadError" :disabled="fileUploadBtnText=='正在导入'"
           :before-upload="beforeFileUpload" style="display: inline">

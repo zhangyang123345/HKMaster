@@ -68,7 +68,7 @@
           <el-form-item  label="订单状态" prop="order_state">
             <template slot-scope="scope">
               <el-input v-if="dataForm.order_state==-2" value = "订单异常结束"></el-input>
-              <el-input v-if="dataForm.order_state==-1"  value = "退单"></el-input>
+              <el-input v-if="dataForm.order_state==-1"  value = "存在异常"></el-input>
               <el-input v-if="dataForm.order_state==0"  value = "待提交"></el-input>
               <el-input v-if="dataForm.order_state==1"  value = "待EHS审核"></el-input>
               <el-input v-if="dataForm.order_state==2"  value = "待主管审核"></el-input>
@@ -143,7 +143,6 @@
             align="center"
             label="物品名称"
             width="240">
-            <!--:render-header="renderHeader"-->
             <template slot-scope="scope" width="100%" align="left">
                 <el-autocomplete v-if="scope.row.edit"
                                  v-model="scope.row.article_name"
@@ -179,10 +178,6 @@
             align="center"
             label="订单数量"
             width="140">
-            <template slot-scope="scope" width="100%">
-                <span v-if="scope.$index === 0 || (dataForm.order_state != 0 && dataForm.order_state != -1)">{{scope.row.qunatity}}</span>
-                <el-input v-else  maxlength="6" v-model="scope.row.qunatity" type="number"  @change="calAmount"  placeholder="订单数量" ></el-input>
-            </template>
           </el-table-column>
           <el-table-column
             prop="amount"
@@ -191,20 +186,20 @@
             label="订单金额"
             width="140">
           </el-table-column>
-          <el-table-column
-            prop="actual_qunatity"
-            header-align="center"
-            align="center"
-            label="已处理数量"
-            width="140">
-          </el-table-column>
-          <el-table-column
-            prop="actual_mount"
-            header-align="center"
-            align="center"
-            label="已处理金额"
-            width="140">
-          </el-table-column>
+          <!--<el-table-column-->
+            <!--prop="actual_qunatity"-->
+            <!--header-align="center"-->
+            <!--align="center"-->
+            <!--label="已处理数量"-->
+            <!--width="140">-->
+          <!--</el-table-column>-->
+          <!--<el-table-column-->
+            <!--prop="actual_mount"-->
+            <!--header-align="center"-->
+            <!--align="center"-->
+            <!--label="已处理金额"-->
+            <!--width="140">-->
+          <!--</el-table-column>-->
           <el-table-column
             prop="unit_name"
             header-align="center"
@@ -232,16 +227,16 @@
             align="center"
             label="备注">
             <template slot-scope="scope" width="100%" >
-                <span v-if="scope.$index === 0 || (dataForm.order_state != 0 && dataForm.order_state != -1)">{{scope.row.dremark}}</span>
+                <span v-if="scope.$index === 0 && dataForm.order_state == 0"></span>
                 <el-input style="width: 100%" v-else v-model="scope.row.dremark" placeholder="备注"></el-input>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="80">
-            <template slot-scope="scope">
-                <span v-if="scope.$index === 0 || (dataForm.order_state != 0 && dataForm.order_state != -1)"></span>
-                <el-button v-else type="text" size="medium" @click="deleteData(scope.row,scope.$index)">移除</el-button>
-            </template>
-          </el-table-column>
+          <!--<el-table-column label="操作" width="80">-->
+            <!--<template slot-scope="scope">-->
+                <!--<span v-if="scope.$index === 0 && dataForm.order_state == 0"></span>-->
+                <!--<el-button v-else type="text" size="medium" @click="deleteData(scope.row,scope.$index)">移除</el-button>-->
+            <!--</template>-->
+          <!--</el-table-column>-->
 
           <!--<el-table-column-->
           <!--fixed="right"-->
@@ -258,10 +253,9 @@
     <el-divider></el-divider>
 
     <span slot="footer" class="dialog-footer">
-      <el-button @click="close">关闭</el-button>
-      <el-button  v-if="dataForm.order_state == 0 || dataForm.order_state == -1" type="primary" @click="saveOrUpdateData('dataForm')">保存</el-button>
-      <el-button  v-if="dataForm.order_state == 0 || dataForm.order_state == -1" @click="subData('dataForm')">提交</el-button>
-      <el-button  v-if="dataForm.order_state == 6 "  type="primary" @click="complet">结单</el-button>
+      <el-button @click="visible = false">关闭</el-button>
+      <el-button   type="primary" @click="saveOrUpdateData(false)">退回</el-button>
+      <el-button   type="primary" @click="saveOrUpdateData(true)">通过</el-button>
     </span>
   </el-dialog>
 </template>
@@ -334,7 +328,7 @@
           reall_total: '',
           stime: '',
           order_state: 0,
-          exam_type: '',
+          exam_type: 2,
           review_fir: '',
           remarks: '',
           etime: '',
@@ -377,38 +371,8 @@
           this.timeout = setTimeout(() => {
               cb(this.newrestaurants)
         }, 100 * Math.random())
-      })
-      },
-      //表头
-      renderHeader (h,{column}){
-        return h('input',{type:'text'},
-            [ h('span', column.label),
-              h('prompt-message', {
-              props: { messages: ['kaimo需要的tips！'] }
-            })])
-          // <el-autocomplete v-if="scope.row.edit"
-          //       v-model="scope.row.article_name"
-          //       :fetch-suggestions="querySearchAsync"
-          //       popper-class="autoComp"
-          //       placeholder="物品名称"
-          //       @select="handleSelect"
-          //         >
-          //         <template slot-scope="{ item }">
-          //         <div>
-          //         <div class="inputA">{{ item.material_no }}</div>
-          //       <div class="inputA">{{ item.article_name }}</div>
-          //       <div class="inputM">{{ item.manufacturer_name }}</div>
-          //       <div class="inputP">{{ item.price }}</div>
-          //       <div class="inputU">{{ item.unit_name }}</div>
-          //       <div class="inputS">{{ item.specs_name }}</div>
-          //       </div>
-          //       </template>
-          //       </el-autocomplete> )
-
-
-
-
-      },
+    })
+    },
       calAmount () {
         var alltotal = 0
         for (var i = 1; i < this.tableData.length; i++) {
@@ -421,10 +385,6 @@
         }
         this.dataForm.alltotal = alltotal
       },
-      close () {
-        this.visible = false
-        this.$emit('refreshDataList')
-      },
       dateCheck (){
         var date = new Date()
         if (date > this.dataForm.exp_date) {
@@ -435,26 +395,6 @@
             });
         }
       },
-      complet () {
-        //complete
-        this.$http({
-          url: this.$http.adornUrl("/orders/complete"),
-          method: "post",
-          params: this.$http.adornParams({'order_no':this.dataForm.order_no , 'recheck':true })
-        }).then(({ data }) => {
-          if (data.code === 0) {
-            this.$message({
-              message: '成功！',
-              type: 'success',
-              duration: 1500
-            })
-          this.visible = false
-          this.$emit('refreshDataList')
-        } else {
-          this.$message.error(data.msg)
-        }
-      })
-    },
       handleSelect (item) {
         var msg ;
         var buff = true ;
@@ -474,75 +414,7 @@
           });
         }
       },
-      submitData (formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            let data = this.dataForm
-            alert(JSON.stringify(data))
-            this.$http({
-              url: this.$http.adornUrl("/orders/addOrUpdate"),
-              method: "post",
-              data: this.$http.adornData({
-                "order_no": data.order_no,
-                "order_type": data.order_type,
-                "job_no": data.job_no,
-                "stime":data.stime,
-                "detail":JSON.stringify(this.tableData)
-              })
-            }).then(({ data }) => {
-              if (data.code === 0) {
-              this.$message({
-                message: '保存成功！',
-                type: 'success',
-                duration: 1500
-              })
-              }
-            })
-          }
-        })
-      },
       confirmAdd (row, index) {
-      },
-      subData (formName) {
-        if (this.check()) {
-          this.$refs[formName].validate((valid) => {
-            if (valid) {
-              this.tableData.shift()
-              this.$http({
-                url: this.$http.adornUrl("/orders/addOrUpdate"),
-                method: "post",
-                data: this.$http.adornData({
-                  "order_no": this.dataForm.order_no,
-                  "order_state": 1,
-                  "id": this.dataForm.id,
-                  "order_type": this.dataForm.order_type,
-                  "job_no": this.dataForm.job_no,
-                  "alltotal": this.dataForm.alltotal,
-                  "exp_date": this.dataForm.exp_date,
-                  "remarks": this.dataForm.remarks,
-                  "detail": JSON.stringify(this.tableData)
-                })
-              }).then(({data}) => {
-                if (data.code === 0 ) {
-                  this.$message({
-                    message: '操作成功',
-                    type: 'success',
-                    duration: 1500
-                  })
-                  this.tableData.unshift({edit: true})
-                  this.visible = false
-                  this.$emit('refreshDataList')
-                } else {
-                  this.$message({
-                    message: data.msg,
-                    type: 'error',
-                    duration: 1500
-                  })
-                }
-            })
-            }
-          })
-        }
       },
       check () {
           var buff = true
@@ -565,17 +437,23 @@
           }
           return buff;
       },
-      saveOrUpdateData (formName) {
+      saveOrUpdateData (buff) {
         if (this.check()) {
-          this.$refs[formName].validate((valid) => {
-            if(valid) {
-              this.tableData.shift()
+              if (buff) {
+                if (this.dataForm.order_state >= this.dataForm.exam_type) {
+                  this.dataForm.order_state = 5
+                } else {
+                  this.dataForm.order_state = this.dataForm.order_state + 1
+                }
+              } else {
+                this.dataForm.order_state = -1
+              }
               this.$http({
-                url: this.$http.adornUrl("/orders/addOrUpdate"),
+                url: this.$http.adornUrl("/orders/review"),
                 method: "post",
                 data: this.$http.adornData({
                   "order_no": this.dataForm.order_no,
-                  "order_state": 0 ,
+                  "order_state": this.dataForm.order_state,
                   "id": this.dataForm.id,
                   "order_type": this.dataForm.order_type,
                   "job_no": this.dataForm.job_no,
@@ -595,70 +473,42 @@
                     type: 'success',
                     duration: 1500
                   })
-                  this.init(data.order, 2)
-                  this.tableData.unshift({edit: true})
+                    this.visible = false
+                    this.$emit('refreshDataList')
                 } else {
                   this.$message.error(data.msg)
                 }
               })
-              }
-            })
           }
       },
       init (val, val1) {
-        if (val1 === 1) {
-          this.dataForm.id = ''
-          this.dataForm.order_no = ''
-          this.dataForm.order_type = ''
-          this.dataForm.order_state = 0
-          this.dataForm.job_no = ''
-          this.dataForm.alltotal = ''
-          this.dataForm.reall_total = ''
-          this.dataForm.stime = ''
-          this.dataForm.exam_type = ''
-          this.dataForm.review_fir = ''
-          this.dataForm.etime = ''
-          this.dataForm.name = ''
-          this.tableData = []
-          this.dataForm.exp_date = ''
-          this.dataForm.remarks = ''
-          this.visible = true
-          this.dataListLoading = false
-          this.tableData.push({
-            edit: true
-          })
-        } else if (val1 === 2) {
-          this.$nextTick( () => {
             this.visible = true
-              this.$http({
-                url: this.$http.adornUrl(`/orders/getDetail`),
-                method: 'post',
-                params: this.$http.adornParams({
-                  'order_no': val.order_no
-                })
-              }).then(({data}) => {
-                if (data && data.code === 0) {
-                  this.dataForm.id = data.orders.id
-                  this.dataForm.order_no = data.orders.order_no
-                  this.dataForm.order_type = data.orders.order_type
-                  this.dataForm.order_state = data.orders.order_state
-                  this.dataForm.job_no = data.orders.job_no
-                  this.dataForm.alltotal = data.orders.alltotal
-                  this.dataForm.reall_total = data.orders.reall_total
-                  this.dataForm.stime = data.orders.stime
-                  this.dataForm.exam_type = data.orders.exam_type
-                  this.dataForm.review_fir = data.orders.review_fir
-                  this.dataForm.etime = data.orders.etime
-                  this.dataForm.name = data.orders.name
-                  this.tableData = data.orders.detail
-                  this.dataForm.exp_date = data.orders.exp_date
-                  this.dataForm.remarks = data.orders.remarks
-                  this.dataListLoading = false
-                  if (data.orders.order_state == 0 || data.orders.order_state == -1) this.tableData.unshift({edit: true})
-                }
+            this.$http({
+              url: this.$http.adornUrl(`/orders/getDetail`),
+              method: 'post',
+              params: this.$http.adornParams({
+                'order_no': val.order_no
               })
-          })
-        }
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+                this.dataForm.id = data.orders.id
+                this.dataForm.order_no = data.orders.order_no
+                this.dataForm.order_type = data.orders.order_type
+                this.dataForm.order_state = data.orders.order_state
+                this.dataForm.job_no = data.orders.job_no
+                this.dataForm.alltotal = data.orders.alltotal
+                this.dataForm.reall_total = data.orders.reall_total
+                this.dataForm.stime = data.orders.stime
+                this.dataForm.exam_type = data.orders.exam_type
+                this.dataForm.review_fir = data.orders.review_fir
+                this.dataForm.etime = data.orders.etime
+                this.dataForm.name = data.orders.name
+                this.tableData = data.orders.detail
+                this.dataForm.exp_date = data.orders.exp_date
+                this.dataForm.remarks = data.orders.remarks
+                this.dataListLoading = false
+              }
+            })
       },
       addData () {
         for (var i = 0; i < this.tableData.length; i++) {

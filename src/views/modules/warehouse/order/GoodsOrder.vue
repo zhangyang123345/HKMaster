@@ -10,7 +10,7 @@
       </el-form-item>
       <el-form-item>
         <el-select v-model="dataForm.order_state" placeholder="订单状态">
-          <el-option label="存在异常" value="-1"></el-option>
+          <el-option label="退单" value="-1"></el-option>
           <el-option label="待提交" value="0"></el-option>
           <el-option label="待EHS审核" value="1"></el-option>
           <el-option label="待主管审核" value="2"></el-option>
@@ -54,6 +54,7 @@
       <el-table-column
         prop="order_no"
         header-align="center"
+        width="180px"
         align="center"
         label="订单号">
       </el-table-column>
@@ -61,6 +62,7 @@
         prop="order_type"
         header-align="center"
         align="center"
+        width="80px"
         label="订单类型">
         <template scope="scope">
           <div v-if="scope.row.order_type==1">入库</div>
@@ -72,8 +74,10 @@
         prop="order_state"
         header-align="center"
         align="center"
+        width="100px"
         label="订单状态">
         <template scope="scope">
+          <div v-if="scope.row.order_state==-1">退单</div>
           <div v-if="scope.row.order_state ==0">待提交</div>
           <div v-if="scope.row.order_state==1">待EHS审核</div>
           <div v-if="scope.row.order_state==2">待主管审核</div>
@@ -88,11 +92,13 @@
         prop="alltotal"
         header-align="center"
         align="center"
+        width="100px"
         label="订单总金额">
       </el-table-column>
       <el-table-column
         prop="name"
         header-align="center"
+        width="80px"
         align="center"
         label="发起人">
       </el-table-column>
@@ -100,34 +106,39 @@
         prop="reall_total"
         header-align="center"
         align="center"
+        width="120px"
         label="实际处理金额">
       </el-table-column>
       <el-table-column
         prop="exam_type"
         header-align="center"
         align="center"
+        width="100px"
         label="审核类型">
         <template scope="scope">
-          <div v-if="scope.row.exam_type==1">待EHS审核</div>
-          <div v-if="scope.row.exam_type==2">待课级主管审核</div>
-          <div v-if="scope.row.exam_type==3">待经理审核</div>
-          <div v-if="scope.row.exam_type==4">待厂长审核</div>
+          <div v-if="scope.row.exam_type==1">EHS审核</div>
+          <div v-if="scope.row.exam_type==2">主管审核</div>
+          <div v-if="scope.row.exam_type==3">经理审核</div>
+          <div v-if="scope.row.exam_type==4">厂长审核</div>
         </template>
       </el-table-column>
       <el-table-column
-        prop="review_fir"
+        prop="review_user"
         header-align="center"
+        width="100px"
         align="center"
-        label="审核人">
+        label="审核主管">
       </el-table-column>
       <el-table-column
         prop="stime"
         header-align="center"
+        width="180px"
         align="center"
         label="创建时间">
       </el-table-column>
       <el-table-column
         prop="exp_date"
+        width="180px"
         header-align="center"
         align="center"
         label="需求时间">
@@ -135,6 +146,7 @@
       <el-table-column
         prop="etime"
         header-align="center"
+        width="180px"
         align="center"
         label="结单时间">
       </el-table-column>
@@ -207,6 +219,7 @@
             'rows': this.pageSize,
             'name': this.dataForm.name,
             'keytime': this.dataForm.keyTime + '',
+            'director': true,
             'order_type': this.dataForm.order_type,
             'order_state': this.dataForm.order_state
           })

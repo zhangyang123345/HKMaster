@@ -68,7 +68,7 @@
           <el-form-item  label="订单状态" prop="order_state">
             <template slot-scope="scope">
               <el-input v-if="dataForm.order_state==-2" value = "订单异常结束"></el-input>
-              <el-input v-if="dataForm.order_state==-1"  value = "存在异常"></el-input>
+              <el-input v-if="dataForm.order_state==-1"  value = "退单"></el-input>
               <el-input v-if="dataForm.order_state==0"  value = "待提交"></el-input>
               <el-input v-if="dataForm.order_state==1"  value = "待EHS审核"></el-input>
               <el-input v-if="dataForm.order_state==2"  value = "待主管审核"></el-input>
@@ -142,7 +142,7 @@
           header-align="center"
           align="center"
           label="物品名称"
-          width="300">
+          width="240">
           <template slot-scope="scope" width="100%" align="left">
             <el-autocomplete v-if="scope.row.edit"
                              v-model="scope.row.article_name"
@@ -176,21 +176,21 @@
           header-align="center"
           align="center"
           label="订单数量"
-          width="140">
+          width="100">
         </el-table-column>
         <el-table-column
           prop="amount"
           header-align="center"
           align="center"
           label="订单金额"
-          width="140">
+          width="120">
         </el-table-column>
         <el-table-column
           prop="actual_qunatity"
           header-align="center"
           align="center"
           label="已处理数量"
-          width="140">
+          width="120">
         </el-table-column>
         <el-table-column
           prop="actual_mount"
@@ -204,21 +204,21 @@
           header-align="center"
           align="center"
           label="单位"
-          width="140">
+          width="80">
         </el-table-column>
         <el-table-column
           prop="price"
           header-align="center"
           align="center"
           label="单价"
-          width="140">
+          width="80">
         </el-table-column>
         <el-table-column
           prop="specs_name"
           header-align="center"
           align="center"
           label="规格"
-          width="140">
+          width="100">
         </el-table-column>
         <el-table-column
           prop="dremark"
@@ -406,7 +406,6 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             let data = this.dataForm
-            alert(JSON.stringify(data))
             this.$http({
               url: this.$http.adornUrl("/orders/addOrUpdate"),
               method: "post",
@@ -457,8 +456,12 @@
               })
               this.tableData.unshift({edit: true})
               this.visible = false
+              this.$emit('refreshDataList')
             } else {
-              alert(data.code)
+              this.$message({
+                message: data.msg,
+                type: 'error'
+              });
             }
           })
           }
@@ -547,6 +550,7 @@
             this.dataForm.etime = data.orders.etime
             this.dataForm.name = data.orders.name
             this.tableData = data.orders.detail
+            this.dataForm.remarks = data.orders.remarks
             this.dataForm.exp_date = data.orders.exp_date
             this.dataListLoading = false
           }

@@ -109,6 +109,7 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="close">关闭</el-button>
+      <el-button type="primary" @click="unStoreSubmit()">补码</el-button>
       <el-button type="primary" @click="underFormSubmit(false)">保存入库</el-button>
     </span>
   </el-dialog>
@@ -295,6 +296,42 @@
               type: 'error'
             });
           }
+        }
+      }).catch(action => {
+        });
+      },
+      // 补码提交
+      unStoreSubmit () {
+        this.$confirm("确认补码提交！", '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '确认',
+          cancelButtonText: '取消'
+        }).then(() => {
+          if (this.scanList.length>0) {
+          this.$http({
+            url: this.$http.adornUrl(`/inoutmsg/unOrder`),
+            method: 'post',
+            params: this.$http.adornParams({
+              'order_no': this.dataForm.order_no,
+              'order_type': this.dataForm.order_type,
+              'unStore': true
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+            this.scanList.splice(0,this.scanList.length)
+            this.underForm.reall_total = 0
+            this.underForm.scan_data = ''
+            this.$message({
+              message: data.msg,
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: data.msg,
+              type: 'error'
+            })
+          }
+        })
         }
       }).catch(action => {
         });
