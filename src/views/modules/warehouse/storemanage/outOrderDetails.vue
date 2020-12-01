@@ -5,6 +5,8 @@
     :show-close="false"
     :title="!dataForm.order_no ? '新增(只需添加物品信息)' : '订单处理'"
     :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    :before-close="close"
     :visible.sync="visible">
     <el-form :model="dataForm" class="outForm"  ref="dataForm" label-width="80px">
       <el-row>
@@ -250,14 +252,20 @@
               align="center"
               label="规格">
             </el-table-column>
+            <el-table-column
+              prop="create_time"
+              header-align="center"
+              align="center"
+              label="扫描时间">
+            </el-table-column>
           </el-table>
         </el-col>
       </el-row>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="close">关闭</el-button>
-      <el-button type="primary" @click="dataFormSubmit(false)">保存</el-button>
-      <el-button type="primary" @click="dataFormSubmit(true)">结单</el-button>
+      <el-button  v-if="$store.state.user.name == dataForm.order_luck" type="primary" @click="dataFormSubmit(false)">保存</el-button>
+      <el-button  v-if="$store.state.user.name == dataForm.order_luck" type="primary" @click="dataFormSubmit(true)">结单</el-button>
     </span>
   </el-dialog>
   <!-- 弹窗, 新增 / 修改 -->
@@ -279,6 +287,9 @@
           stime: '',
           remarks: '',
           order_no: '',
+          job_no: '',
+          director: '',
+          separtment: '',
           order_state: '',
           order_type: '',
           types: '',
@@ -340,11 +351,11 @@
         this.visible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
-          if (order_no != null) {
+            if (order_no != null) {
             this.$http({
               url: this.$http.adornUrl(`/orders/getDetail`),
               method: 'post',
-              params: this.$http.adornParams({"order_no":order_no})
+              params: this.$http.adornParams({"order_no":order_no,"luck":true,"order_luck":this.dataForm.order_luck})
             }).then(({data}) => {
               if (data && data.code === 0) {
                 this.details = data.orders.detail
@@ -355,6 +366,10 @@
                 this.dataForm.alltotal = data.orders.alltotal
                 this.dataForm.reall_total = data.orders.reall_total
                 this.dataForm.stime = data.orders.stime
+                this.dataForm.director = data.orders.director
+                this.dataForm.job_no = data.orders.job_no
+                this.dataForm.separtment = data.orders.separtment
+                this.dataForm.order_luck = data.orders.order_luck
                 this.dataForm.order_type = data.orders.order_type
                 this.dataForm.order_state = data.orders.order_state
                 this.dataForm.remarks = data.orders.remarks
@@ -371,6 +386,22 @@
                 if(data.orders.order_state == 5)this.dataForm.states ="待处理"
                 if(data.orders.order_state == 6)this.dataForm.states ="待结单"
                 if(data.orders.order_state == 7)this.dataForm.states ="完成"
+                if (this.$store.state.user.name != this.dataForm.order_luck) {
+                  this.$message({
+                    message:  "此订单已被"+data.orders.order_user+"锁定！" ,
+                    type: 'error'
+                  })
+                }
+                this.$http({
+                  url: this.$http.adornUrl(`/inoutmsg/getCache`),
+                  method: 'post',
+                  params: this.$http.adornParams({"order_no":order_no})
+                }).then(({data}) => {
+                  if (data && data.code === 0) {
+                  this.scanList = data.cacheData
+                  this.learning()
+                }
+              })
             }
           })
           }
@@ -474,6 +505,7 @@
                   method: 'post',
                   data: this.$http.adornData({
                     "order_no": this.dataForm.order_no,
+                    "job_no": this.dataForm.job_no,
                     "order_type": this.dataForm.order_type,
                     "order": JSON.stringify(this.dataForm),
                     "detail": JSON.stringify(this.details)
@@ -568,7 +600,7 @@
               "goods_no": this.dataForm.scan_data
             })
            }).then(({data}) => {
-            if(data && data.code === 0){
+            if (data && data.code === 0) {
             this.underForm.scan_data = ''
               for (var sdata in this.details) {
                 if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27)) >= 0) {
@@ -585,7 +617,7 @@
                   break
                 }
               }
-            }else{
+            } else {
               this.underForm.scan_data = ''
               this.$message({
                 message: data.msg,
@@ -593,7 +625,7 @@
               });
             }
           })
-        }else{
+        } else {
           this.underForm.scan_data = ''
           this.$message({
             message: msg ,
@@ -638,33 +670,72 @@
             for(var index in this.scanList){
               if(this.scanList[index].id != null)ids += this.scanList[index].id + ','
             }
-            if(ids!= ""){
+            if (ids!= "") {
               this.$http({
                 url: this.$http.adornUrl(`/inoutmsg/deleCache`),
                 method: 'post',
                 params: this.$http.adornParams({"ids": ids})
                 }).then(({data}) => {
-                  if(data && data.code === 0){
-                  this.visible = false
-                  this.scanList.splice(0,this.scanList.length)
-                  this.$emit('refreshDataList')
-                  }else{
+                  if (data && data.code === 0) {
+                      this.$http({
+                        url: this.$http.adornUrl(`/orders/unLuck`),
+                        method: 'post',
+                        params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
+                      }).then(({data}) => {
+                        if (data && data.code === 0) {
+                        this.visible = false
+                        this.scanList.splice(0,this.scanList.length)
+                        this.$emit('refreshDataList')
+                      } else {
+                        this.$message({
+                          message: data.msg,
+                          type: 'error'
+                        })
+                      }
+                    })
+                  } else {
                     this.$message({
                       message: data.msg,
                       type: 'error'
                     });
                   }
                 })
-            }else{
-              this.visible = false
-              this.scanList.splice(0,this.scanList.length)
-              this.$emit('refreshDataList')
+            } else {
+              this.$http({
+                url: this.$http.adornUrl(`/orders/unLuck`),
+                method: 'post',
+                params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
+              }).then(({data}) => {
+                if (data && data.code === 0) {
+                  this.visible = false
+                  this.scanList.splice(0,this.scanList.length)
+                  this.$emit('refreshDataList')
+              } else {
+                  this.$message({
+                    message: data.msg,
+                    type: 'error'
+                  })
+                }
+              })
             }
           }).catch(action => {
           });
-        }else{
-          this.visible = false
-          this.$emit('refreshDataList')
+       } else {
+          this.$http({
+            url: this.$http.adornUrl(`/orders/unLuck`),
+            method: 'post',
+            params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.visible = false
+              this.$emit('refreshDataList')
+              } else {
+                this.$message({
+                  message: data.msg,
+                  type: 'error'
+                })
+            }
+          })
         }
       }
     }

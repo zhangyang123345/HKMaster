@@ -3,7 +3,8 @@ export default {
   state: {
     id: 0,
     name: '',
-    realname: ''
+    realname: '',
+    director: '',
   },
   mutations: {
     updateId (state, id) {
@@ -14,6 +15,9 @@ export default {
     },
     updateRealname (state, name) {
       state.realname = name
+    },
+    updateDirector (state,name) {
+      state.director = name
     }
   }
 }

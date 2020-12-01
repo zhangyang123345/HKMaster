@@ -60,6 +60,10 @@
       realname: {
         get () { return this.$store.state.user.realname },
         set (val) { this.$store.commit('user/updateRealname', val) }
+      },
+      director: {
+        get () { return this.$store.state.user.director },
+        set (val) { this.$store.commit('user/updateDirector', val) }
       }
     },
     created () {
@@ -88,6 +92,7 @@
             this.userId = data.user.userId
             this.userName = data.user.username
             this.realname = data.user.realname
+            this.director = data.user.director
           }
         })
       }

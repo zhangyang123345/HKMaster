@@ -224,7 +224,7 @@
           goods_name: '',
           store_id: '',
           department: '',
-          msg_type: ''
+          msg_type: 2
         },
         // faangledoubleup: 'fa-angle-double-up',
         // faangledoubledown: 'fa-angle-double-down',
@@ -232,7 +232,7 @@
         dataList: [],
         msg_dataList: [],
         storeArr: [],
-        msgtypes: [{id: '1', value: '入库'}, {id: '2', value: '出库'}, {id: '3', value: '报废'}],
+        msgtypes: [{id: 1, value: '入库'}, {id: 2, value: '出库'}, {id: 3, value: '报废'}],
         pageIndex: 1,
         pageSize: 10,
         totalPage: 0,

@@ -1,144 +1,167 @@
 <template>
   <div class="mod-config">
-    <el-form :inline="true" :model="dataForm"  ref="dataForm" >
-        <!--<el-input v-model="dataForm.storename" placeholder="仓库名" @click.native="select()"></el-input>-->
-        <el-form-item prop="storeId">
-          <el-select  v-model="dataForm.index" placeholder="请选择仓库" @change="currentSel">
-            <el-option v-for="(item,index) in columeTypeArr" :key="index" :label="item.storename" :value="index" >
-            </el-option>
-          </el-select>
-        </el-form-item>
+    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <!--<el-button @click="getDataList()">查询</el-button>-->
-        <el-button v-if="isAuth('storemanage:handinput:add')" type="primary" @click="returnDataList()">返回</el-button>
-        <!--<el-button v-if="isAuth('storemanage:handinput:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
+        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-select v-model="dataForm.order_type">
+          <el-option v-for="item in typeOption"
+                     :key="item.value"
+                     :label="item.lable"
+                     :value="item.value"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button @click="getDataList()">查询</el-button>
+      </el-form-item>
+      <el-form-item v-if="isAuth('storemanage:handoutput:unhandout')">
+        <el-button @click="unScan()">出库</el-button>
       </el-form-item>
     </el-form>
     <el-table
-      :data="dataListShow"
+      :data="dataList"
       border
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
-      <el-table-column
-        prop="storename"
-        header-align="center"
-        align="center"
-        label="仓库名">
-      </el-table-column>
       <!--<el-table-column-->
-        <!--prop="goodsId"-->
-        <!--header-align="center"-->
-        <!--align="center"-->
-        <!--label="商品ID">-->
+      <!--type="selection"-->
+      <!--header-align="center"-->
+      <!--align="center"-->
+      <!--width="50">-->
       <!--</el-table-column>-->
-
       <el-table-column
-        v-if="status==0"
-        key="articleNo"
-        prop="articleId"
+        prop="order_no"
         header-align="center"
         align="center"
-        label="物件号">
+        width="180px"
+        label="订单号">
       </el-table-column>
       <el-table-column
-        prop="goods_name"
+        prop="name"
         header-align="center"
         align="center"
-        label="商品名称">
+        width="80px"
+        label="发起人">
       </el-table-column>
       <el-table-column
-        prop="goods_material"
+        prop="alltotal"
         header-align="center"
+        width="140px"
         align="center"
-        label="物料号">
+        label="订单总金额">
       </el-table-column>
       <el-table-column
-        prop="manufacturer"
+        prop="reall_total"
         header-align="center"
+        width="140px"
         align="center"
-        label="厂商">
+        label="实际处理金额">
       </el-table-column>
       <el-table-column
-        prop="msgType"
+        prop="exam_type"
         header-align="center"
+        width="100px"
         align="center"
-        label="类型">
+        label="审核类型">
         <template scope="scope">
-          <div v-show="scope.row.msgType==1">普通</div>
-          <div v-show="scope.row.msgType==2">刀具类</div>
-          <div v-show="scope.row.msgType==3">衣裤鞋子类</div>
+          <div v-if="scope.row.exam_type==1">EHS审核</div>
+          <div v-if="scope.row.exam_type==2">主管审核</div>
+          <div v-if="scope.row.exam_type==3">经理审核</div>
+          <div v-if="scope.row.exam_type==''">厂长审核</div>
         </template>
       </el-table-column>
       <el-table-column
-        prop="price"
+        prop="order_type"
         header-align="center"
+        width="80px"
         align="center"
-        label="单价">
-      </el-table-column>
-      <el-table-column
-        prop="specs"
-        header-align="center"
-        align="center"
-        label="规格">
-      </el-table-column>
-      <el-table-column
-        prop="material_quality"
-        header-align="center"
-        align="center"
-        label="材质">
-      </el-table-column>
-      <el-table-column
-        v-if="status==1"
-        key="goods"
-        prop="num"
-        header-align="center"
-        align="center"
-        label="数量">
-      </el-table-column>
-      <el-table-column
-        v-if="status==0"
-        key="articleNo"
-        header-align="center"
-        align="center"
-        label="专案">
+        label="订单类型">
         <template scope="scope">
-          <div v-show="scope.row.special==1">Alaska</div>
-          <div v-show="scope.row.special==2">Boston</div>
-          <div v-show="scope.row.special==2">Toronto</div>
+          <div v-if="scope.row.order_type==1">入库</div>
+          <div v-if="scope.row.order_type==2">出库</div>
+          <div v-if="scope.row.order_type==3">报废</div>
         </template>
       </el-table-column>
       <el-table-column
-        v-if="status==0"
-        key="articleNo"
-        prop="inTime"
+        prop="order_state"
+        header-align="center"
+        width="100px"
+        align="center"
+        label="当前状态">
+        <template scope="scope">
+          <div v-if="scope.row.order_state==-2">订单异常结束</div>
+          <div v-if="scope.row.order_state==-1">存在异常</div>
+          <div v-if="scope.row.order_state==0">待提交</div>
+          <div v-if="scope.row.order_state==1">待EHS审核</div>
+          <div v-if="scope.row.order_state==2">待主管审核</div>
+          <div v-if="scope.row.order_state==3">待经理审核</div>
+          <div v-if="scope.row.order_state==4">待厂长审核</div>
+          <div v-if="scope.row.order_state==5">待处理</div>
+          <div v-if="scope.row.order_state==6">待结单</div>
+          <div v-if="scope.row.order_state==7">完成</div>
+        </template>
+      </el-table-column>
+      <!--   <el-table-column
+           prop="review_fir"
+           header-align="center"
+           align="center"
+           label="一级审核人">
+         </el-table-column>
+         <el-table-column
+           prop="review_sec"
+           header-align="center"
+           align="center"
+           label="二级审核人">
+         </el-table-column>
+         <el-table-column
+           prop="review_thi"
+           header-align="center"
+           align="center"
+           label="三级审核人">
+         </el-table-column>
+         <el-table-column
+           prop="review_fou"
+           header-align="center"
+           align="center"
+           label="四级审核人">
+         </el-table-column>-->
+      <el-table-column
+        prop="stime"
+        header-align="center"
+        width="180px"
+        align="center"
+        label="发起时间">
+      </el-table-column>
+      <el-table-column
+        prop="exp_date"
         header-align="center"
         align="center"
-        label="入库时间">
+        width="180px"
+        label="需求时间">
       </el-table-column>
-      <!--<el-table-column-->
-        <!--prop="createtime"-->
-        <!--header-align="center"-->
-        <!--align="center"-->
-        <!--label="创建时间">-->
-      <!--</el-table-column>-->
-      <!--<el-table-column-->
-        <!--prop="updatetime"-->
-        <!--header-align="center"-->
-        <!--align="center"-->
-        <!--label="修改时间">-->
-      <!--</el-table-column>-->
       <el-table-column
-        v-if="status==0"
-        key="articleNo"
+        prop="etime"
+        header-align="center"
+        align="center"
+        width="180px"
+        label="结束时间">
+      </el-table-column>
+      <el-table-column
+        prop="remarks"
+        header-align="center"
+        align="center"
+        label="备注">
+      </el-table-column>
+      <el-table-column
         fixed="right"
         header-align="center"
         align="center"
-        width="150"
+        width="80"
         label="操作">
         <template slot-scope="scope">
-          <!--<el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.goodsId)">修改</el-button>-->
-          <el-button  type="text" size="small" @click="updateArticle(scope.row.msgId,1)">取消</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.order_no)">处理</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -151,180 +174,69 @@
       :total="totalPage"
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
-    <span slot="footer" class="dialog-footer">
-      <el-button v-if="status==0" type="primary" @click=" dataFormSubmit1()">确认</el-button>
-       <el-button v-if="status==1" type="primary" @click="select()">提交</el-button>
-    </span>
-    <!-- 弹窗 -->
-    <add-or-update v-if="OrderVisible" ref="OrderOrUpdate" @refreshDataList="articleIdHandle"></add-or-update>
-    <add-or-update v-if="addOrUpdateVisible" ref="AddOrUpdate" @refreshDataList="articleIdHandle"></add-or-update>
+    <!-- 弹窗, 新增 / 修改 -->
+    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <un-out v-if="unstoreVisible" ref="unOut" ></un-out>
   </div>
 </template>
+
 <script>
-  // import OrderOrUpdate from './OrderGoodsOrder-add-or-update'
-  import AddOrUpdate from './OrderGoodsOrder-add-or-update'
+  import AddOrUpdate from './handInDetails';
+  import unOut from './unOuthand';
   export default {
     data () {
       return {
-        restaurants: [],
-        newrestaurants: [],
-        state: '',
-        timeout: null,
-        status: 0,
-        fileUploadBtnText: '导入数据',
         dataForm: {
-          storeId: '',
-          storename: '',
-          isFullscreen: false
+          key: '',
+          order_type:2
         },
-        addOrUpdateVisible: false,
-        OrderVisible: false,
         dataList: [],
-        dataListShow: [],
-        dataListX: [],
         pageIndex: 1,
         pageSize: 10,
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
-        columeTypeArr: []
-        // addOrUpdateVisible: false
+        addOrUpdateVisible: false,
+        instoreVisible: false,
+        unstoreVisible: false,
+        typeOption: [{value:2,lable:"出库"},{value:3,lable:"报废"}]
       }
     },
     components: {
       AddOrUpdate,
-      // OrderOrUpdate
+      unOut
     },
     activated () {
-      // this.select()
-      this.init()
+      this.getDataList()
     },
     methods: {
-      // 获取数据列表
-      init () {
-        this.visible = true
-        this.$http({
-          url: this.$http.adornUrl('/store/stores/list'),
-          method: 'get',
-          data: this.$http.adornData(this.dataList, false)
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-          this.columeTypeArr = data.page.list
-        } else {
-        }
-      })
-      },
-      currentSel (selVal) {
-        this.dataForm.storeId = this.columeTypeArr[selVal].storeId
-        this.dataForm.storename = this.columeTypeArr[selVal].storename
-        this.articleIdHandle()
-      },
-      updateArticle (id, type) {
-        this.$http({
-          url: this.$http.adornUrl('/stock/stockmanage/article_outing'),
-          method: 'get',
-          params: this.$http.adornParams({
-            'msgId': id,
-            'msgType': type
-          })
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-          this.$message({
-            message: '操作成功',
-            type: 'success',
-            duration: 1500,
-            onClose: () => {
-            this.articleIdHandle(0)
-        }
-        })
-        } else {
-          this.$message.error(data.msg)
-        }
-      })
-      },
-      select () {
-          this.status = 0
-          var msg = {}
-          msg.dataList = this.dataList
-          msg.dataListX = this.dataListX
-        this.addOrUpdateVisible = true
+      //无单
+      unScan (){
+        this.unstoreVisible = true
         this.$nextTick(() => {
-          this.$refs.AddOrUpdate.init(msg)
+          this.$refs.unOut.init()
       })
       },
-      //最终确认
-      dataFormSubmit1 () {
-        if (this.dataListX.length==0){
-          this.$message.error('请先添加物件')
-          return
-        }
-        this.dataList = []
-       this.status = 1
-        for (var j = 0; j < this.dataListX.length; j++){
-          var tt = 0
-        for (var i = 0; i < this.dataList.length; i++){
-            if (this.dataList[i].goods_name == this.dataListX[j].goods_name){
-              if (this.dataList[i].manufacturer == this.dataListX[j].manufacturer){
-                if (this.dataList[i].goods_material == this.dataListX[j].goods_material){
-                  if (this.dataList[i].price == this.dataListX[j].price) {
-                    if (this.dataList[i].specs == this.dataListX[j].specs) {
-                      if (this.dataList[i].material_quality == this.dataListX[j].material_quality) {
-                        var new_num = Number(this.dataList[i].num) + 1
-                        this.dataList[i].num = new_num
-                        tt=1
-                        break;
-                      }
-                    }
-                  }
-              }
-            }
-          }
-        }
-        if(tt==0){
-          this.dataListX[j].num = 1
-          this.dataList.push(this.dataListX[j])
-        }
-        }
-        this.dataListShow = this.dataList
-      },
-      //提交核对
-      // dataFormSubmit () {
-      //   this.status = 0
-      //   var msg = {}
-      //   msg.dataList = this.dataList
-      //   msg.dataListX = this.dataListX
-      //   this.dataListShow = []
-      //   this.OrderVisible = true
-      //   this.$nextTick(() => {
-      //     this.$refs.addOrUpdate.init(1)
-      // })
-      // },
       // 获取数据列表
-      articleIdHandle () {
-        // if(map != 0){
-        //   this.dataForm.storeId = map.storeId
-        //   this.dataForm.storename = map.storename
-        // }
-        this.totalPage = 0
+      getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/stock/stockmanage/list_article'),
+          url: this.$http.adornUrl('/orders/search'),
           method: 'get',
           params: this.$http.adornParams({
+            'macheck': true,
             'page': this.pageIndex,
-            'limit': this.pageSize,
-            'store_id': this.dataForm.storeId,
-            'type': 2
+            'rows': this.pageSize,
+            'key': 1,
+            'order_type':this.dataForm.order_type,
+            'order_state':5
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
-            console.log(data)
-          this.dataListX = data.list
-          this.totalPage = data.list.length
-          this.dataListShow = this.dataListX
+          this.dataList = data.order.list
+          this.totalPage = data.order.total
         } else {
-          this.dataListX = []
-          this.dataListShow = []
+          this.dataList = []
           this.totalPage = 0
         }
         this.dataListLoading = false
@@ -345,10 +257,12 @@
       selectionChangeHandle (val) {
         this.dataListSelections = val
       },
-      //返回
-      returnDataList () {
-        this.status = 0
-        this.dataListShow = this.dataListX
+      // 详情
+      addOrUpdateHandle (order_no) {
+        this.addOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.addOrUpdate.init(order_no)
+      })
       }
     }
   }

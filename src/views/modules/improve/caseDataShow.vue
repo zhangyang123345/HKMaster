@@ -399,11 +399,6 @@
             bottom: '3%',
             containLabel: true
           },
-          toolbox: {
-            feature: {
-              saveAsImage: {}
-            }
-          },
           xAxis: {
             type: 'category',
             // boundaryGap: false,
@@ -466,11 +461,6 @@
             right: '4%',
             bottom: '3%',
             containLabel: true
-          },
-          toolbox: {
-            feature: {
-              saveAsImage: {}
-            }
           },
           xAxis: {
             type: 'category',
@@ -546,11 +536,6 @@
             bottom: '3%',
             containLabel: true
           },
-          toolbox: {
-            feature: {
-              saveAsImage: {}
-            }
-          },
           xAxis: {
             type: 'category',
             // boundaryGap: false,
@@ -613,11 +598,6 @@
             right: '4%',
             bottom: '3%',
             containLabel: true
-          },
-          toolbox: {
-            feature: {
-              saveAsImage: {}
-            }
           },
           xAxis: {
             type: 'category',

@@ -236,6 +236,7 @@
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'rows': this.pageSize,
+            'username':this.$store.state.user.name,
             'keytime': this.dataForm.keyTime + '',
             'order_type': this.dataForm.order_type,
             'order_state': this.dataForm.order_state

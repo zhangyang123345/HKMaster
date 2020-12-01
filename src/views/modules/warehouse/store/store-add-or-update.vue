@@ -101,10 +101,8 @@
     },
     methods: {
       init (id) {
-        this.dataForm.storeId = id || 0
+        this.dataForm.storeId = id
         this.visible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].resetFields()
         if (this.dataForm.storeId) {
           this.$http({
             url: this.$http.adornUrl(`/store/store/getStore`),
@@ -113,6 +111,7 @@
           }).then(({data}) => {
             if (data && data.code === 0) {
             this.dataForm.store_name = data.storeData.store_name
+            this.dataForm.store_id = data.storeData.store_id
             this.dataForm.store_volume = data.storeData.store_volume
             this.dataForm.store_addr = data.storeData.store_addr
             this.dataForm.duty_name = data.storeData.duty_name
@@ -121,8 +120,16 @@
             this.dataForm.store_type = data.storeData.store_type
             }
         })
+        } else {
+          this.dataForm.store_name = ''
+          this.dataForm.store_id = 0
+          this.dataForm.store_volume = 0
+          this.dataForm.store_addr = ''
+          this.dataForm.duty_name = ''
+          this.dataForm.duty_user = ''
+          this.dataForm.phone = ''
+          this.dataForm.store_type = 2
         }
-      })
       },
       // 表单提交
       dataFormSubmit () {

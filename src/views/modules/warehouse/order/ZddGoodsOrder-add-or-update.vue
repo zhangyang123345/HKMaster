@@ -3,7 +3,9 @@
     width= "90%"
     top="5vh"
     :close-on-click-modal="false"
+    :close-on-press-escape="false"
     append-to-body
+    :before-close="close"
     :visible.sync="visible">
     <el-form :model="dataForm" class="orderStyle"  ref="dataForm"  label-width="120px">
       <el-row>
@@ -51,6 +53,11 @@
             <el-input v-model="dataForm.alltotal" placeholder="总金额" readonly></el-input>
           </el-form-item>
         </el-col>
+        <el-col :span="6" >
+          <el-form-item label="实际金额" prop="reall_total">
+            <el-input v-model="dataForm.reall_total" placeholder="实际金额" readonly></el-input>
+          </el-form-item>
+        </el-col>
         <el-col :span="6">
           <el-form-item label="订单类型" prop="order_type">
             <el-select v-model="dataForm.order_type" placeholder="订单类型" style="width:100%;">
@@ -64,7 +71,7 @@
             <!--<el-input v-if="dataForm.order_type===3">待经理审核</el-input>-->
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="5">
           <el-form-item  label="订单状态" prop="order_state">
             <template slot-scope="scope">
               <el-input v-if="dataForm.order_state==-2" value = "订单异常结束"></el-input>
@@ -80,12 +87,6 @@
             </template>
           </el-form-item>
         </el-col>
-        <el-col :span="5" >
-          <el-form-item label="发 起 人" prop="name">
-            <el-input v-model="dataForm.name" placeholder="发起人" readonly></el-input>
-          </el-form-item>
-        </el-col>
-
         <!--<el-col :span="5" v-if=dataFormState >-->
           <!--<el-form-item label="审核类型" prop="exam_type">-->
             <!--<el-input v-model="dataForm.exam_type" placeholder="审核类型" :disabled=dataFormState>-->
@@ -101,11 +102,16 @@
       </el-row>
       <el-row>
         <el-col :span="6" >
-          <el-form-item label="实际金额" prop="reall_total">
-            <el-input v-model="dataForm.reall_total" placeholder="实际金额" readonly></el-input>
+          <el-form-item label="发 起 人" prop="name">
+            <el-input v-model="dataForm.name" placeholder="发起人" readonly></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="17" >
+        <el-col :span="6" >
+          <el-form-item label="主     管" prop="name">
+            <el-input v-model="dataForm.director" placeholder="主     管" readonly></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="11" >
           <el-form-item label="备    注" prop="remarks">
             <el-input v-model="dataForm.remarks" placeholder="备注" ></el-input>
           </el-form-item>
@@ -143,7 +149,7 @@
             align="center"
             label="物品名称"
             width="240">
-            <!--:render-header="renderHeader"-->
+            //:render-header="renderHeader"
             <template slot-scope="scope" width="100%" align="left">
                 <el-autocomplete v-if="scope.row.edit"
                                  v-model="scope.row.article_name"
@@ -334,12 +340,14 @@
           reall_total: '',
           stime: '',
           order_state: 0,
-          exam_type: '',
+          exam_type: 2,
+          exam_firs: 0,
           review_fir: '',
           remarks: '',
           etime: '',
           name: '',
-          exp_date: ''
+          exp_date: '',
+          director: ''
         },
         tableData: [],
         dataFormState: false,
@@ -381,33 +389,217 @@
       },
       //表头
       renderHeader (h,{column}){
-        return h('input',{type:'text'},
-            [ h('span', column.label),
-              h('prompt-message', {
-              props: { messages: ['kaimo需要的tips！'] }
-            })])
-          // <el-autocomplete v-if="scope.row.edit"
-          //       v-model="scope.row.article_name"
-          //       :fetch-suggestions="querySearchAsync"
-          //       popper-class="autoComp"
-          //       placeholder="物品名称"
-          //       @select="handleSelect"
-          //         >
-          //         <template slot-scope="{ item }">
-          //         <div>
-          //         <div class="inputA">{{ item.material_no }}</div>
-          //       <div class="inputA">{{ item.article_name }}</div>
-          //       <div class="inputM">{{ item.manufacturer_name }}</div>
-          //       <div class="inputP">{{ item.price }}</div>
-          //       <div class="inputU">{{ item.unit_name }}</div>
-          //       <div class="inputS">{{ item.specs_name }}</div>
-          //       </div>
-          //       </template>
-          //       </el-autocomplete> )
-
-
-
-
+        this.normalizeComponent(
+          // src_autocompletevue_type_script_lang_js_,
+          // autocompletevue_type_template_id_152f2ee6_render,
+          // autocompletevue_type_template_id_152f2ee6_staticRenderFns,
+          // false,
+          null,
+          null,
+          null
+        )
+        var _vm = this
+        var _h = _vm.$createElement
+        var _c = _vm._self._c || _h
+        return h  (
+          "div",
+          {
+            class: [
+              _vm.type === "textarea" ? "el-textarea" : "el-input",
+              _vm.inputSize ? "el-input--" + _vm.inputSize : "",
+              {
+                "is-disabled": _vm.inputDisabled,
+                "is-exceed": _vm.inputExceed,
+                "el-input-group": _vm.$slots.prepend || _vm.$slots.append,
+                "el-input-group--append": _vm.$slots.append,
+                "el-input-group--prepend": _vm.$slots.prepend,
+                "el-input--prefix": _vm.$slots.prefix || _vm.prefixIcon,
+                "el-input--suffix":
+                  _vm.$slots.suffix ||
+                  _vm.suffixIcon ||
+                  _vm.clearable ||
+                  _vm.showPassword
+              }
+            ],
+            on: {
+              mouseenter: function($event) {
+                _vm.hovering = true
+              },
+              mouseleave: function($event) {
+                _vm.hovering = false
+              }
+            }
+          },
+          [
+            _vm.type !== "textarea"
+              ? [
+                _vm.$slots.prepend
+                  ? _c(
+                  "div",
+                  { staticClass: "el-input-group__prepend" },
+                  [_vm._t("prepend")],
+                  2
+                  )
+                  : _vm._e(),
+                _vm.type !== "textarea"
+                  ? _c(
+                  "input",
+                  _vm._b(
+                    {
+                      ref: "input",
+                      staticClass: "el-input__inner",
+                      attrs: {
+                        tabindex: _vm.tabindex,
+                        type: _vm.showPassword
+                          ? _vm.passwordVisible
+                            ? "text"
+                            : "password"
+                          : _vm.type,
+                        disabled: _vm.inputDisabled,
+                        readonly: _vm.readonly,
+                        autocomplete: _vm.autoComplete || _vm.autocomplete,
+                        "aria-label": _vm.label
+                      },
+                      on: {
+                        compositionstart: _vm.handleCompositionStart,
+                        compositionend: _vm.handleCompositionEnd,
+                        input: _vm.handleInput,
+                        focus: _vm.handleFocus,
+                        blur: _vm.handleBlur,
+                        change: _vm.handleChange
+                      }
+                    },
+                    "input",
+                    _vm.$attrs,
+                    false
+                  )
+                  )
+                  : _vm._e(),
+                _vm.$slots.prefix || _vm.prefixIcon
+                  ? _c(
+                  "span",
+                  { staticClass: "el-input__prefix" },
+                  [
+                    _vm._t("prefix"),
+                    _vm.prefixIcon
+                      ? _c("i", {
+                        staticClass: "el-input__icon",
+                        class: _vm.prefixIcon
+                      })
+                      : _vm._e()
+                  ],
+                  2
+                  )
+                  : _vm._e(),
+                _vm.getSuffixVisible()
+                  ? _c("span", { staticClass: "el-input__suffix" }, [
+                    _c(
+                      "span",
+                      { staticClass: "el-input__suffix-inner" },
+                      [
+                        !_vm.showClear ||
+                        !_vm.showPwdVisible ||
+                        !_vm.isWordLimitVisible
+                          ? [
+                            _vm._t("suffix"),
+                            _vm.suffixIcon
+                              ? _c("i", {
+                                staticClass: "el-input__icon",
+                                class: _vm.suffixIcon
+                              })
+                              : _vm._e()
+                          ]
+                          : _vm._e(),
+                        _vm.showClear
+                          ? _c("i", {
+                            staticClass:
+                              "el-input__icon el-icon-circle-close el-input__clear",
+                            on: { click: _vm.clear }
+                          })
+                          : _vm._e(),
+                        _vm.showPwdVisible
+                          ? _c("i", {
+                            staticClass:
+                              "el-input__icon el-icon-view el-input__clear",
+                            on: { click: _vm.handlePasswordVisible }
+                          })
+                          : _vm._e(),
+                        _vm.isWordLimitVisible
+                          ? _c("span", { staticClass: "el-input__count" }, [
+                            _c(
+                              "span",
+                              { staticClass: "el-input__count-inner" },
+                              [
+                                _vm._v(
+                                  "\n            " +
+                                  _vm._s(_vm.textLength) +
+                                  "/" +
+                                  _vm._s(_vm.upperLimit) +
+                                  "\n          "
+                                )
+                              ]
+                            )
+                          ])
+                          : _vm._e()
+                      ],
+                      2
+                    ),
+                    _vm.validateState
+                      ? _c("i", {
+                        staticClass: "el-input__icon",
+                        class: ["el-input__validateIcon", _vm.validateIcon]
+                      })
+                      : _vm._e()
+                  ])
+                  : _vm._e(),
+                _vm.$slots.append
+                  ? _c(
+                  "div",
+                  { staticClass: "el-input-group__append" },
+                  [_vm._t("append")],
+                  2
+                  )
+                  : _vm._e()
+              ]
+              : _c(
+              "textarea",
+              _vm._b(
+                {
+                  ref: "textarea",
+                  staticClass: "el-textarea__inner",
+                  style: _vm.textareaStyle,
+                  attrs: {
+                    tabindex: _vm.tabindex,
+                    disabled: _vm.inputDisabled,
+                    readonly: _vm.readonly,
+                    autocomplete: _vm.autoComplete || _vm.autocomplete,
+                    "aria-label": _vm.label
+                  },
+                  on: {
+                    compositionstart: _vm.handleCompositionStart,
+                    compositionend: _vm.handleCompositionEnd,
+                    input: _vm.handleInput,
+                    focus: _vm.handleFocus,
+                    blur: _vm.handleBlur,
+                    change: _vm.handleChange
+                  }
+                },
+                "textarea",
+                _vm.$attrs,
+                false
+              )
+              ),
+            _vm.isWordLimitVisible && _vm.type === "textarea"
+              ? _c("span", { staticClass: "el-input__count" }, [
+                _vm._v(_vm._s(_vm.textLength) + "/" + _vm._s(_vm.upperLimit))
+              ])
+              : _vm._e()
+          ],
+          2
+        )
+      },
+      getSuffixVisible () {
+        return this.$slots.suffix || this.suffixIcon || this.showClear || this.showPassword || this.isWordLimitVisible || this.validateState && this.needStatusIcon;
       },
       calAmount () {
         var alltotal = 0
@@ -420,12 +612,20 @@
           }
         }
         this.dataForm.alltotal = alltotal
+        if (alltotal >= 100000) {
+          this.dataForm.exam_type = 4
+        } else if (alltotal >= 10000) {
+          this.dataForm.exam_type = 3
+        } else {
+          this.dataForm.exam_type = 2
+        }
+        console.log(this.dataForm.exam_type)
       },
       close () {
         this.visible = false
         this.$emit('refreshDataList')
       },
-      dateCheck (){
+      dateCheck () {
         var date = new Date()
         if (date > this.dataForm.exp_date) {
            this.dataForm.exp_date = ''
@@ -467,6 +667,10 @@
         if (buff) {
           this.tableData.push(item)
           this.tableData[0].article_name = ''
+          console.log(item)
+          if (item.clas_name.indexOf("刀") >= 0 || item.clas_name.indexOf("鞋") >= 0) {
+            this.dataForm.exam_firs = 1 ;
+          }
         } else {
           this.$message({
             message: msg,
@@ -474,49 +678,28 @@
           });
         }
       },
-      submitData (formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            let data = this.dataForm
-            alert(JSON.stringify(data))
-            this.$http({
-              url: this.$http.adornUrl("/orders/addOrUpdate"),
-              method: "post",
-              data: this.$http.adornData({
-                "order_no": data.order_no,
-                "order_type": data.order_type,
-                "job_no": data.job_no,
-                "stime":data.stime,
-                "detail":JSON.stringify(this.tableData)
-              })
-            }).then(({ data }) => {
-              if (data.code === 0) {
-              this.$message({
-                message: '保存成功！',
-                type: 'success',
-                duration: 1500
-              })
-              }
-            })
-          }
-        })
-      },
       confirmAdd (row, index) {
       },
       subData (formName) {
         if (this.check()) {
-          this.$refs[formName].validate((valid) => {
-            if (valid) {
               this.tableData.shift()
+              if (this.dataForm.exam_firs == 1) {
+                this.dataForm.order_state = 1
+              } else {
+                this.dataForm.order_state = 2
+              }
               this.$http({
                 url: this.$http.adornUrl("/orders/addOrUpdate"),
                 method: "post",
                 data: this.$http.adornData({
                   "order_no": this.dataForm.order_no,
-                  "order_state": 1,
+                  "order_state": this.dataForm.order_state,
                   "id": this.dataForm.id,
                   "order_type": this.dataForm.order_type,
+                  "exam_firs": this.dataForm.exam_firs,
+                  "exam_type": this.dataForm.exam_type,
                   "job_no": this.dataForm.job_no,
+                  "director": this.dataForm.director,
                   "alltotal": this.dataForm.alltotal,
                   "exp_date": this.dataForm.exp_date,
                   "remarks": this.dataForm.remarks,
@@ -540,8 +723,6 @@
                   })
                 }
             })
-            }
-          })
         }
       },
       check () {
@@ -567,19 +748,20 @@
       },
       saveOrUpdateData (formName) {
         if (this.check()) {
-          this.$refs[formName].validate((valid) => {
-            if(valid) {
               this.tableData.shift()
               this.$http({
-                url: this.$http.adornUrl("/orders/addOrUpdate"),
-                method: "post",
+                url: this.$http.adornUrl('/orders/addOrUpdate'),
+                method: 'post',
                 data: this.$http.adornData({
                   "order_no": this.dataForm.order_no,
-                  "order_state": 0 ,
+                  "order_state": 0,
                   "id": this.dataForm.id,
                   "order_type": this.dataForm.order_type,
+                  "exam_firs": this.dataForm.exam_firs,
+                  "exam_type": this.dataForm.exam_type,
                   "job_no": this.dataForm.job_no,
                   "alltotal": this.dataForm.alltotal,
+                  "director": this.dataForm.director,
                   "exp_date": this.dataForm.exp_date,
                   "remarks": this.dataForm.remarks,
                   "detail": JSON.stringify(this.tableData)
@@ -601,8 +783,6 @@
                   this.$message.error(data.msg)
                 }
               })
-              }
-            })
           }
       },
       init (val, val1) {
@@ -611,6 +791,7 @@
           this.dataForm.order_no = ''
           this.dataForm.order_type = ''
           this.dataForm.order_state = 0
+          this.dataForm.exam_firs = 0
           this.dataForm.job_no = ''
           this.dataForm.alltotal = ''
           this.dataForm.reall_total = ''
@@ -618,7 +799,8 @@
           this.dataForm.exam_type = ''
           this.dataForm.review_fir = ''
           this.dataForm.etime = ''
-          this.dataForm.name = ''
+          this.dataForm.name = this.$store.state.user.realname
+          this.dataForm.director = this.$store.state.user.director
           this.tableData = []
           this.dataForm.exp_date = ''
           this.dataForm.remarks = ''
@@ -642,6 +824,7 @@
                   this.dataForm.order_no = data.orders.order_no
                   this.dataForm.order_type = data.orders.order_type
                   this.dataForm.order_state = data.orders.order_state
+                  this.dataForm.exam_firs = data.orders.exam_firs
                   this.dataForm.job_no = data.orders.job_no
                   this.dataForm.alltotal = data.orders.alltotal
                   this.dataForm.reall_total = data.orders.reall_total
@@ -650,6 +833,7 @@
                   this.dataForm.review_fir = data.orders.review_fir
                   this.dataForm.etime = data.orders.etime
                   this.dataForm.name = data.orders.name
+                  this.dataForm.director = data.orders.director
                   this.tableData = data.orders.detail
                   this.dataForm.exp_date = data.orders.exp_date
                   this.dataForm.remarks = data.orders.remarks

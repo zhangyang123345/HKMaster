@@ -162,6 +162,7 @@
   </div>
 </template>
 <script>
+  import moment from "moment"
   export default {
     inject: ['refresh'],
     data () {
@@ -174,14 +175,16 @@
         isOk1: true,
         isOk2: true,
         autoHeight: '',
+        keyTime1: '',
+        keyTime3: '',
         storages: [73489, 89034, 104970, 131744, 90230], //库存量
         stores: ['仓库1', '仓库2', '仓库3', '仓库4', '仓库5'],
-        manage1: ['郭祥伟', '王启军', '岳平', '邓海军', '周颖'],
-        manage1_val: [73489, 12501, 32102, 65212, 65123],
-        manage2: ['报废纸箱', '医用橡胶手套', '硫酸', 'PK纸', '得力剪刀'],
-        manage2_val: [113, 125, 162, 172, 192],
-        manage3: ['得力剪刀', '抛光布', '碳带', '保护膜', '报废纸箱'],
-        manage3_val: [205, 1120, 2320, 3200, 7300],
+        manage1: [],
+        manage1_val: [],
+        manage2: [],
+        manage2_val: [],
+        manage3: [],
+        manage3_val: [],
         manage4: ['420', '硫酸', '纯水树脂', '无水乙醇', '钝化剂'],
         manage4_val: [700, 1205, 1900, 3320, 6720],
         numgeg: [],
@@ -203,6 +206,7 @@
         ], // 物品
         dataList1: [],
         myChart1: '',
+        myChart2: '',
         myChart3: '',
         myChart4: '',
         dataListall1: [
@@ -372,6 +376,92 @@
           this.play1()
         }
       })
+        this.keyTime1 = [moment(moment().add(-7, 'days').valueOf()).format('YYYY-MM-DD 00:00:00'), moment(moment().valueOf()).format('YYYY-MM-DD 00:00:00')]
+          this.$http({
+            url: this.$http.adornUrl('/store/store/costData'),
+            method: 'get',
+            params: this.$http.adornParams({
+              'keytime': this.keyTime1 + ''
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.manage1 = data.costData.name
+              this.manage1_val = data.costData.cost
+              var option = {
+                series: [ {
+                  data: data.costData.cost
+                } ],
+                yAxis: [{
+                  data: data.costData.name
+                }]
+              }
+              this.myChart1.setOption(option);
+          }
+        })
+            this.keyTime3 = [moment(moment().add(-30, 'days').valueOf()).format('YYYY-MM-DD 00:00:00'), moment(moment().valueOf()).format('YYYY-MM-DD 00:00:00')]
+            this.$http({
+              url: this.$http.adornUrl('/store/store/costArt'),
+              method: 'get',
+              params: this.$http.adornParams({
+                'keytime': this.keyTime3 + '',
+                'store_type': 1
+              })
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+                this.manage3 = data.costArt.name
+                this.manage3_val = data.costArt.cost
+                var option = {
+                  series: [ {
+                    data: data.costArt.cost
+                  } ],
+                  yAxis: [{
+                    data: data.costArt.name
+                  }]
+                }
+                this.myChart3.setOption(option);
+            }
+          })
+          this.$http({
+            url: this.$http.adornUrl('/store/store/costDay'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+            this.manage2 = data.costDay.name
+            this.manage2_val = data.costDay.cost
+            var option = {
+              series: [ {
+                data: data.costDay.cost
+              } ],
+              yAxis: [{
+                data: data.costDay.name
+              }]
+            }
+            this.myChart2.setOption(option);
+          }
+        })
+        this.$http({
+          url: this.$http.adornUrl('/store/store/costArt'),
+          method: 'get',
+          params: this.$http.adornParams({
+            'keytime': this.keyTime3 + '',
+            'store_type': 2
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.manage4 = data.costArt.name
+            this.manage4_val = data.costArt.cost
+            var option = {
+              series: [ {
+                data: data.costArt.cost
+              } ],
+              yAxis: [{
+                data: data.costArt.name
+              }]
+            }
+            this.myChart4.setOption(option);
+        }
+      })
       },
       drawLine () {
         this.getList()
@@ -383,7 +473,7 @@
         this.myChart1.setOption({
           color: ['#43AAB3'],
           title: {
-            text: '当月各段费用状况',
+            text: '近7天费用状况',
             // color: '#4b67c2',
             textStyle: {//主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
               color: '#FFFFFF'
@@ -393,6 +483,17 @@
             trigger: 'axis',
             axisPointer: {
               type: 'shadow'
+            }
+          },
+          toolbox: {
+            show: true,
+            feature: {
+              // dataZoom: {
+              //   yAxisIndex: 'none'
+              // },
+              dataView: {readOnly: false},
+              magicType: {type: ['bar']},
+              saveAsImage: {}
             }
           },
           legend: {
@@ -450,17 +551,25 @@
             }
           ]
         })
-        let myChart2 = this.$echarts.init(document.getElementById('myChart2'))
+        this.myChart2 = this.$echarts.init(document.getElementById('myChart2'))
         this.autoHeight = this.storages.length * 60 + 50 // counst.length为柱状图的条数，即数据长度。35为我给每个柱状图的高度，50为柱状图x轴内容的高度(大概的)。
-        myChart2.resize({height: this.autoHeight})
+        this.myChart2.resize({height: this.autoHeight})
         // 绘制图表
-        myChart2.setOption({
+        this.myChart2.setOption({
           color: ['#43AAB3'],
           title: {
-            text: '储存时长前五',
+            text: '储存时长前十',
             // color: '#4b67c2',
             textStyle: {//主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
               color: '#FFFFFF'
+            }
+          },
+          toolbox: {
+            show: true,
+            feature: {
+              dataView: {readOnly: false},
+              magicType: {type: ['bar']},
+              saveAsImage: {}
             }
           },
           tooltip: {
@@ -531,10 +640,18 @@
         this.myChart3.setOption({
           color: ['#43AAB3'],
           title: {
-            text: '当月耗材费用前五',
+            text: '近30天耗材费用前十',
             // color: '#4b67c2',
             textStyle: {//主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
               color: '#FFFFFF'
+            }
+          },
+          toolbox: {
+            show: true,
+            feature: {
+              dataView: {readOnly: false},
+              magicType: {type: ['bar']},
+              saveAsImage: {}
             }
           },
           tooltip: {
@@ -617,10 +734,18 @@
         this.myChart4.setOption({
           color: ['#43AAB3'],
           title: {
-            text: '当月化学品费用前五',
+            text: '当月化学品费用前十',
             // color: '#4b67c2',
             textStyle: {//主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
               color: '#FFFFFF'
+            }
+          },
+          toolbox: {
+            show: true,
+            feature: {
+              dataView: {readOnly: false},
+              magicType: {type: ['bar']},
+              saveAsImage: {}
             }
           },
           tooltip: {

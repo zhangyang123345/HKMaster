@@ -5,6 +5,8 @@
     :show-close="false"
     :title="入库"
     :close-on-click-modal="false"
+    :before-close="close"
+    :close-on-press-escape="false"
     :visible.sync="instore">
     <el-form :model="underForm"  ref="UnOrder" label-width="80px">
       <el-row>

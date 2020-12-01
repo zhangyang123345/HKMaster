@@ -51,6 +51,11 @@
             <el-input v-model="dataForm.alltotal" placeholder="总金额" readonly></el-input>
           </el-form-item>
         </el-col>
+        <el-col :span="6" >
+          <el-form-item label="实际金额" prop="reall_total">
+            <el-input v-model="dataForm.reall_total" placeholder="实际金额" readonly></el-input>
+          </el-form-item>
+        </el-col>
         <el-col :span="6">
           <el-form-item label="订单类型" prop="order_type">
             <el-select v-model="dataForm.order_type" placeholder="订单类型" style="width:100%;">
@@ -64,7 +69,7 @@
             <!--<el-input v-if="dataForm.order_type===3">待经理审核</el-input>-->
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="5">
           <el-form-item  label="订单状态" prop="order_state">
             <template slot-scope="scope">
               <el-input v-if="dataForm.order_state==-2" value = "订单异常结束"></el-input>
@@ -80,12 +85,6 @@
             </template>
           </el-form-item>
         </el-col>
-        <el-col :span="5" >
-          <el-form-item label="发 起 人" prop="name">
-            <el-input v-model="dataForm.name" placeholder="发起人" readonly></el-input>
-          </el-form-item>
-        </el-col>
-
         <!--<el-col :span="5" v-if=dataFormState >-->
         <!--<el-form-item label="审核类型" prop="exam_type">-->
         <!--<el-input v-model="dataForm.exam_type" placeholder="审核类型" :disabled=dataFormState>-->
@@ -101,11 +100,16 @@
       </el-row>
       <el-row>
         <el-col :span="6" >
-          <el-form-item label="实际金额" prop="reall_total">
-            <el-input v-model="dataForm.reall_total" placeholder="实际金额" readonly></el-input>
+          <el-form-item label="发 起 人" prop="name">
+            <el-input v-model="dataForm.name" placeholder="发起人" readonly></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="17" >
+        <el-col :span="6" >
+          <el-form-item label="主     管" prop="name">
+            <el-input v-model="dataForm.director" placeholder="主     管" readonly></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="11" >
           <el-form-item label="备    注" prop="remarks">
             <el-input v-model="dataForm.remarks" placeholder="备注" ></el-input>
           </el-form-item>
@@ -321,6 +325,7 @@
           remarks: '',
           etime: '',
           name: '',
+          director: '',
           exp_date: ''
         },
         tableData: [],
@@ -549,6 +554,7 @@
             this.dataForm.review_fir = data.orders.review_fir
             this.dataForm.etime = data.orders.etime
             this.dataForm.name = data.orders.name
+            this.dataForm.director = data.orders.director
             this.tableData = data.orders.detail
             this.dataForm.remarks = data.orders.remarks
             this.dataForm.exp_date = data.orders.exp_date

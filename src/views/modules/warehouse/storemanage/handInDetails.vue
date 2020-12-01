@@ -5,8 +5,8 @@
     :show-close="false"
     :title="!dataForm.order_no ? '新增(只需添加物品信息)' : '订单处理'"
     :close-on-click-modal="false"
-    :close-on-press-escape="false"
     :before-close="close"
+    :close-on-press-escape="false"
     :visible.sync="visible">
     <el-form :model="dataForm"  class="outForm"  ref="dataForm" label-width="80px">
       <el-row>
@@ -68,9 +68,26 @@
                  <el-input type="textarea" :rows="3" v-model="dataForm.remarks"  placeholder="备注">
                  </el-input>
                </el-form-item>
-               <el-form-item label="扫码输入">
-                 <el-input v-model="underForm.scan_data" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
-                 </el-input>
+               <el-form-item style="width:100%" label="物品处理">
+                   <el-autocomplete
+                        v-model="underForm.scan_data"
+                        :fetch-suggestions="querySearchAsync"
+                        popper-class="autoComp"
+                        style="width:100%"
+                        placeholder="查询物品信息"
+                        @select="handleSelect"
+                   >
+                     <template slot-scope="{ item }">
+                       <div>
+                         <div class="inputA">{{ item.material_no }}</div>
+                         <div class="inputA">{{ item.article_name }}</div>
+                         <div class="inputM">{{ item.manufacturer_name }}</div>
+                         <div class="inputP">{{ item.price }}</div>
+                         <div class="inputU">{{ item.unit_name }}</div>
+                         <div class="inputS">{{ item.specs_name }}</div>
+                       </div>
+                     </template>
+                   </el-autocomplete>
                </el-form-item>
              </el-col>
            </el-row>
@@ -183,11 +200,11 @@
               width="80"
               label=" ">
               <template slot-scope="scope">
-                <el-button type="text" size="small" @click="remove(scope.row.id)">移除</el-button>
+                <el-button type="text" size="small" @click="remove(scope.row.article_no)">移除</el-button>
               </template>
             </el-table-column>
             <el-table-column
-              prop="goods_no"
+              prop="article_no"
               header-align="center"
               align="center"
               width="300"
@@ -206,22 +223,14 @@
               label="厂商">
             </el-table-column>
             <el-table-column
-              prop="inventory"
-              header-align="center"
-              align="center"
-              label="规格总量">
-            </el-table-column>
-            <el-table-column
-              prop="inventory"
-              header-align="center"
-              align="center"
-              label="规格余量">
-            </el-table-column>
-            <el-table-column
-              prop="inventory"
+              prop="operation"
               header-align="center"
               align="center"
               label="操作数量">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.operation" type="number" size="small"
+                          @change="checkNum(scope.row.operation,scope.row.article_no)"></el-input>
+              </template>
             </el-table-column>
             <el-table-column
               prop="amount"
@@ -281,11 +290,11 @@
           reall_total: '',
           stime: '',
           remarks: '',
-          director: '',
-          separtment: '',
           order_no: '',
           job_no: '',
           order_state: '',
+          director: '',
+          separtment: '',
           order_luck: '',
           order_type: '',
           types: '',
@@ -388,36 +397,68 @@
       })
         this.dataListLoading = false
       },
-
-      remove (id){
+      querySearchAsync (queryString, cb) {
         this.$http({
-          url: this.$http.adornUrl(`/inoutmsg/deleCache`),
-          method: 'post',
-          params: this.$http.adornParams({"ids": id})
+          url: this.$http.adornUrl('/code/queryArtic'),
+          method: 'get',
+          params: this.$http.adornParams({
+            material_no: queryString
+          })
         }).then(({data}) => {
-          if (data && data.code === 0) {
-            for (var ind in this.scanList) {
-              if (this.scanList[ind].id == id) {
-                var mount = this.scanList[ind].inventory * this.scanList[ind].price
-                for (var sdata in this.details) {
-                  if (this.details[sdata].article_no.indexOf(this.scanList[ind].article_no)>=0) {
-                    this.details[sdata].actual_mount = (this.details[sdata].actual_mount - mount).toFixed(2)
-                    this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity - this.scanList[ind].inventory
-                    this.learning()
-                    this.scanList.splice(ind,1)
-                    break
-                  }
-                }
-                break
-              }
-            }
-        }else{
+          this.newrestaurants = data.article.list
+        // for (var i = 0; i < data.article.list.length; i++) {
+        //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
+        //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
+        // }
+        // console.log("this.newrestaurants="+JSON.stringify(this.newrestaurants))
+        // var results = queryString ? data.page.list.filter(this.createStateFilter(queryString)) : data.page.list;
+        clearTimeout(this.timeout)
+        this.timeout = setTimeout(() => {
+          cb(this.newrestaurants)
+      }, 100 * Math.random())
+      })
+      },
+      handleSelect (item) {
+        var msg = "选择物品不符合本订单！"
+        var buff = false
+        for (var sdata in this.details) {
+          if (this.details[sdata].article_no.indexOf(item.article_no) >= 0) {
+            buff = true
+            break
+          }
+        }
+        for (var sdata in this.scanList) {
+          if (this.scanList[sdata].article_no.indexOf(item.article_no) >= 0) {
+            buff = false
+            msg = "此物品列表已存在！"
+            break
+          }
+        }
+        if (buff) {
+          this.scanList.push(item)
+        } else {
           this.$message({
-            message: data.msg,
+            message: msg,
             type: 'error'
           });
         }
-      })
+      },
+      remove (article_no) {
+        for (var ind in this.scanList) {
+          if (this.scanList[ind].article_no == article_no) {
+            var mount = this.scanList[ind].inventory * this.scanList[ind].price
+            for (var sdata in this.details) {
+              if (this.details[sdata].article_no.indexOf(this.scanList[ind].article_no)>=0) {
+                this.details[sdata].actual_mount = (this.details[sdata].actual_mount - mount).toFixed(2)
+                this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity - this.scanList[ind].inventory
+                this.scanList.splice(ind,1)
+                this.learning()
+                break
+              }
+            }
+            break
+          }
+        }
       },
       // 表单提交
       dataFormSubmit (buff) {
@@ -427,31 +468,30 @@
           confirmButtonText: '确认',
           cancelButtonText: '取消'
         }).then(() => {
-            if(this.scanList.length>0){
-                if(buff)this.dataForm.order_state = 6
+            if (this.scanList.length>0) {
+                if (buff)this.dataForm.order_state = 6
                 this.$http({
-                  url: this.$http.adornUrl(`/inoutmsg/saveStore`),
+                  url: this.$http.adornUrl(`/inoutmsg/handin`),
                   method: 'post',
                   data: this.$http.adornData({
-                    "order_no": this.dataForm.order_no,
-                    "job_no": this.dataForm.job_no,
-                    "order_type": this.dataForm.order_type,
-                    "order": JSON.stringify(this.dataForm),
-                    "detail": JSON.stringify(this.details)
+                    "orders": JSON.stringify(this.dataForm),
+                    "detail": JSON.stringify(this.details),
+                    "scanList":JSON.stringify(this.scanList)
                   })
                 }).then(({data}) => {
                   if (data && data.code === 0) {
                     if (buff) {
                       this.visible = false
                       this.$emit('refreshDataList')
+                    } else {
+                      this.scanList.splice(0, this.scanList.length)
+                      this.$message({
+                        message: data.msg,
+                        type: 'success'
+                      });
+                      this.init(this.dataForm.order_no)
                     }
-                    this.scanList.splice(0,this.scanList.length)
-                    this.$message({
-                      message: data.msg,
-                      type: 'success'
-                    });
-                    this.init(this.dataForm.order_no)
-                  }else{
+                  } else {
                     this.$message({
                       message: data.msg,
                       type: 'error'
@@ -459,27 +499,30 @@
                   }
               })
             } else {
-              if (buff){
+              if (buff) {
+                this.dataForm.order_state = 6
                 this.$http({
-                  url: this.$http.adornUrl(`/orders/complete`),
+                  url: this.$http.adornUrl(`/inoutmsg/handin`),
                   method: 'post',
-                  params: this.$http.adornParams({
-                    "order_no": this.dataForm.order_no
+                  data: this.$http.adornData({
+                    "orders": JSON.stringify(this.dataForm),
+                    "detail": JSON.stringify(this.details),
+                    "scanList":JSON.stringify(this.scanList)
                   })
-                  }).then(({data}) => {
-                      if(data && data.code === 0){
-                        this.visible = false
-                        this.$emit('refreshDataList')
-                      }else{
-                        this.$message({
-                          message: data.msg,
-                          type: 'error'
-                        });
-                      }
-                 })
+                }).then(({data}) => {
+                  if (data && data.code === 0) {
+                    this.visible = false
+                    this.$emit('refreshDataList')
+                } else {
+                  this.$message({
+                    message: data.msg,
+                    type: 'error'
+                  });
+                }
+              })
               } else {
                 this.$message({
-                  message: "请先扫码！",
+                  message: "请先输入处理数据！",
                   type: 'error'
                 });
               }
@@ -495,67 +538,42 @@
           this.$refs.addOrUpdate.init(this.dataForm.orderId)
       })
       },
-      //扫码提交
-      scanSubmit () {
-        var buff = false
-        if(this.underForm.scan_data.length > 27 && this.underForm.scan_data.length < 36){
-            for (var sdata in this.details) {
-                if(this.details[sdata].article_no.indexOf(this.underForm.scan_data.substring(0,27))>=0){
-                  buff = true
-                  break
-                }
-            }
-        }
-        if (buff){
-          this.dataForm.scan_data = this.underForm.scan_data
-          this.$http({
-            url: this.$http.adornUrl(`/inoutmsg/inoutStore`),
-            method: 'post',
-            params: this.$http.adornParams({
-              "order_no": this.dataForm.order_no,
-              "order_type": this.dataForm.order_type,
-              "goods_no": this.dataForm.scan_data
-            })
-           }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.underForm.scan_data = ''
-              data.article.amount = (data.article.inventory * data.article.price).toFixed(2)
-              this.scanList.unshift(data.article)
-              var mount = data.article.inventory * data.article.price
-              for (var sdata in this.details) {
-                if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27))>=0) {
-                  this.details[sdata].actual_mount = (this.details[sdata].actual_mount + mount).toFixed(2)
-                  this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.inventory
-                  this.learning()
-                  break
+      checkNum (input,article_no) {
+          if (input <= 0) {
+              for (var ind in this.scanList) {
+                if (this.scanList[ind].article_no.indexOf(article_no)>= 0) {
+                   this.scanList[ind].operation = 1
+                   this.learning()
+                   break
                 }
               }
-            }else{
-              this.underForm.scan_data = ''
-              this.$message({
-                message: data.msg,
-                type: 'error'
-              });
-            }
-          })
-        }else{
-          this.underForm.scan_data = ''
-          this.$message({
-            message: '编码错误或不符合本订单!',
-            type: 'error'
-          });
-        }
+            this.$message({
+              message: '数量不可小于1 !',
+              type: 'error'
+            })
+          } else {
+            this.learning()
+          }
       },
       // 计算
-      learning(){
-        var num = 0 ;
-        for(var index in this.details){
-            num += this.details[index].actual_mount
+      learning () {
+        var daMap = new Map()
+        for (var ind in this.scanList) {
+          this.scanList[ind].amount = (this.scanList[ind].operation * this.scanList[ind].price).toFixed(2)
+          var numpc = isNaN(daMap.get(this.scanList[ind].article_no.substring(0,27))) ? 0 : daMap.get(this.scanList[ind].article_no.substring(0,27))
+          daMap.set(this.scanList[ind].article_no.substring(0,27),parseInt(this.scanList[ind].operation) + parseInt(numpc))
+        }
+        var num = 0
+        for (var index in this.details) {
+          var quNum = isNaN(daMap.get(this.details[index].article_no)) ? parseInt(this.details[index].qunacache) : (parseInt(this.details[index].qunacache) + parseInt(daMap.get(this.details[index].article_no)))
+          this.details[index].actual_qunatity = quNum
+          this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+          num += parseFloat(this.details[index].actual_mount)
         }
         this.dataForm.reall_total = num.toFixed(2)
       },
       //浏览器关闭监控
-      browerStatus(){
+      browerStatus () {
         this.$message({
           message: '确定关闭？',
           type: 'error'
@@ -570,24 +588,15 @@
             confirmButtonText: '关闭',
             cancelButtonText: '取消'
           }).then(() => {
-            var ids = ""
-            for (var index in this.scanList) {
-              ids += this.scanList[index].id + ','
-            }
-            this.$http({
-              url: this.$http.adornUrl(`/inoutmsg/deleCache`),
-              method: 'post',
-              params: this.$http.adornParams({"ids": ids})
-              }).then(({data}) => {
-                if (data && data.code === 0) {
-                    this.$http({
-                      url: this.$http.adornUrl(`/orders/unLuck`),
-                      method: 'post',
-                      params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
-                    }).then(({data}) => {
-                      if (data && data.code === 0) {
-                      this.visible = false
+              if (data && data.code === 0) {
+                  this.$http({
+                    url: this.$http.adornUrl(`/orders/unLuck`),
+                    method: 'post',
+                    params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
+                  }).then(({data}) => {
+                    if (data && data.code === 0) {
                       this.scanList.splice(0,this.scanList.length)
+                      this.visible = false
                       this.$emit('refreshDataList')
                     } else {
                       this.$message({
@@ -595,14 +604,8 @@
                         type: 'error'
                       })
                     }
-                  })
-                } else {
-                  this.$message({
-                    message: data.msg,
-                    type: 'error'
-                  });
-                }
-              });
+                })
+            }
           }).catch(action => {
           });
         } else {
@@ -614,12 +617,12 @@
               if (data && data.code === 0) {
               this.visible = false
               this.$emit('refreshDataList')
-            } else {
-                this.$message({
-                  message: data.msg,
-                  type: 'error'
-                })
-              }
+              } else {
+                  this.$message({
+                    message: data.msg,
+                    type: 'error'
+                  })
+                }
            })
         }
       }
@@ -631,5 +634,29 @@
   }
   .outForm .el-row,.el-col{
     margin-bottom:0px;
+  }
+  .autoComp{ width:800px;}
+  .autoComp  .el-scrollbar{
+    width:800px;
+  }
+  .inputA{
+    float:left;
+    width: 25%;
+  }
+  .inputM{
+    float:left;
+    width: 15%;
+  }
+  .inputP{
+    float:left;
+    width: 10%;
+  }
+  .inputU{
+    float:left;
+    width: 10%;
+  }
+  .inputS{
+    float:left;
+    width: 15%;
   }
 </style>

@@ -59,8 +59,8 @@
         label="审核类型">
         <template scope="scope">
           <div v-if="scope.row.exam_type==1">EHS审核</div>
-          <div v-if="scope.row.exam_type==2">课级审核</div>
-          <div v-if="scope.row.exam_type==3">理级审核</div>
+          <div v-if="scope.row.exam_type==2">主管审核</div>
+          <div v-if="scope.row.exam_type==3">经理审核</div>
           <div v-if="scope.row.exam_type==''">厂长审核</div>
         </template>
       </el-table-column>
@@ -212,6 +212,7 @@
           url: this.$http.adornUrl('/orders/search'),
           method: 'get',
           params: this.$http.adornParams({
+            'macheck': true,
             'page': this.pageIndex,
             'rows': this.pageSize,
             'key': 1,

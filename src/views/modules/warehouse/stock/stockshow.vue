@@ -2,7 +2,7 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.article_no" placeholder="物件号" clearable></el-input>
+        <el-input v-model="dataForm.material_no" placeholder="料号" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-input v-model="dataForm.article_name" placeholder="物品名" clearable></el-input>
@@ -42,10 +42,10 @@
         v-if="status==1"
         key="articleshow"
         width="250"
-        prop="article_no"
+        prop="material_no"
         header-align="center"
         align="center"
-        label="物件号">
+        label="物料号">
       </el-table-column>
       <el-table-column
         v-if="status==1||status==2"
@@ -188,7 +188,8 @@
       return {
         dataForm: {
           key: '',
-          article_no : "",
+          article_no: '',
+          material_no: '',
           article_name: '',
           store_id: '',
           goods_id: ''
@@ -233,6 +234,7 @@
             'limit': this.pageSize,
             'article_name': this.dataForm.article_name,
             'article_no': this.dataForm.article_no,
+            'material_no': this.dataForm.material_no,
             'store_id' : this.dataForm.store_id
           })
         }).then(({data}) => {

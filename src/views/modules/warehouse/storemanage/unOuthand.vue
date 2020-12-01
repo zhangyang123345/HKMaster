@@ -3,7 +3,6 @@
     width="90%"
     top="1vh"
     :show-close="false"
-    class="tableHead"
     title="处理"
     :before-close="close"
     :close-on-click-modal="false"
@@ -12,9 +11,26 @@
     <el-form :model="dataForm"  ref="dataForm" label-width="80px">
       <el-row>
         <el-col :span="12">
-          <el-form-item label="扫码输入">
-            <el-input v-model="underForm.scan_data" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
-            </el-input>
+          <el-form-item style="width:100%" label="物品处理">
+            <el-autocomplete
+              v-model="underForm.scan_data"
+              :fetch-suggestions="querySearchAsync"
+              popper-class="autoComp"
+              style="width:100%"
+              placeholder="查询物品信息"
+              @select="handleSelect"
+            >
+              <template slot-scope="{ item }">
+                <div>
+                  <div class="inputA">{{ item.material_no }}</div>
+                  <div class="inputA">{{ item.article_name }}</div>
+                  <div class="inputM">{{ item.manufacturer_name }}</div>
+                  <div class="inputP">{{ item.price }}</div>
+                  <div class="inputU">{{ item.unit_name }}</div>
+                  <div class="inputS">{{ item.specs_name }}</div>
+                </div>
+              </template>
+            </el-autocomplete>
           </el-form-item>
         </el-col>
         <el-col :span="6">
@@ -48,11 +64,11 @@
               width="80"
               label=" ">
               <template slot-scope="scope">
-                <el-button type="text" size="small"  @click="remove(scope.row.id,scope.row.goods_no)">移除</el-button>
+                <el-button type="text" size="small"  @click="remove(scope.row.id,scope.row.article_no)">移除</el-button>
               </template>
             </el-table-column>
             <el-table-column
-              prop="goods_no"
+              prop="article_no"
               header-align="center"
               align="center"
               width="300"
@@ -60,7 +76,7 @@
             </el-table-column>
             <!-- :render-header="headerScan"-->
             <el-table-column
-              prop="goods_name"
+              prop="article_name"
               header-align="center"
               align="center"
               label="物品名称">
@@ -68,7 +84,6 @@
             <el-table-column
               label="领用人"
               header-align="center"
-              :render-header="renderHeader"
               align="center"
               prop="recipient_name">
               <!--<el-input v-model="dataForm.duty_name" placeholder="仓库负责人"></el-input>-->
@@ -80,7 +95,7 @@
                     :fetch-suggestions="emplosearch"
                     popper-class="autoComp"
                     placeholder="请输入查找"
-                    @select="((item) => handleSelect(item,scope.row.goods_no))"
+                    @select="((item) => employeeSelect(item,scope.row.article_no))"
                   >
                     <template slot-scope="{ item }" >
                       <div >
@@ -101,25 +116,13 @@
               label="厂商">
             </el-table-column>
             <el-table-column
-              prop="inventory"
-              header-align="center"
-              align="center"
-              label="规格总量">
-            </el-table-column>
-            <el-table-column
-              prop="sept"
-              header-align="center"
-              align="center"
-              label="规格余量">
-            </el-table-column>
-            <el-table-column
               prop="operation"
               header-align="center"
               align="center"
               label="操作数量">
               <template slot-scope="scope">
                 <el-input v-model="scope.row.operation" type="number" size="small" :ref="scope.row.goods_no"
-                          @change="checkNum(scope.row.goods_no,scope.row.operation,scope.row.sept)"></el-input>
+                          @change="checkNum(scope.row.article_no,scope.row.operation,scope.row.sept)"></el-input>
               </template>
             </el-table-column>
             <el-table-column
@@ -239,39 +242,49 @@
         }
       })
       },
-      //表头
-      renderHeader (_h) {
-        return _h(
-          'div',
-          [
-            _h('span', '领用人'),
-            _h('el-button', {
-                staticClass: "headerC",
-                attrs: { type: "button", "aria-label": "Close" },
-                on: { click: this.selectAllrecipt(true) }
-              } , [_h('span', '全选')] )
-          ])
+      querySearchAsync (queryString, cb) {
+        this.$http({
+          url: this.$http.adornUrl('/code/queryArtic'),
+          method: 'get',
+          params: this.$http.adornParams({
+            material_no: queryString
+          })
+        }).then(({data}) => {
+          this.newrestaurants = data.article.list
+        // for (var i = 0; i < data.article.list.length; i++) {
+        //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
+        //   this.newrestaurants[i].value = this.newrestaurants[i].article_name
+        // }
+        // console.log("this.newrestaurants="+JSON.stringify(this.newrestaurants))
+        // var results = queryString ? data.page.list.filter(this.createStateFilter(queryString)) : data.page.list;
+        clearTimeout(this.timeout)
+        this.timeout = setTimeout(() => {
+          cb(this.newrestaurants)
+      }, 100 * Math.random())
+      })
       },
-      selectAllrecipt (buff) {
-        if (buff) {
-          var recipate = ''
-          var recipient_name = ''
-          for (var index in this.scanList) {
-            if (this.scanList[index].recipient != null && this.scanList[index].recipient != '') {
-              recipate = this.scanList[index].recipient
-              recipient_name = this.scanList[index].recipient_name
-              break
-            }
-          }
-          for (var index in this.scanList) {
-            this.scanList[index].recipient = recipate
-            this.scanList[index].recipient_name = recipient_name
+      handleSelect (item) {
+        var msg = ""
+        var buff = true
+        for (var sdata in this.scanList) {
+          if (this.scanList[sdata].article_no.indexOf(item.article_no) >= 0) {
+            buff = false
+            msg = "此物品列表已存在！"
+            break
           }
         }
+        if (buff) {
+          this.scanList.push(item)
+        } else {
+          this.$message({
+            message: msg,
+            type: 'error'
+          });
+        }
       },
-      handleSelect (item,goods_no) {
+      employeeSelect ( item , goods_no ) {
         for (var index in this.scanList) {
-          if (this.scanList[index].goods_no == goods_no) {
+          if (this.scanList[index].article_no == goods_no) {
               this.scanList[index].recipient = item.jobNo
               this.scanList[index].recipient_name = item.name
               this.scanList[index].director = item.director
@@ -291,194 +304,73 @@
 
         this.$refs.scanInput.focus()
       },
-      // headerScan (h, { column, $index }) {
-      //   return h('span',[
-      //     h('span',column.label),
-      //     h('el-checkbox',
-      //       {
-      //         style:'margin-left:5px;',
-      //         on:{change:this.change}
-      //       }),
-      //   ])
-      // },
-      init (order_no) {
+      headerScan (h, { column, $index }) {
+        return h('span',[
+          h('span',column.label),
+          h('el-checkbox',
+            {
+              style:'margin-left:5px;',
+              on:{change:this.change}
+            }),
+        ])
+      },
+      init () {
         this.dataListLoading = true
         this.visible = true
         this.dataForm.order_no = this.guid().toUpperCase()
         this.dataForm.reall_total = 0
         this.dataForm.scan_data = ''
         this.underForm.scan_data = ''
-        this.$nextTick(() => {
-          this.$refs['dataForm'].resetFields()
-          if (order_no != null) {
-            this.$http({
-              url: this.$http.adornUrl(`/orders/getDetail`),
-              method: 'post',
-              params: this.$http.adornParams({"order_no":order_no})
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.details = data.orders.detail
-                this.dataForm.id = data.orders.id
-                this.dataForm.order_no = data.orders.order_no
-                this.dataForm.name = data.orders.name
-                this.dataForm.exam_type = data.orders.exam_type
-                this.dataForm.alltotal = data.orders.alltotal
-                this.dataForm.reall_total = data.orders.reall_total
-                this.dataForm.stime = data.orders.stime
-                this.dataForm.order_type = data.orders.order_type
-                this.dataForm.order_state = data.orders.order_state
-                this.dataForm.remarks = data.orders.remarks
-                this.dataForm.types = data.orders.order_type == 1 ? "入库":(data.orders.order_type == 2?"出库":"报废")
-                this.dataForm.exp_date = data.orders.exp_date
-
-                if(data.orders.order_state == -2)this.dataForm.states ="订单异常结束"
-                if(data.orders.order_state == -1)this.dataForm.states ="存在异常"
-                if(data.orders.order_state == 0)this.dataForm.states ="待提交"
-                if(data.orders.order_state == 1)this.dataForm.states ="待EHS审核"
-                if(data.orders.order_state == 2)this.dataForm.states ="待主管审核"
-                if(data.orders.order_state == 3)this.dataForm.states ="待经理审核"
-                if(data.orders.order_state == 4)this.dataForm.states ="待厂长审核"
-                if(data.orders.order_state == 5)this.dataForm.states ="待处理"
-                if(data.orders.order_state == 6)this.dataForm.states ="待结单"
-                if(data.orders.order_state == 7)this.dataForm.states ="完成"
-            }
-          })
-          }
-      })
         this.dataListLoading = false
       },
       //输入检测->入缓存
       checkNum(goods_no,input,qunatity){
-        if (input > qunatity) {
-          this.$message({
-            message: "操作数量不可大于规格余量！",
-            type: 'error'
-          })
-        } else if (input <= 0) {
+        if (input <= 0) {
           this.$message({
             message:  "操作数量不可小于1！" ,
             type: 'error'
           })
         } else {
-          var dataS = null ;
-          for (var index in this.scanList) {
-            if (this.scanList[index].goods_no == goods_no) {
-              dataS = this.scanList[index]
-            }
-          }
-          //TODO
-          this.$http({
-            url: this.$http.adornUrl(`/inoutmsg/saveCache`),
-            method: 'post',
-            params: this.$http.adornParams({ "goods": JSON.stringify(dataS) ,
-                "order_no":this.dataForm.order_no,
-                "order_type":this.dataForm.order_type})
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              dataS.id = data.goods.id
-              this.learning()
-          } else {
-            this.$message({
-              message: data.msg,
-              type: 'error'
-            });
-          }
-        })
+          this.learning()
         }
       },
       remove (id,goods_no) {
-        if (id == null || id === 'undefined') {
           for (var ind in this.scanList) {
-            if (this.scanList[ind].goods_no == goods_no) {
-              this.scanList.splice(ind, 1)
-              this.learning()
-              break
+            if (this.scanList[ind].article_no == goods_no) {
+                this.scanList.splice(ind, 1)
+                this.learning()
+                break
             }
           }
-        } else {
-            this.$http({
-              url: this.$http.adornUrl(`/inoutmsg/deleCache`),
-              method: 'post',
-              params: this.$http.adornParams({"ids": id})
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                for (var ind in this.scanList) {
-                  if (this.scanList[ind].id == id) {
-                      this.scanList.splice(ind, 1)
-                      this.learning()
-                  }
-                }
-              } else {
-                  this.$message({
-                    message: data.msg,
-                    type: 'error'
-                  });
-                }
-            })
-        }
       },
       // 表单提交
-      dataFormSubmit (buff) {
-        if (this.check()) {
-          var msg = buff?"是否确认结单？":"是否确认保存？"
-          this.$confirm(msg, '确认信息', {
-            distinguishCancelAndClose: true,
-            confirmButtonText: '确认',
-            cancelButtonText: '取消'
-          }).then(() => {
-              if(this.scanList.length>0){
-                  if(buff)this.dataForm.order_state = 6
-                  this.$http({
-                    url: this.$http.adornUrl(`/inoutmsg/saveUnStore`),
-                    method: 'post',
-                    data: this.$http.adornData({
-                      "order_no": this.dataForm.order_no,
-                      "order_type": this.dataForm.order_type,
-                      "order": JSON.stringify(this.dataForm),
-                      "detail": JSON.stringify(this.details)
-                    })
-                  }).then(({data}) => {
-                    if(data && data.code === 0){
-                      if(buff)this.visible = false
-                      this.scanList.splice(0,this.scanList.length)
-                      this.$message({
-                        message: data.msg,
-                        type: 'success'
-                      });
-                      this.init()
-                    }else{
-                      this.$message({
-                        message: data.msg,
-                        type: 'error'
-                      });
-                    }
-                })
-              }else{
-                if(buff){
-                  this.$http({
-                    url: this.$http.adornUrl(`/orders/complete`),
-                    method: 'post',
-                    params: this.$http.adornParams({
-                      "order_no": this.dataForm.order_no
-                    })
-                    }).then(({data}) => {
-                        if(data && data.code === 0){
-                        this.visible = false
-                        }else{
-                          this.$message({
-                            message: data.msg,
-                            type: 'error'
-                          });
-                        }
-                   })
-                }else{
-                  this.$message({
-                    message: "请先扫码！",
-                    type: 'error'
-                  });
-                }
-              }
-          }).catch(action => {
+      dataFormSubmit () {
+        if (this.scanList.length>0) {
+          this.$http({
+            url: this.$http.adornUrl(`/inoutmsg/unhandout`),
+            method: 'post',
+            data: this.$http.adornData({
+              "orders": JSON.stringify(this.dataForm),
+              "scanList": JSON.stringify(this.scanList)
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.scanList.splice(0, this.scanList.length)
+              this.$message({
+                message: data.msg,
+                type: 'success'
+              });
+            } else {
+              this.$message({
+                message: data.msg,
+                type: 'error'
+              });
+            }
+        })
+        } else {
+          this.$message({
+            message: '请先处理数据!',
+            type: 'error'
           });
         }
       },
@@ -489,18 +381,6 @@
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init(this.dataForm.orderId)
       })
-      },
-      check () {
-        for (var ind in this.scanList) {
-          if (this.scanList[ind].recipient == ""  || this.scanList[ind].recipient == null) {
-            this.$message({
-              message: "请填写领用人！",
-              type: 'error'
-            })
-            return false
-          }
-        }
-        return true
       },
       //扫码提交
       scanSubmit () {
@@ -584,7 +464,7 @@
             for(var index in this.scanList){
               if(this.scanList[index].id != null)ids += this.scanList[index].id + ','
             }
-            if (ids!= "") {
+            if(ids!= ""){
               this.$http({
                 url: this.$http.adornUrl(`/inoutmsg/deleCache`),
                 method: 'post',
@@ -606,7 +486,7 @@
             }
           }).catch(action => {
           });
-        } else {
+        }else{
           this.visible = false
         }
       }
@@ -625,13 +505,25 @@
   .autoComp  .el-scrollbar{
     width:700px;
   }
-  .headerC{
-    display:inline-flex;
-    margin-left:5px;
-    padding:5px 5px;
-    background-color: rgb(185, 232, 227);
+  .inputA{
+    float:left;
+    width: 25%;
   }
-  .tableHead{
-     line-height: 20px!important;
+  .inputM{
+    float:left;
+    width: 15%;
   }
+  .inputP{
+    float:left;
+    width: 10%;
+  }
+  .inputU{
+    float:left;
+    width: 10%;
+  }
+  .inputS{
+    float:left;
+    width: 15%;
+  }
+
 </style>
