@@ -9,7 +9,7 @@
         <el-autocomplete
           v-model="dataForm.goodsName"
           :fetch-suggestions="querySearchAsync"
-          placeholder="商品名"
+          placeholder="查询物品"
           @select="handleSelect"
         ></el-autocomplete>
       </el-form-item>
@@ -55,7 +55,7 @@
         dataForm: {
           processName: '',
           dayVolume: '',
-          goodsId: '',
+          goodsId: 0,
           goodsName: '',
           cycleVolume: '',
           msgId: '',
@@ -131,7 +131,7 @@
               method: 'get',
               params: this.$http.adornParams({
                 'msgId': this.dataForm.msgId,
-                'goodsId': this.dataForm.goodsId,
+                'category_no': this.dataForm.goodsId,
                 'smallValue': this.dataForm.smallValue,
                 'processName': this.dataForm.processName,
                 'dayVolume': this.dataForm.dayVolume,
@@ -185,39 +185,56 @@
       querySearchAsync(queryString, cb) {
         // var restaurants = this.restaurants;
         this.$http({
-
-          url: this.$http.adornUrl("/store/goods/goodsInfo"),
-
+          url: this.$http.adornUrl("/code/query"),
           method: "post",
-
           params: this.$http.adornParams({
-
-            goods_name:queryString
-
+            name:queryString,
+            table:'category',
+            row:10
           })
-
         }).then(({ data }) => {
           this.newrestaurants = data.list
-
-        for(var i=0;i<data.list.length;i++){
-
-          this.newrestaurants[i].value = this.newrestaurants[i].goodsName;
-
+        for (var i in this.newrestaurants) {
+          this.newrestaurants[i].value = this.newrestaurants[i].name
         }
         // console.log("this.newrestaurants="+JSON.stringify(this.newrestaurants))
         // var results = queryString ? data.page.list.filter(this.createStateFilter(queryString)) : data.page.list;
-
-        clearTimeout(this.timeout);
+        clearTimeout(this.timeout)
         this.timeout = setTimeout(() => {
-          cb(this.newrestaurants);
-      }, 100 * Math.random());
+          cb(this.newrestaurants)
+      }, 100 * Math.random())
       });
       },
       handleSelect (item) {
-        this.dataForm.goodsId = item.goodsId
-        this.dataForm.goodsName = item.goodsName
-        // this.dataForm.type = item.type
+        this.dataForm.goodsId = parseInt(item.no)
+        this.dataForm.goodsName = item.name
       }
     }
   }
 </script>
+<style>
+  .autoComp{ width:800px;}
+  .autoComp  .el-scrollbar{
+    width:800px;
+  }
+  .inputA{
+    float:left;
+    width: 25%;
+  }
+  .inputM{
+    float:left;
+    width: 15%;
+  }
+  .inputP{
+    float:left;
+    width: 10%;
+  }
+  .inputU{
+    float:left;
+    width: 10%;
+  }
+  .inputS{
+    float:left;
+    width: 15%;
+  }
+</style>

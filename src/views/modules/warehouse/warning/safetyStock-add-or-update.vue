@@ -6,7 +6,7 @@
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
       <el-form-item prop="storeId" label="仓库名">
         <el-select  v-model="dataForm.storeId" placeholder="请选择仓库">
-          <el-option v-for="(item,index) in columeTypeArr" :key="index" :label="item.storename" :value="item.storeId" >
+          <el-option v-for="(item,index) in columeTypeArr" :key="index" :label="item.store_name" :value="item.store_id" >
           </el-option>
         </el-select>
       </el-form-item>
@@ -77,12 +77,12 @@
     methods: {
       getStoreId () {
         this.$http({
-          url: this.$http.adornUrl('/store/stores/list'),
+          url: this.$http.adornUrl('/store/store/list'),
           method: 'get',
           data: this.$http.adornData(this.dataList, false)
         }).then(({data}) => {
           if (data && data.code === 0) {
-          this.columeTypeArr = data.page.list
+          this.columeTypeArr = data.storeData.list
         } else {
         }
       })
@@ -119,7 +119,7 @@
               method: 'post',
               data: this.$http.adornData({
                 'msgId': this.dataForm.msgId || undefined,
-                'goodsId': this.dataForm.goodsId || undefined,
+                'category_no': this.dataForm.goodsId || undefined,
                 'storeId': this.dataForm.storeId,
                 'smallValue': this.dataForm.smallValue,
                 'bigValue': this.dataForm.bigValue
@@ -145,38 +145,29 @@
       querySearchAsync(queryString, cb) {
         // var restaurants = this.restaurants;
         this.$http({
-
-          url: this.$http.adornUrl("/store/goods/goodsInfo"),
-
+          url: this.$http.adornUrl("/code/query"),
           method: "post",
-
           params: this.$http.adornParams({
-
-            goods_name:queryString
-
+            name:queryString,
+            table:'category',
+            row:10
           })
-
         }).then(({ data }) => {
           this.newrestaurants = data.list
-
-        for(var i=0;i<data.list.length;i++){
-
-          this.newrestaurants[i].value = this.newrestaurants[i].goodsName;
-
-        }
+          for (var i in this.newrestaurants) {
+            this.newrestaurants[i].value = this.newrestaurants[i].name
+          }
         // console.log("this.newrestaurants="+JSON.stringify(this.newrestaurants))
         // var results = queryString ? data.page.list.filter(this.createStateFilter(queryString)) : data.page.list;
-
-        clearTimeout(this.timeout);
+        clearTimeout(this.timeout)
         this.timeout = setTimeout(() => {
-          cb(this.newrestaurants);
-      }, 100 * Math.random());
+          cb(this.newrestaurants)
+      }, 100 * Math.random())
       });
       },
       handleSelect (item) {
-        this.dataForm.goodsId = item.goodsId
-        this.dataForm.goodsName = item.goodsName
-        // this.dataForm.type = item.type
+        this.dataForm.goodsId = parseInt(item.no)
+        this.dataForm.goodsName = item.name
       }
     }
   }

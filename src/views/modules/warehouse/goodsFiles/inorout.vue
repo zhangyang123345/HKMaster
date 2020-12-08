@@ -40,6 +40,7 @@
         </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
+        <el-button type="primary" @click="exportMsg()">导出信息</el-button>
         <!--<el-button v-if="isAuth('generator:tbgoods3:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>-->
         <!--<el-button v-if="isAuth('generator:tbgoods3:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
       </el-form-item>
@@ -157,6 +158,12 @@
         header-align="center"
         align="center"
         label="领用人">
+      </el-table-column>
+      <el-table-column
+        prop="director"
+        header-align="center"
+        align="center"
+        label="主管">
       </el-table-column>
       <el-table-column
         prop="username"
@@ -311,6 +318,39 @@
       // 多选
       selectionChangeHandle (val) {
         this.dataListSelections = val
+      },
+      // 导出模板
+      formatJson (filterVal, jsonData) {
+        return jsonData.map(v => filterVal.map(j => j =='msg_type'?(v[j]==1?"入库":(v[j]==2?"出库":"报废")):v[j]))
+      },
+      //导出数据
+      exportMsg () {
+        this.$http({
+          url: this.$http.adornUrl('/inoutmsg/exportMsg'),
+          method: 'get',
+          params: this.$http.adornParams({
+            'keytime': this.dataForm.keytwo + '',
+            'article_name': this.dataForm.article_name,
+            'goods_no': this.dataForm.goods_no,
+            'store_id': this.dataForm.store_id,
+            'msg_type': this.dataForm.msg_type,
+            'department': this.dataForm.department
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+          var cacheData = data.msgData
+          require.ensure([], () => {
+            const { export_json_to_excel } = require('@/vendor/Export2Excel')
+            const tHeader = ['所属仓库','料号','商品名称','厂商', '规格', '单位', '单价','数量','总金额', '类型', '领用人','线别/工站','楼栋','专案','主管','操作人员','时间']
+            // 上面设置Excel的表格第一行的标题
+            const filterVal = ['store_name','material_no','article_name','manufacturer_name', 'specs_name', 'unit_name','price','qunatity', 'amount', 'msg_type', 'recipient_name','line_type','office_location','special','director','username','msg_time']
+            const data = this.formatJson(filterVal, cacheData)
+            export_json_to_excel(tHeader, data, '物品详细信息')
+        })
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
       },
       querySearchAsync(queryString, cb) {
         // var restaurants = this.restaurants;

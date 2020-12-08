@@ -85,6 +85,7 @@
               label="领用人"
               header-align="center"
               align="center"
+              :render-header="renderHeader"
               prop="recipient_name">
               <!--<el-input v-model="dataForm.duty_name" placeholder="仓库负责人"></el-input>-->
               <!--</el-form-item>-->
@@ -263,6 +264,48 @@
       }, 100 * Math.random())
       })
       },
+      //表头
+      renderHeader (_h) {
+        return _h(
+          'div',
+          [
+            _h('span', '领用人'),
+            _h('el-button', {
+              staticClass: "headerC",
+              on: { click: () => {this.selectAllrecipt()}}
+      } , [_h('span', '全选')] )
+      ])
+      },
+      selectAllrecipt (buff) {
+        var recipate = ''
+        var recipient_name = ''
+        var special = ''
+        var office_location = ''
+        var line_type = ''
+        var separtment = ''
+        var director = ''
+        for (var index in this.scanList) {
+          if (this.scanList[index].recipient != null && this.scanList[index].recipient != '') {
+            recipate = this.scanList[index].recipient
+            recipient_name = this.scanList[index].recipient_name
+            special = this.scanList[index].special
+            director = this.scanList[index].director
+            office_location = this.scanList[index].office_location
+            line_type = this.scanList[index].line_type
+            separtment = this.scanList[index].separtment
+            break
+          }
+        }
+        for (var index in this.scanList) {
+          this.scanList[index].recipient = recipate
+          this.scanList[index].recipient_name = recipient_name
+          this.scanList[index].director = director
+          this.scanList[index].special = special
+          this.scanList[index].office_location = office_location
+          this.scanList[index].line_type = line_type
+          this.scanList[index].separtment = separtment
+        }
+      },
       handleSelect (item) {
         var msg = ""
         var buff = true
@@ -285,10 +328,14 @@
       employeeSelect ( item , goods_no ) {
         for (var index in this.scanList) {
           if (this.scanList[index].article_no == goods_no) {
-              this.scanList[index].recipient = item.jobNo
-              this.scanList[index].recipient_name = item.name
-              this.scanList[index].director = item.director
-              this.checkNum(goods_no,this.scanList[index].operation,this.scanList[index].sept);
+            this.scanList[index].recipient = item.jobNo
+            this.scanList[index].recipient_name = item.name
+            this.scanList[index].director = item.director
+            this.scanList[index].special = item.special
+            this.scanList[index].office_location = item.officeLocation
+            this.scanList[index].line_type = item.lineType
+            this.scanList[index].separtment = item.separtment
+            this.checkNum(goods_no,this.scanList[index].operation,this.scanList[index].sept);
           }
         }
       },

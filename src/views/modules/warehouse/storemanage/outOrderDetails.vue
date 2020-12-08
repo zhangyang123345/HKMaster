@@ -290,6 +290,9 @@
           job_no: '',
           director: '',
           separtment: '',
+          line_type: '',
+          special: '',
+          office_location: '',
           order_state: '',
           order_type: '',
           types: '',
@@ -369,6 +372,9 @@
                 this.dataForm.director = data.orders.director
                 this.dataForm.job_no = data.orders.job_no
                 this.dataForm.separtment = data.orders.separtment
+                this.dataForm.line_type = data.orders.line_type
+                this.dataForm.special = data.orders.special
+                this.dataForm.office_location = data.orders.office_location
                 this.dataForm.order_luck = data.orders.order_luck
                 this.dataForm.order_type = data.orders.order_type
                 this.dataForm.order_state = data.orders.order_state

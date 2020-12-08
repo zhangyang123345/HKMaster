@@ -70,7 +70,7 @@
                          :dotScale="1"></xy-vue-qr>
               <el-row class="quCell">
                 <el-col span="14" class="quCell">
-                    <el-input v-model="dataForm.qrNun" placeholder="下载数量" clearable></el-input>
+                    <el-input v-model="dataForm.qrNun" placeholder="25,30,24,...." clearable></el-input>
                 </el-col>
                 <el-col span="10" class="quCell">
                     <el-button type="primary" size="small" @click="downloadQR(scope.row)">下载</el-button>

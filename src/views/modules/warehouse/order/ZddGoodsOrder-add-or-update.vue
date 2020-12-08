@@ -61,8 +61,8 @@
         <el-col :span="6">
           <el-form-item label="订单类型" prop="order_type">
             <el-select v-model="dataForm.order_type" placeholder="订单类型" style="width:100%;">
-              <el-option v-for="item in typeOption"
-                         :key="item.value"
+              <el-option v-for="(item,index) in typeOption"
+                         :key="index"
                          :label="item.lable"
                          :value="item.value"></el-option>
             </el-select>
@@ -334,7 +334,7 @@
         dataForm: {
           id: '',
           order_no: '',
-          order_type: '',
+          order_type: 2,
           job_no: '',
           alltotal: '',
           reall_total: '',
@@ -354,7 +354,7 @@
         dataListLoading: false,
         tableDataCache: [],
         newrestaurants: [],
-        typeOption: [{value:1,lable:"入库"},{value:2,lable:"出库"},{value:3,lable:"报废"}],
+        typeOption: [{value: 1 ,lable:"入库"} , {value: 2 ,lable:"出库"} , {value: 3 ,lable:"报废"}],
         dataRule: {
           goodsName: [
             { required: true, message: '商品名称不能为空', trigger: 'blur' }
@@ -789,7 +789,7 @@
         if (val1 === 1) {
           this.dataForm.id = ''
           this.dataForm.order_no = ''
-          this.dataForm.order_type = ''
+          this.dataForm.order_type = 2
           this.dataForm.order_state = 0
           this.dataForm.exam_firs = 0
           this.dataForm.job_no = ''
