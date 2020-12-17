@@ -231,7 +231,7 @@
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
-            'limit': this.pageSize,
+            'rows': this.pageSize,
             'article_name': this.dataForm.article_name,
             'article_no': this.dataForm.article_no,
             'material_no': this.dataForm.material_no,
@@ -313,7 +313,7 @@
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
-            'limit': this.pageSize,
+            'rows': this.pageSize,
             'goods_id': this.dataForm.goods_id,
             'store_id': this.dataForm.store_id,
             'articleId': this.dataForm.articleId,

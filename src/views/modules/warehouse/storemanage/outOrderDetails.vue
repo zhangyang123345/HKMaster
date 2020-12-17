@@ -3,7 +3,6 @@
     width="90%"
     top="1vh"
     :show-close="false"
-    :title="!dataForm.order_no ? '新增(只需添加物品信息)' : '订单处理'"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :before-close="close"
@@ -415,7 +414,7 @@
         this.dataListLoading = false
       },
       //输入检测->入缓存
-      checkNum(goods_no,input,qunatity){
+      checkNum (goods_no,input,qunatity) {
         if (input > qunatity) {
           this.$message({
             message: "操作数量不可大于规格余量！",
@@ -427,45 +426,52 @@
             type: 'error'
           })
         } else {
+          var numBuff = false
           var dataS = null ;
           for (var index in this.scanList) {
             if (this.scanList[index].goods_no == goods_no) {
               dataS = this.scanList[index]
             }
           }
-          //TODO
-          this.$http({
-            url: this.$http.adornUrl(`/inoutmsg/saveCache`),
-            method: 'post',
-            params: this.$http.adornParams({ "goods": JSON.stringify(dataS) ,
-                "order_no":this.dataForm.order_no,
-                "order_type":this.dataForm.order_type})
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              dataS.id = data.goods.id
-              this.learning()
-          } else {
-            this.$message({
-              message: data.msg,
-              type: 'error'
-            });
+          for (var sdata in this.details) {
+            if (this.details[sdata].article_no.indexOf(goods_no.substring(0,23)) >= 0 && (parseFloat(dataS.price) == parseFloat(this.details[sdata].price)) && this.details[sdata].actual_qunatity < this.details[sdata].qunatity) {
+              numBuff = true
+              break
+            }
           }
-        })
+          if (!numBuff) {
+            this.$message({
+              message: "此类物品已处理完！",
+              type: 'error'
+            })
+          }
+            this.$http({
+              url: this.$http.adornUrl(`/inoutmsg/saveCache`),
+              method: 'post',
+              params: this.$http.adornParams({ "goods": JSON.stringify(dataS) ,
+                  "order_no":this.dataForm.order_no,
+                  "order_type":this.dataForm.order_type})
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+                dataS.id = data.goods.id
+                this.learning()
+            } else {
+              this.$message({
+                message: data.msg,
+                type: 'error'
+              });
+            }
+          })
         }
       },
       remove (id,goods_no) {
         if (id == null) {
           for (var ind in this.scanList) {
             if (this.scanList[ind].goods_no == goods_no) {
-              for (var sdata in this.details) {
-                if (this.details[sdata].article_no.indexOf(this.scanList[ind].goods_no.substring(0,27)) >= 0) {
                   this.scanList.splice(ind, 1)
                   this.learning()
                   break
-                }
               }
-              break
-            }
           }
         } else {
             this.$http({
@@ -474,26 +480,25 @@
               params: this.$http.adornParams({"ids": id})
             }).then(({data}) => {
               if (data && data.code === 0) {
-              for (var ind in this.scanList) {
-                if (this.scanList[ind].id == id) {
-                  for (var sdata in this.details) {
-                    if (this.details[sdata].article_no.indexOf(this.scanList[ind].goods_no.substring(0,27)) >= 0) {
-                      this.scanList.splice(ind, 1)
-                      this.learning()
-                      break
+                for (var ind in this.scanList) {
+                  if (this.scanList[ind].id == id) {
+                    for (var sdata in this.details) {
+                      if (this.details[sdata].article_no.indexOf(this.scanList[ind].goods_no.substring(0,27)) >= 0) {
+                        this.scanList.splice(ind, 1)
+                        this.learning()
+                        break
+                      }
                     }
+                    break
                   }
-                  break
                 }
-              }
-            }else
-              {
+            } else {
                 this.$message({
                   message: data.msg,
                   type: 'error'
-                });
+                })
               }
-            })
+          })
         }
       },
       // 表单提交
@@ -575,27 +580,31 @@
       //扫码提交
       scanSubmit () {
         var buff = false
+        var numBuff = false
         var msg = "编码错误或不符合本订单!"
         if (this.underForm.scan_data.length > 27 && this.underForm.scan_data.length < 36) {
             for (var sdata in this.details) {
-                if (this.details[sdata].article_no.indexOf(this.underForm.scan_data.substring(0,27)) >= 0) {
+                if (this.details[sdata].article_no.indexOf(this.underForm.scan_data.substring(0,23)) >= 0) {
                   if (this.details[sdata].actual_qunatity == this.details[sdata].qunatity) {
                     msg = "此类物品已满！"
+                    if (!numBuff)numBuff = false
                   } else {
-                    buff = true
+                    numBuff = true
                   }
-                  break
+                  buff = true
                 }
             }
-            for (var ind in this.scanList) {
-              if (this.scanList[ind].goods_no.indexOf(this.underForm.scan_data) >= 0) {
+            if (buff) {
+              for (var ind in this.scanList) {
+                if (this.scanList[ind].goods_no.indexOf(this.underForm.scan_data) >= 0) {
                   msg = "此物件已扫码！"
                   buff = false
                   break
+                }
               }
             }
         }
-        if (buff){
+        if (buff && numBuff) {
           this.dataForm.scan_data = this.underForm.scan_data
           this.$http({
             url: this.$http.adornUrl(`/inoutmsg/inoutStore`),
@@ -608,6 +617,7 @@
            }).then(({data}) => {
             if (data && data.code === 0) {
             this.underForm.scan_data = ''
+            var code24Buff = true
               for (var sdata in this.details) {
                 if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27)) >= 0) {
                   var nedNum = this.details[sdata].qunatity - this.details[sdata].actual_qunatity
@@ -620,7 +630,24 @@
                   //console.log(this.$refs['input_' + this.dataForm.scan_data])
                   //TODO
                   this.checkNum(this.dataForm.scan_data , data.article.operation , data.article.sept)
+                  code24Buff = false
                   break
+                }
+              }
+              if (code24Buff) {
+                for (var sdata in this.details) {
+                  if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,23)) >= 0) {
+                    var nedNum = this.details[sdata].qunatity - this.details[sdata].actual_qunatity
+                    data.article.operation = data.article.sept > nedNum ? nedNum : data.article.sept
+                    data.article.amount = data.article.operation * data.article.price
+                    this.scanList.unshift(data.article)
+                    var mount = data.article.operation * data.article.price
+                    this.details[sdata].actual_mount = this.details[sdata].actual_mount + mount
+                    this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.operation
+                    this.checkNum(this.dataForm.scan_data , data.article.operation , data.article.sept)
+                    code24Buff = false
+                    break
+                  }
                 }
               }
             } else {
@@ -645,14 +672,39 @@
         for (var ind in this.scanList) {
           this.scanList[ind].amount = (this.scanList[ind].operation * this.scanList[ind].price).toFixed(2)
           var numpc = isNaN(daMap.get(this.scanList[ind].goods_no.substring(0,27))) ? 0 : daMap.get(this.scanList[ind].goods_no.substring(0,27))
+          var num23pc = isNaN(daMap.get(this.scanList[ind].goods_no.substring(0,23))) ? 0 : daMap.get(this.scanList[ind].goods_no.substring(0,23))
           daMap.set(this.scanList[ind].goods_no.substring(0,27),parseInt(this.scanList[ind].operation) + parseInt(numpc))
+          daMap.set(this.scanList[ind].goods_no.substring(0,23),parseInt(this.scanList[ind].operation) + parseInt(num23pc))
         }
         var num = 0
         for (var index in this.details) {
-           var quNum = isNaN(daMap.get(this.details[index].article_no)) ? parseInt(this.details[index].qunacache) : (parseInt(this.details[index].qunacache) + parseInt(daMap.get(this.details[index].article_no)))
-           this.details[index].actual_qunatity = quNum
-           this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
-           num += parseFloat(this.details[index].actual_mount)
+          this.details[index].actual_qunatity = this.details[index].qunacache
+          this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+          if (!isNaN(daMap.get(this.details[index].article_no))) {
+            var quNum = parseInt(this.details[index].qunacache)
+            var cacNum = parseInt(daMap.get(this.details[index].article_no))
+            var reqNum = parseInt(this.details[index].qunatity)
+            var arlNum = (quNum + cacNum) > reqNum ? (reqNum - quNum) : cacNum
+            this.details[index].actual_qunatity = (quNum + arlNum)
+            this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+            daMap.set(this.details[index].article_no.substring(0,27), cacNum - arlNum)
+            daMap.set(this.details[index].article_no.substring(0,23),parseInt(daMap.get(this.details[index].article_no.substring(0,23))) - arlNum)
+          }
+          num += parseFloat(this.details[index].actual_mount)
+        }
+        for (index in this.details) {
+          if ((this.details[index].actual_qunatity < this.details[index].qunatity) && !isNaN(daMap.get(this.details[index].article_no.substring(0,23)))) {
+            quNum = parseInt(this.details[index].actual_qunatity)
+            cacNum = parseInt(daMap.get(this.details[index].article_no.substring(0,23)))
+            if (cacNum > 0) {
+              reqNum = parseInt(this.details[index].qunatity)
+              arlNum = (quNum + cacNum) > reqNum ? (reqNum - quNum) : cacNum
+              this.details[index].actual_qunatity = (quNum + arlNum)
+              this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+              num += parseFloat((arlNum * this.details[index].price).toFixed(2))
+              daMap.set(this.details[index].article_no.substring(0, 23), parseInt(cacNum - arlNum))
+            }
+          }
         }
         this.dataForm.reall_total = num.toFixed(2)
       },

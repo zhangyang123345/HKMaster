@@ -459,7 +459,7 @@
                   }
               })
             } else {
-              if (buff){
+              if (buff) {
                 this.$http({
                   url: this.$http.adornUrl(`/orders/complete`),
                   method: 'post',
@@ -498,15 +498,15 @@
       //扫码提交
       scanSubmit () {
         var buff = false
-        if(this.underForm.scan_data.length > 27 && this.underForm.scan_data.length < 36){
+        if (this.underForm.scan_data.length > 27 && this.underForm.scan_data.length < 36) {
             for (var sdata in this.details) {
-                if(this.details[sdata].article_no.indexOf(this.underForm.scan_data.substring(0,27))>=0){
+                if (this.details[sdata].article_no.indexOf(this.underForm.scan_data.substring(0,24)) >= 0) {
                   buff = true
                   break
                 }
             }
         }
-        if (buff){
+        if (buff) {
           this.dataForm.scan_data = this.underForm.scan_data
           this.$http({
             url: this.$http.adornUrl(`/inoutmsg/inoutStore`),
@@ -522,15 +522,28 @@
               data.article.amount = (data.article.inventory * data.article.price).toFixed(2)
               this.scanList.unshift(data.article)
               var mount = data.article.inventory * data.article.price
+              var code24Buff = true
               for (var sdata in this.details) {
-                if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27))>=0) {
+                if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27)) >= 0) {
                   this.details[sdata].actual_mount = (this.details[sdata].actual_mount + mount).toFixed(2)
                   this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.inventory
                   this.learning()
+                  code24Buff = false
                   break
                 }
               }
-            }else{
+              if (code24Buff) {
+                for (var sdata in this.details) {
+                  if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,24)) >= 0) {
+                    this.details[sdata].actual_mount = (this.details[sdata].actual_mount + mount).toFixed(2)
+                    this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.inventory
+                    this.learning()
+                    code24Buff = false
+                    break
+                  }
+                }
+              }
+            } else {
               this.underForm.scan_data = ''
               this.$message({
                 message: data.msg,

@@ -12,7 +12,7 @@
       <el-row>
           <el-col :span="12">
             <el-form-item label="扫码输入">
-              <el-input v-model="underForm.scan_data" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
+              <el-input ref="scanModel" v-model="underForm.scan_data" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
               </el-input>
             </el-form-item>
           </el-col>
@@ -77,7 +77,7 @@
               align="center"
               label="操作数量">
                 <template slot-scope="scope">
-                  <el-input v-model="scope.row.inventory" type="number" size="small" :ref="scope.row.goods_no"
+                  <el-input v-model="scope.row.inventory" type="number" size="small" :ref="scope.row.goods_no" @keyup.enter.native="scanFocus()"
                             @change="checkNum(scope.row.goods_no,scope.row.inventory,scope.row.tempNum)"></el-input>
                 </template>
             </el-table-column>
@@ -169,11 +169,28 @@
       guid () {
         return this.S4()+this.S4()+this.S4()+this.S4()+this.S4();
       },
-      open (){
+      open () {
+        var order_no = this.$store.state.user.order_no
         this.instore = true
-        this.dataForm.order_no = this.guid().toUpperCase()
         this.underForm.reall_total = 0
         this.underForm.scan_data = ''
+        if (order_no  != '' && order_no !=  null) {
+            this.$http({
+              url: this.$http.adornUrl(`/inoutmsg/getCache`),
+              method: 'post',
+              params: this.$http.adornParams({"order_no":order_no})
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+                this.scanList = data.cacheData
+                this.dataForm.order_no = order_no
+                this.learning()
+              }
+          })
+        } else {
+          var order_code = this.guid().toUpperCase()
+          this.dataForm.order_no = order_code
+          this.$store.state.user.order_no = order_code
+        }
       },
       remove (id){
         this.$http({
@@ -240,6 +257,10 @@
         })
         }
       },
+      //光标切换
+      scanFocus () {
+        this.$refs.scanModel.focus()
+      },
       // 表单提交
       underFormSubmit (buff) {
         var msg = buff?"是否确认结单？":"是否确认保存？"
@@ -258,16 +279,16 @@
               "order_type": this.dataForm.order_type
             })
           }).then(({data}) => {
-            if(data && data.code === 0){
-            if(buff)this.instore = false
-            this.scanList.splice(0,this.scanList.length)
-            this.underForm.reall_total = 0
-            this.underForm.scan_data = ''
-            this.$message({
-              message: data.msg,
-              type: 'success'
-            });
-          }else{
+            if (data && data.code === 0) {
+              if (buff) this.instore = false
+              this.scanList.splice(0,this.scanList.length)
+              this.underForm.reall_total = 0
+              this.underForm.scan_data = ''
+              this.$message({
+                message: data.msg,
+                type: 'success'
+              })
+          } else {
             this.$message({
               message: data.msg,
               type: 'error'
@@ -425,9 +446,10 @@
         });
         }).catch(action => {
           });
-        }else{
+        } else {
           this.instore = false
         }
+        this.$store.state.user.order_no = ''
       }
     }
   }

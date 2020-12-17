@@ -7,13 +7,12 @@
     title="处理"
     :before-close="close"
     :close-on-click-modal="false"
-    :close-on-press-escape="false"
     :visible.sync="visible">
     <el-form :model="dataForm"  ref="dataForm" label-width="80px">
       <el-row>
         <el-col :span="12">
           <el-form-item label="扫码输入">
-            <el-input v-model="underForm.scan_data" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
+            <el-input ref="scanModel" v-model="underForm.scan_data" @keyup.enter.native="scanSubmit()" placeholder="扫码输入">
             </el-input>
           </el-form-item>
         </el-col>
@@ -118,7 +117,7 @@
               align="center"
               label="操作数量">
               <template slot-scope="scope">
-                <el-input v-model="scope.row.operation" type="number" size="small" :ref="scope.row.goods_no"
+                <el-input v-model="scope.row.operation" type="number" size="small" :ref="scope.row.goods_no" @keyup.enter.native="scanFocus()"
                           @change="checkNum(scope.row.goods_no,scope.row.operation,scope.row.sept)"></el-input>
               </template>
             </el-table-column>
@@ -190,7 +189,7 @@
         },
         typeOption: [{value:2,lable:"出库"},{value:3,lable:"报废"}],
         details: [],
-        scanList: [],
+         scanList: [],
         stata: '',
         showT: false,
         dataListLoading: false,
@@ -292,20 +291,37 @@
               this.scanList[index].office_location = item.officeLocation
               this.scanList[index].line_type = item.lineType
               this.scanList[index].separtment = item.separtment
-              this.checkNum(goods_no,this.scanList[index].operation,this.scanList[index].sept);
+              this.checkNum(goods_no,this.scanList[index].operation,this.scanList[index].sept)
+              this.scanFocus()
           }
         }
       },
       open () {
         this.visible = true
-        this.dataForm.order_no = this.guid().toUpperCase()
-        this.dataForm.reall_total = 0
+        var order_no = this.$store.state.user.order_no
+        this.underForm.reall_total = 0
         this.underForm.scan_data = ''
+        if (order_no  != '' && order_no !=  null) {
+          this.$http({
+            url: this.$http.adornUrl(`/inoutmsg/getCache`),
+            method: 'post',
+            params: this.$http.adornParams({"order_no":order_no})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+            this.scanList = data.cacheData
+            this.dataForm.order_no = order_no
+            this.learning()
+          }
+        })
+        } else {
+          var order_code = this.guid().toUpperCase()
+          this.dataForm.order_no = order_code
+          this.$store.state.user.order_no = order_code
+        }
       },
       //确认入缓存
       inCache () {
         //TODO
-
         this.$refs.scanInput.focus()
       },
       // headerScan (h, { column, $index }) {
@@ -321,48 +337,32 @@
       init (order_no) {
         this.dataListLoading = true
         this.visible = true
-        this.dataForm.order_no = this.guid().toUpperCase()
         this.dataForm.reall_total = 0
         this.dataForm.scan_data = ''
         this.underForm.scan_data = ''
-        this.$nextTick(() => {
-          this.$refs['dataForm'].resetFields()
-          if (order_no != null) {
-            this.$http({
-              url: this.$http.adornUrl(`/orders/getDetail`),
-              method: 'post',
-              params: this.$http.adornParams({"order_no":order_no})
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.details = data.orders.detail
-                this.dataForm.id = data.orders.id
-                this.dataForm.order_no = data.orders.order_no
-                this.dataForm.name = data.orders.name
-                this.dataForm.exam_type = data.orders.exam_type
-                this.dataForm.alltotal = data.orders.alltotal
-                this.dataForm.reall_total = data.orders.reall_total
-                this.dataForm.stime = data.orders.stime
-                this.dataForm.order_type = data.orders.order_type
-                this.dataForm.order_state = data.orders.order_state
-                this.dataForm.remarks = data.orders.remarks
-                this.dataForm.types = data.orders.order_type == 1 ? "入库":(data.orders.order_type == 2?"出库":"报废")
-                this.dataForm.exp_date = data.orders.exp_date
-
-                if(data.orders.order_state == -2)this.dataForm.states ="订单异常结束"
-                if(data.orders.order_state == -1)this.dataForm.states ="存在异常"
-                if(data.orders.order_state == 0)this.dataForm.states ="待提交"
-                if(data.orders.order_state == 1)this.dataForm.states ="待EHS审核"
-                if(data.orders.order_state == 2)this.dataForm.states ="待主管审核"
-                if(data.orders.order_state == 3)this.dataForm.states ="待经理审核"
-                if(data.orders.order_state == 4)this.dataForm.states ="待厂长审核"
-                if(data.orders.order_state == 5)this.dataForm.states ="待处理"
-                if(data.orders.order_state == 6)this.dataForm.states ="待结单"
-                if(data.orders.order_state == 7)this.dataForm.states ="完成"
-            }
-          })
+        var order_no = this.$store.state.user.order_no
+        if (order_no  != '' && order_no !=  null) {
+          this.$http({
+            url: this.$http.adornUrl(`/inoutmsg/getCache`),
+            method: 'post',
+            params: this.$http.adornParams({"order_no":order_no})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+            this.scanList = data.cacheData
+            this.dataForm.order_no = order_no
+            this.learning()
           }
-      })
+        })
+        } else {
+          var order_code = this.guid().toUpperCase()
+          this.dataForm.order_no = order_code
+          this.$store.state.user.order_no = order_code
+        }
         this.dataListLoading = false
+      },
+      //光标切换
+      scanFocus () {
+          this.$refs.scanModel.focus()
       },
       //输入检测->入缓存
       checkNum(goods_no,input,qunatity){
@@ -626,6 +626,7 @@
         } else {
           this.visible = false
         }
+        this.$store.state.user.order_no = ''
       }
     }
   }

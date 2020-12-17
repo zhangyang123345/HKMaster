@@ -501,7 +501,7 @@
             data: ['2011年']
           },
           grid: {
-            top: '20%',
+            top: '10%',
             left: '0%',
             right: '12%',
             bottom: '0%',
@@ -535,7 +535,7 @@
               // name: '2011年',
               type: 'bar',
               data: this.manage1_val,
-              barWidth: 20,
+              barWidth: 16,
               itemStyle: {
                 normal: {
                   label: {
@@ -583,7 +583,7 @@
             data: ['2011年']
           },
           grid: {
-            top: '20%',
+            top: '10%',
             left: '0%',
             right: '12%',
             bottom: '0%',
@@ -665,7 +665,7 @@
             data: ['2011年']
           },
           grid: {
-            top: '20%',
+            top: '10%',
             left: '0%',
             right: '12%',
             bottom: '0%',
@@ -759,7 +759,7 @@
             data: ['2011年']
           },
           grid: {
-            top: '20%',
+            top: '10%',
             left: '0%',
             right: '12%',
             bottom: '0%',

@@ -64,6 +64,10 @@
       director: {
         get () { return this.$store.state.user.director },
         set (val) { this.$store.commit('user/updateDirector', val) }
+      },
+      order_no: {
+        get () { return this.$store.state.user.order_no },
+        set (val) { this.$store.commit('user/updateOrderNo', val) }
       }
     },
     created () {

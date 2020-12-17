@@ -28,6 +28,8 @@
           <xy-vue-qr ref="xyQR" :text="qrMsg" :logoSrc="imageUrl" :size="150" :margin="5" :callback="getQUrlX"
                      :dotScale="1"></xy-vue-qr>
         </div>
+        <div id ="printDiv" style="display:none">
+        </div>
         <el-dialog
           width="90%"
           top="1vh"
@@ -69,11 +71,16 @@
               <xy-vue-qr ref="qr" :text="scope.row.article_no" :logoSrc="imageUrl" :size="200" :margin="5"
                          :dotScale="1"></xy-vue-qr>
               <el-row class="quCell">
-                <el-col span="14" class="quCell">
+                <el-col span="24" class="quCell">
                     <el-input v-model="dataForm.qrNun" placeholder="25,30,24,...." clearable></el-input>
                 </el-col>
-                <el-col span="10" class="quCell">
-                    <el-button type="primary" size="small" @click="downloadQR(scope.row)">下载</el-button>
+              </el-row>
+              <el-row class="quCell">
+                <el-col span="12" class="quCell">
+                  <el-button type="primary" size="small" @click="downloadQR(scope.row)">下载</el-button>
+                </el-col>
+                <el-col span="12" class="quCell">
+                    <el-button type="primary" size="small" @click="printQR(scope.row)">打印</el-button>
                 </el-col>
               </el-row>
             </div>
@@ -189,8 +196,10 @@
         imageUrl: require("../../../../assets/img/favicon3.png"),
         posterBase64: '', //  转化后的base64编码
         rowData: '',
+        printBuff: false, //打印标志位
         cavenList: [],
-        visible: false
+        visible: false,
+        htmlContent: [] //打印服务
       }
     },
     // computed: {
@@ -348,7 +357,7 @@
         // //合成函数，执行下载
         // a.dispatchEvent(new MouseEvent('click'))
         //this.cavenList.push(url)
-        var div = document.getElementById("imgDiv")
+        var div = this.printBuff?document.getElementById("printDiv"):document.getElementById("imgDiv")
         var idiv = document.createElement("div")
         let image = document.createElement('img')
         idiv.setAttribute("style","height:180px;width:180px;display:inline-block")
@@ -375,26 +384,32 @@
 
         div.appendChild(idiv)
         if (this.dataForm.qrNumb > 0) {
+          if (this.printBuff) {
+            this.htmlContent.push(document.getElementById('printDiv').innerHTML)
+            document.getElementById('printDiv').innerHTML = "";
+          }
           this.downloadQRD(this.rowData)
         } else {
-          setTimeout( ()=> html2canvas(document.getElementById('imgDiv'),{
-            logging: true,
-            scrollY: 0, //  为了解决顶部偏移出现白边，初始化时就直接设置往上偏移-20位置
-            scrollX: 0,
-            allowTaint: false,
-            useCORS: true// 运行跨域图片资源
-          }).then((canvas) => {
-              var image = canvas.toDataURL('img');
-              let a = document.createElement('a');
-              // 下载图名字
-              a.download = this.rowData.article_name + "-" + this.rowData.article_no;
-              //url
-              a.href = image;//this.$refs.qr.$el.src;
-              //合成函数，执行下载
-              a.dispatchEvent(new MouseEvent('click'))
-              document.getElementById('imgDiv').innerHTML = "";
-              this.visible = false
-            }),1000);
+          if (this.printBuff) {
+          } else {
+              setTimeout(() => html2canvas(document.getElementById('imgDiv'), {
+                logging: true,
+                scrollY: 0, //  为了解决顶部偏移出现白边，初始化时就直接设置往上偏移-20位置
+                scrollX: 0,
+                allowTaint: false,
+                useCORS: true// 运行跨域图片资源
+              }).then((canvas) => {
+                var image = canvas.toDataURL('img');
+                let a = document.createElement('a');
+                // 下载图名字
+                a.download = this.rowData.article_name + "-" + this.rowData.article_no;
+                //url
+                a.href = image;//this.$refs.qr.$el.src;
+                //合成函数，执行下载
+                a.dispatchEvent(new MouseEvent('click'))
+                document.getElementById('imgDiv').innerHTML = "";
+                this.visible = false
+            }),1000)}
          }
       },
       getQUrl: function (url) {
@@ -444,14 +459,44 @@
           }),1000);
     },
       downloadQR: function (row) {
+        this.printBuff = false
         if (this.dataForm.qrNun != '' ) {
           this.dataForm.qrNumR = this.dataForm.qrNun.split(",")
           this.dataForm.qrNumb = this.dataForm.qrNumR.length
           this.downloadQRD(row)
         }
       },
+      printQR: function (row) {
+        this.printBuff = true
+        if (this.dataForm.qrNun != '' ) {
+          this.dataForm.qrNumR = this.dataForm.qrNun.split(",")
+          this.dataForm.qrNumb = this.dataForm.qrNumR.length
+          for (var i in this.dataForm.qrNumR) {
+            var info = new Object()
+            info.code = (row.article_no + (this.S4() + this.S4()))
+            info.meterial_no = row.material_no
+            info.article_name = row.article_name
+            info.specs = row.specs_name
+            info.num = this.dataForm.qrNumR[i]
+            this.htmlContent.push(info)
+          }
+          this.$http({
+            url: this.$http.adornUrl('/code/print'),
+            method: 'post',
+            data: this.$http.adornData({
+              'htmlString': JSON.stringify(this.htmlContent)
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+            this.htmlContent.splice(0,this.htmlContent.length)
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+        }
+      },
       downloadQRD: function (row) {
-        this.visible = true ;
+        if (!this.printBuff) this.visible = true
         this.rowData = row
         // let div = document.createElement('div');
         // div.setAttribute("id", "imgDiv");
@@ -474,6 +519,7 @@
   <style>
     .quCell{
       margin-bottom: 0px!important;
+      margin-top:1px;
     }
   </style>
  <!--// imageUrl: require("../../../../assets/img/favicon3.png")-->

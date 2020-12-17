@@ -5,6 +5,7 @@ export default {
     name: '',
     realname: '',
     director: '',
+    order_no: '',
   },
   mutations: {
     updateId (state, id) {
@@ -18,6 +19,9 @@ export default {
     },
     updateDirector (state,name) {
       state.director = name
+    },
+    updateOrderNo (state,order) {
+      state.order_no = order
     }
   }
 }

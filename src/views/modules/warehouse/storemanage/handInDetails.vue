@@ -426,18 +426,20 @@
       },
       handleSelect (item) {
         var msg = "选择物品不符合本订单！"
-        var buff = false
-        for (var sdata in this.details) {
-          if (this.details[sdata].article_no.indexOf(item.article_no) >= 0) {
-            buff = true
-            break
-          }
-        }
+        var buff = true
         for (var sdata in this.scanList) {
           if (this.scanList[sdata].article_no.indexOf(item.article_no) >= 0) {
             buff = false
             msg = "此物品列表已存在！"
             break
+          }
+        }
+        if (buff) {
+          for (var sdata in this.details) {
+            if (this.details[sdata].article_no.indexOf(item.article_no.substring(0,24)) >= 0) {
+              buff = true
+              break
+            } else { buff = false }
           }
         }
         if (buff) {
