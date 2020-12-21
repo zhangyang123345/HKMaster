@@ -7,6 +7,7 @@
     title="处理"
     :before-close="close"
     :close-on-click-modal="false"
+    :close-on-press-escape="false"
     :visible.sync="visible">
     <el-form :model="dataForm"  ref="dataForm" label-width="80px">
       <el-row>

@@ -2,7 +2,7 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="ID" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-select  v-model="dataForm.type" placeholder="请选择警报类型" clearable>
@@ -60,6 +60,12 @@
         header-align="center"
         align="center"
         label="仓库/制程">
+      </el-table-column>
+      <el-table-column
+        prop="slotNum"
+        header-align="center"
+        align="center"
+        label="槽号">
       </el-table-column>
       <el-table-column
         prop="type"
@@ -155,9 +161,16 @@
     components: {
     },
     activated () {
-      this.getDataList()
+      this.init()
     },
     methods: {
+      init () {
+        this.dataForm.key = this.$router.apps[0]._route.params.warningId
+        this.dataForm.keytwo = ''
+        this.dataForm.stata = ''
+        this.dataForm.type = ''
+        this.getDataList()
+      },
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true
@@ -168,7 +181,7 @@
             'page': this.pageIndex,
             'limit': this.pageSize,
             'key_time': this.dataForm.keytwo + '',
-            'key': this.dataForm.key,
+            'warningId': this.dataForm.key,
             'stata': this.dataForm.stata,
             'type': this.dataForm.type
           })

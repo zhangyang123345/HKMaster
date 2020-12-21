@@ -13,11 +13,14 @@
           @select="handleSelect"
         ></el-autocomplete>
       </el-form-item>
-    <el-form-item label="制程名" prop="processName">
-      <el-input v-model="dataForm.processName" placeholder="制程名"></el-input>
-    </el-form-item>
-      <el-form-item label="日建浴量" prop="dayVolume">
-        <el-input v-model="dataForm.dayVolume" placeholder="日建浴量"></el-input>
+      <el-form-item label="制程名" prop="processName">
+        <el-input v-model="dataForm.processName" placeholder="制程名"></el-input>
+      </el-form-item>
+      <el-form-item label="槽  号" prop="processName">
+        <el-input v-model="dataForm.slotNum" placeholder="槽  号"></el-input>
+      </el-form-item>
+      <el-form-item label="日添加量" prop="dayVolume">
+        <el-input v-model="dataForm.dayVolume" placeholder="日添加量"></el-input>
       </el-form-item>
       <el-form-item label="周期建浴量" prop="cycleVolume">
         <el-input v-model="dataForm.cycleVolume" placeholder="周期建浴量"></el-input>
@@ -54,6 +57,7 @@
         visible: false,
         dataForm: {
           processName: '',
+          slotNum: '',
           dayVolume: '',
           goodsId: 0,
           goodsName: '',
@@ -70,6 +74,9 @@
           ],
           processName: [
             { required: true, message: '制程名不能为空', trigger: 'blur' }
+          ],
+          slotNum: [
+            { required: true, message: '槽号不能为空', trigger: 'blur' }
           ],
           dayVolume: [
             { required: true, message: '日建浴量不能为空', trigger: 'blur' }
@@ -112,6 +119,7 @@
               this.dataForm.goodsName = data.buildBathEntity.goodsName
               this.dataForm.goodsId = data.buildBathEntity.goodsId
               this.dataForm.processName = data.buildBathEntity.processName
+              this.dataForm.slotNum = data.buildBathEntity.slotNum
               this.dataForm.dayVolume = data.buildBathEntity.dayVolume
               this.dataForm.cycleVolume = data.buildBathEntity.cycleVolume
               this.dataForm.keytwo = [data.buildBathEntity.lastTime, data.buildBathEntity.nextTime]
@@ -134,6 +142,7 @@
                 'category_no': this.dataForm.goodsId,
                 'smallValue': this.dataForm.smallValue,
                 'processName': this.dataForm.processName,
+                'slotNum': this.dataForm.slotNum,
                 'dayVolume': this.dataForm.dayVolume,
                 'cycleVolume': this.dataForm.cycleVolume,
                 'key_time': this.dataForm.keytwo + ''

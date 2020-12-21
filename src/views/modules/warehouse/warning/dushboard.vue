@@ -23,6 +23,7 @@
           </div>
           <el-table :header-cell-style="getRowClass"
                     :data="dataList"
+                    @row-click="TClick"
                     border
                     cell-style="font-weight: 900;color: #FFFFFF"
                     style="width: 100%;">
@@ -101,6 +102,7 @@
           </div>
           <el-table :header-cell-style="getRowClass"
                     :data="dataList1"
+                    @row-click="TClick"
                     border
                     cell-style="font-weight: 900;color: #FFFFFF"
                     style="width: 100%;">
@@ -181,6 +183,9 @@
         stores: ['仓库1', '仓库2', '仓库3', '仓库4', '仓库5'],
         manage1: [],
         manage1_val: [],
+        // manage2: ['王梅', '李洪', '代彦明', '俞长勇', '甘茂林', '齐传信', '陈文章', '陈伟峰'],
+        costTotal: '',
+        costDay: [],
         manage2: [],
         manage2_val: [],
         manage3: [],
@@ -188,7 +193,6 @@
         manage4: ['420', '硫酸', '纯水树脂', '无水乙醇', '钝化剂'],
         manage4_val: [700, 1205, 1900, 3320, 6720],
         numgeg: [],
-        // manage2: ['王梅', '李洪', '代彦明', '俞长勇', '甘茂林', '齐传信', '陈文章', '陈伟峰'],
         // manage2_val: [73489, 12501, 32102, 65212, 65123],
         dataList: [],
         dataListall: [
@@ -304,7 +308,6 @@
         }
       },
       getTopFiveList () {
-        // console.log(this.manage3_val)
         this.manage3 = []
         this.manage3_val = []
         this.manage4 = []
@@ -348,6 +351,27 @@
         //   this.manage3_val.push(23)
         //   this.manage3_val.push(23)
       },
+      TClick (row, column, event) {
+        this.menuRout.set("menuId136", true)
+        var parma = new Object()
+        parma.warningId = row.warningId
+        this.$router.push({ name: "warehouse/warning/warningShow".replace('/', '-') , params:parma})
+      },
+      eClick (params,msg_type) {
+        this.menuRout.set("menuId118", true)
+        var parma = new Object()
+        parma.director = params.componentSubType == 'pie'?params.name:""
+        parma.article_name = params.componentSubType == 'bar'?params.name:""
+        if (msg_type == 1) {
+          parma.keyTime = ''
+          parma.goods_no = this.costDay[9 - params.dataIndex].goods_no
+
+        } else {
+          parma.keyTime = params.componentSubType == 'pie'?this.keyTime1:this.keyTime3
+        }
+        parma.msg_type = msg_type
+        this.$router.push({ name: "warehouse/goodsFiles/inorout".replace('/', '-') , params:parma})
+      },
       getList () {
         this.isOk1 = true
         this.isOk2 = true
@@ -376,7 +400,7 @@
           this.play1()
         }
       })
-        this.keyTime1 = [moment(moment().add(-7, 'days').valueOf()).format('YYYY-MM-DD 00:00:00'), moment(moment().valueOf()).format('YYYY-MM-DD 00:00:00')]
+        this.keyTime1 = [moment(moment().add(-9, 'days').valueOf()).format('YYYY-MM-DD 00:00:00'), moment(moment().valueOf()).format('YYYY-MM-DD 00:00:00')]
           this.$http({
             url: this.$http.adornUrl('/store/store/costData'),
             method: 'get',
@@ -385,17 +409,27 @@
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.manage1 = data.costData.name
-              this.manage1_val = data.costData.cost
-              var option = {
-                series: [ {
-                  data: data.costData.cost
-                } ],
-                yAxis: [{
-                  data: data.costData.name
-                }]
+              for (var i in data.costData.name) {
+                 var map = new Object()
+                 map.value = data.costData.cost[i]
+                 map.name = data.costData.name[i]
+                 this.costTotal = isNaN(parseFloat(this.costTotal)) ? parseFloat(data.costData.cost[i]) : (parseFloat(this.costTotal) + parseFloat(data.costData.cost[i]))
+                 this.manage1_val.push(map)
               }
-              this.myChart1.setOption(option);
+              var option = {
+                title: {
+                  text: '近7天费用情况(共:' + this.costTotal.toFixed(2) + '￥)',
+                  left: 'left',
+                  textStyle: {
+                    color: 'RGB(255,255,255)'
+                  }
+                },
+                series: [ {
+                  data: this.manage1_val
+                } ]
+              }
+              this.myChart1.setOption(option)
+              this.myChart1.on("click", (params) => {this.eClick(params,2)})
           }
         })
             this.keyTime3 = [moment(moment().add(-30, 'days').valueOf()).format('YYYY-MM-DD 00:00:00'), moment(moment().valueOf()).format('YYYY-MM-DD 00:00:00')]
@@ -418,7 +452,8 @@
                     data: data.costArt.name
                   }]
                 }
-                this.myChart3.setOption(option);
+                this.myChart3.setOption(option)
+                this.myChart3.on("click", (params) => {this.eClick(params,2)})
             }
           })
           this.$http({
@@ -427,17 +462,19 @@
             params: this.$http.adornParams({})
           }).then(({data}) => {
             if (data && data.code === 0) {
-            this.manage2 = data.costDay.name
-            this.manage2_val = data.costDay.cost
-            var option = {
-              series: [ {
-                data: data.costDay.cost
-              } ],
-              yAxis: [{
-                data: data.costDay.name
-              }]
-            }
-            this.myChart2.setOption(option);
+              this.costDay = data.costDay.data
+              this.manage2 = data.costDay.name
+              this.manage2_val = data.costDay.cost
+              var option = {
+                series: [ {
+                  data: data.costDay.cost
+                } ],
+                yAxis: [{
+                  data: data.costDay.name
+                }]
+              }
+              this.myChart2.setOption(option)
+              this.myChart2.on("click", (params) => {this.eClick(params,1)})
           }
         })
         this.$http({
@@ -459,7 +496,8 @@
                 data: data.costArt.name
               }]
             }
-            this.myChart4.setOption(option);
+            this.myChart4.setOption(option)
+            this.myChart2.on("click", (params) => {this.eClick(params,2)})
         }
       })
       },
@@ -471,82 +509,59 @@
         this.myChart1.resize({height: this.autoHeight})
         // 绘制图表
         this.myChart1.setOption({
-          color: ['#43AAB3'],
           title: {
-            text: '近7天费用状况',
-            // color: '#4b67c2',
-            textStyle: {//主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
-              color: '#FFFFFF'
-            }
+            text: '近7天费用情况(共:' + this.costTotal + '￥)',
+            left: 'left'
           },
           tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-              type: 'shadow'
-            }
+            trigger: 'item',
+            formatter: '{b} : {c} ({d}%)'
           },
-          toolbox: {
-            show: true,
-            feature: {
-              // dataZoom: {
-              //   yAxisIndex: 'none'
-              // },
-              dataView: {readOnly: false},
-              magicType: {type: ['bar']},
-              saveAsImage: {}
-            }
-          },
-          legend: {
+
+          visualMap: {
             show: false,
-            data: ['2011年']
-          },
-          grid: {
-            top: '10%',
-            left: '0%',
-            right: '12%',
-            bottom: '0%',
-            containLabel: true
-          },
-          xAxis: {
-            name: '￥',
-            type: 'value',
-            boundaryGap: [0, 0.1],
-            splitLine: {show: false},
-            axisLabel: {
-              interval: 0,//0：全部显示，1：间隔为1显示对应类目，2：依次类推，（简单试一下就明白了，这样说是不是有点抽象）
-              rotate: -90//倾斜显示，-：顺时针旋转，+或不写：逆时针旋转
-              // formatter: '{value} 元'
-            },
-            axisLine: {
-              lineStyle: {
-                color: '#FFFFFF'
-              }}
-          },
-          yAxis: {
-            type: 'category',
-            data: this.manage1,
-            axisLine: {
-              lineStyle: {
-                color: '#FFFFFF'
-              }}
+            inRange: {
+              colorLightness: [0, 1]
+            }
           },
           series: [
             {
-              // name: '2011年',
-              type: 'bar',
+              name: '',
+              type: 'pie',
+              // color: ['#8378EA', '#96BFFF', '#37A2DA', '#32C5E9', '#67E0E3', '#FFDB5C','#ff9f7f', '#fb7293', '#E062AE', '#E690D1', '#e7bcf3', '#9d96f5'],
+              color: ['#32C5E9', '#67E0E3', '#9FE6B8', '#FFDB5C','#ff9f7f', '#fb7293', '#E062AE', '#E690D1', '#e7bcf3', '#9d96f5'],
+              radius: '70%',
+              center: ['50%', '65%'],
               data: this.manage1_val,
-              barWidth: 16,
+              // roseType: 'radius',
+              label: {
+                color: 'rgba(255, 255, 255, 0.3)'
+              },
+              labelLine: {
+                lineStyle: {
+                  color: 'rgba(255, 255, 255, 0.3)'
+                },
+                smooth: 0.2,
+                length: 10,
+                length2: 20
+              },
               itemStyle: {
+                // color: '#c1c1c2',
+                shadowBlur: 200,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
                 normal: {
                   label: {
-                    show: true, //开启显示
-                    position: 'right', //在上方显示
-                    textStyle: { //数值样式
-                      color: '#FFFFFF',
-                      fontSize: 16
-                    }
-                  }
+                    // color: '#c1c1c2',
+                    show: true,
+                    formatter: '{b}\n{c}\n({d}%)'
+                  },
+                  labelLine: {show: true}
                 }
+              },
+              animationType: 'scale',
+              animationEasing: 'elasticOut',
+              animationDelay: function (idx) {
+                return Math.random() * 200
               }
             }
           ]
@@ -627,6 +642,20 @@
                       color: '#FFFFFF',
                       fontSize: 16
                     }
+                  },
+                  color: function (params) {
+                    var clolrList = ['#E062AE','#FFDB5C','#6157df','#67e0e3','#228b22']
+                    var color = clolrList[4]
+                    if (params.data > 100) {
+                      color = clolrList[0]
+                    } else if (params.data > 70) {
+                      color = clolrList[1]
+                    } else if (params.data > 40) {
+                      color = clolrList[2]
+                    } else if (params.data > 20) {
+                      color = clolrList[3]
+                    }
+                    return  color
                   }
                 }
               }
@@ -721,6 +750,10 @@
                       color: '#FFFFFF',
                       fontSize: 16
                     }
+                  },
+                  color: function (params) {
+                     var clolrList = ['#32C5E9', '#67E0E3', '#9FE6B8', '#FFDB5C','#ff9f7f', '#fb7293', '#E062AE', '#E690D1', '#e7bcf3', '#9d96f5']
+                     return  clolrList[params.dataIndex]
                   }
                 }
               }
@@ -734,7 +767,7 @@
         this.myChart4.setOption({
           color: ['#43AAB3'],
           title: {
-            text: '当月化学品费用前十',
+            text: '近30天化学品费用前十',
             // color: '#4b67c2',
             textStyle: {//主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
               color: '#FFFFFF'
@@ -814,6 +847,10 @@
                       color: '#FFFFFF',
                       fontSize: 16
                     }
+                  },
+                  color: function (params) {
+                    var clolrList = ['#32C5E9', '#67E0E3', '#9FE6B8', '#FFDB5C','#ff9f7f', '#fb7293', '#E062AE', '#E690D1', '#e7bcf3', '#9d96f5']
+                    return  clolrList[params.dataIndex]
                   }
                 }
               }

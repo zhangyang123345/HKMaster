@@ -86,6 +86,22 @@
         get () { return this.$store.state.user.realname }
       }
     },
+    mounted () {
+      var width = window.innerWidth
+      var rate = 1
+      if (width >= 1500) {
+        rate = 1
+      } else if (width >= 1400) {
+        rate = 0.80
+      } else if (width >= 1300) {
+        rate = 0.75
+      } else if (width >= 1200) {
+        rate = 0.70
+      } else if (width >= 1000) {
+        rate = 0.67
+      }
+      document.body.style.zoom = rate
+    },
     created () {
       this.mynoontip()
     },

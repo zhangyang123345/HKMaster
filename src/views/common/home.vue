@@ -55,7 +55,7 @@
     inject: ['reload'],
     data() {
       return {
-        imageList:['../../../static/img/homePage_12.png','../../../static/img/homePage_13.png'],
+        imageList:['../../../static/img/homePage_12.png','../../../static/img/homePage_14.png','../../../static/img/homePage_15.png','../../../static/img/homePage_16.png'],
         menuList:[],
         playerOptions: {
           playbackRates: [0.5, 1.0, 1.5, 2.0], // 可选的播放速度

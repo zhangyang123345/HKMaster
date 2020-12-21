@@ -48,6 +48,12 @@
       label="制程">
       </el-table-column>
       <el-table-column
+      prop="slotNum"
+      header-align="center"
+      align="center"
+      label="槽号">
+      </el-table-column>
+      <el-table-column
       prop="dayVolume"
       header-align="center"
       align="center"

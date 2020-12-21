@@ -13,6 +13,9 @@
         ></el-autocomplete>
       </el-form-item>
       <el-form-item>
+        <el-select  v-model="dataForm.goods_no" placeholder="物品编码" clearable></el-select>
+      </el-form-item>
+      <el-form-item>
         <el-select  v-model="dataForm.store_id" placeholder="请选择仓库" clearable>
           <el-option v-for="(item,index) in storeArr" :key="index" :label="item.store_name" :value="item.store_id" >
           </el-option>
@@ -26,6 +29,9 @@
           <el-option v-for="(item,index) in msgtypes" :key="index" :label="item.value" :value="item.id" >
           </el-option>
         </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-input  v-model="dataForm.director" placeholder="主管" ></el-input>
       </el-form-item>
       <el-form-item>
         <el-date-picker
@@ -74,16 +80,17 @@
         align="center"
         label="商品名称">
       </el-table-column>
-      <!--<el-table-column-->
-        <!--prop="articleId"-->
-        <!--header-align="center"-->
-        <!--align="center"-->
-        <!--label="物件号">-->
+      <el-table-column
+        prop="goods_no"
+        v-if="dataForm.msg_type == 1"
+        header-align="center"
+        align="center"
+        label="物件编码">
         <!--<template scope="scope">-->
           <!--<div v-if="scope.row.articleId!=null" v-text="scope.row.articleId"></div>-->
           <!--<div v-else="">暂无数据</div>-->
         <!--</template>-->
-      <!--</el-table-column>-->
+      </el-table-column>
       <el-table-column
         prop="manufacturer_name"
         header-align="center"
@@ -229,8 +236,10 @@
           keytwo: '',
           article_name: '',
           goods_name: '',
+          goods_no: '',
           store_id: '',
           department: '',
+          director: '',
           msg_type: 2
         },
         // faangledoubleup: 'fa-angle-double-up',
@@ -252,7 +261,6 @@
       // AddOrUpdate
     },
     activated () {
-      this.getDataList()
       this.init()
     },
     methods: {
@@ -268,13 +276,22 @@
       // },
 
       init () {
+          this.dataForm.director = this.$router.apps[0]._route.params.director
+          this.dataForm.keytwo = this.$router.apps[0]._route.params.keyTime
+          this.dataForm.msg_type = this.$router.apps[0]._route.params.msg_type
+          this.dataForm.article_name = this.$router.apps[0]._route.params.article_name
+          this.dataForm.goods_no = this.$router.apps[0]._route.params.goods_no != 'undefined'?this.$router.apps[0]._route.params.goods_no:''
+          this.dataForm.store_id = ''
           this.$http({
             url: this.$http.adornUrl('/store/store/list'),
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
-            this.storeArr = data.storeData.list
-          }
+              this.storeArr = data.storeData.list
+              this.getDataList()
+            } else {
+              this.$message.error(data.msg)
+           }
         })
       },
       // 获取数据列表
@@ -290,6 +307,7 @@
             'article_name': this.dataForm.article_name,
             'goods_no': this.dataForm.goods_no,
             'store_id': this.dataForm.store_id,
+            'director': this.dataForm.director,
             'msg_type': this.dataForm.msg_type,
             'department': this.dataForm.department
           })
@@ -333,6 +351,7 @@
             'article_name': this.dataForm.article_name,
             'goods_no': this.dataForm.goods_no,
             'store_id': this.dataForm.store_id,
+            'director': this.dataForm.director,
             'msg_type': this.dataForm.msg_type,
             'department': this.dataForm.department
           })
