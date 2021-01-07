@@ -47,6 +47,7 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item @click.native="updatePasswordHandle()">修改密码</el-dropdown-item>
               <el-dropdown-item @click.native="logoutHandle()">退出</el-dropdown-item>
+              <center><span>V 2.1.10</span></center>
             </el-dropdown-menu>
           </el-dropdown>
         </el-menu-item>
@@ -88,18 +89,9 @@
     },
     mounted () {
       var width = window.innerWidth
-      var rate = 1
-      if (width >= 1500) {
-        rate = 1
-      } else if (width >= 1400) {
-        rate = 0.80
-      } else if (width >= 1300) {
-        rate = 0.75
-      } else if (width >= 1200) {
-        rate = 0.70
-      } else if (width >= 1000) {
-        rate = 0.67
-      }
+      var rate = (width / 1920)
+      // if (rate == 1)document.body.style.zoom = rate
+      // else document.body.style.zoom = (rate * 0.95)
       document.body.style.zoom = rate
     },
     created () {

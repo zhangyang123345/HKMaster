@@ -9,7 +9,7 @@
   // window.SITE_CONFIG['baseUrl'] = 'http://DESKTO-95RUTUB:8082/renren-fast';
   //  window.SITE_CONFIG['baseUrl'] = 'http://localhost:8083/renren-fast'
   // window.SITE_CONFIG['baseUrl'] = 'http://3q2189y798.qicp.vip:32411/renren-fast';
-  //  window.SITE_CONFIG['baseUrl'] = 'http://op2pvdsvs:8082/HKService';
+  //   window.SITE_CONFIG['baseUrl'] = 'http://op2pvdsvs:8082/HKService';
   // 192.168.11.101
   //  window.SITE_CONFIG['baseUrl'] = 'http://localhost:8080/renren-fast';
   // cdn地址 = 域名 + 版本号

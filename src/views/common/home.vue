@@ -1,252 +1,332 @@
-
 <template>
-  <div class="view">
-    <el-row :gutter="24" class="el-row head-div" type="flex">
-      <el-col span="12" class=" homeCol">
-        <el-row class=" homeCol">
-          <el-col class=" homeCol">
-            <div class="imageBox">
-              <el-carousel style="width:100%;height:100%" interval="10000">
-                <el-carousel-item style="width:100%;height:100%" v-for="item in imageList" :key="item">
-                  <img  class="image" style="width:100%;" :src="item"/>
-                </el-carousel-item>
-              </el-carousel>
+    <div class="dwrapper" id = 'fullArea'>
+        <div class="dcontainer">
+            <div class="dashboard-bg-image"></div>
+            <div style="height:100%;" :style="marginStyle">
+                <div style="position: relative; height:100%">
+                    <div class="dashboard-container" style="width: 100%;height:100%" :style="transformStyle">
+                        <top-title :title.sync="title"></top-title>
+                        <!-- left -->
+                        <dashboard1>
+
+                        </dashboard1>
+                        <!-- right -->
+                        <dashboard2></dashboard2>
+                        <!-- right -->
+                        <dashboard3></dashboard3>
+                        <!-- right -->
+                        <dashboard4></dashboard4>
+                        <!-- left -->
+                        <dashboard5></dashboard5>
+                        <!-- left -->
+                        <dashboard6></dashboard6>
+                        <!-- left -->
+                        <dashboard7></dashboard7>
+                        <!-- top -->
+                        <dashboard8></dashboard8>
+                    </div>
+                </div>
             </div>
-          </el-col>
-        </el-row>
-      </el-col>
-      <el-col span="12" class=" homeCol">
-        <div class="videoBox">
-          <video-player class="video-player vjs-custom-skin"
-                        ref="videoPlayer"
-                        :playsinline="true"
-                        :options="playerOptions">
-          </video-player>
         </div>
-      </el-col>
-    </el-row>
-    <el-row :gutter="24" class="el-row buttom-div" type="flex">
-      <el-col span="24" class=" homeCol">
-        <div class="flowBox">
-          <div class="boxItme" v-for="item in menuList"
-               :key="item" @click="openMenu('menuId'+item.menuId,item.list[0])">
-            <el-card class="boxCard"  style="background-color:rgba(245,248,253,0)">
-              <el-row :gutter="24" class="el-row homeCol" type="flex" >
-                <el-col :span="24" class="homeCol">
-                  <svg aria-hidden="true" class="site-sidebar__menu-icon icon-svg" :class="item.sicon"><use xlink:href="" :href="item.icon"></use></svg>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="24" class="homeCol">
-                  <p style="position: inherit;" class="homeDiv">{{item.name}}</p>
-                </el-col>
-              </el-row>
-            </el-card>
-          </div>
-        </div>
-      </el-col>
-    </el-row>
-  </div>
+    </div>
 </template>
 
 <script>
-  import router from '@/router'
-  export default {
-    inject: ['reload'],
-    data() {
-      return {
-        imageList:['../../../static/img/homePage_12.png','../../../static/img/homePage_14.png','../../../static/img/homePage_15.png','../../../static/img/homePage_16.png'],
-        menuList:[],
-        playerOptions: {
-          playbackRates: [0.5, 1.0, 1.5, 2.0], // 可选的播放速度
-          autoplay: true, // 如果为true,浏览器准备好时开始回放。
-          muted: true, // 默认情况下将会消除任何音频。
-          loop: false, // 是否视频一结束就重新开始。
-          preload: 'auto', // 建议浏览器在<video>加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
-          language: 'zh-CN',
-          aspectRatio: '16:9', // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如"16:9"或"4:3"）
-          fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
-          sources: [{
-            type: "video/mp4", // 类型
-            src: 'http://op2pvdsvs:8002/Trace1.0.mp4' // url地址
-          }],
-          poster: '', // 封面地址
-          notSupportedMessage: '此视频暂无法播放，请稍后再试', // 允许覆盖Video.js无法播放媒体源时显示的默认信息。
-          controlBar: {
-            timeDivider: true, // 当前时间和持续时间的分隔符
-            durationDisplay: true, // 显示持续时间
-            remainingTimeDisplay: false, // 是否显示剩余时间功能
-            fullscreenToggle: true // 是否显示全屏按钮
-          }
+    import TopTitle from '../components/TopTitle';
+    import {getComputedStyle} from "../utils";
+    import {debounce} from "lodash";
+    import Dashboard1 from '../components/Dashboard1';
+    import Dashboard2 from '../components/Dashboard2';
+    import Dashboard3 from '../components/Dashboard3';
+    import Dashboard4 from '../components/Dashboard4';
+    import Dashboard5 from '../components/Dashboard5';
+    import Dashboard6 from '../components/Dashboard6';
+    import Dashboard7 from '../components/Dashboard7';
+    import Dashboard8 from '../components/Dashboard8';
+    export default {
+        name: "Home",
+        data () {
+            return {
+                scaleX: 1,
+                scaleY: 1,
+                marginHorizontal: 0,
+                fullscreen: false,
+                title:'PVD DB Contral'
+            }
+        },
+        components: {
+            TopTitle,
+            Dashboard1,
+            Dashboard2,
+            Dashboard3,
+            Dashboard4,
+            Dashboard5,
+            Dashboard6,
+            Dashboard7,
+            Dashboard8
+        },
+        created () {
+
+        },
+        mounted () {
+            this.init()
+            this.KeyDown()
+          //   window.addEventListener('resize', debounce(() => {
+          //     this.initScale()
+          // } , 300))
+        },
+        computed: {
+            transformStyle: function () {
+                // return {
+                //     transform: `scale(${this.scaleX}, ${this.scaleY})`
+                // };
+              // return 'height: ' + window.innerHeight + ';'
+            },
+            marginStyle: function () {
+                return {
+                    margin: `0px ${this.marginHorizontal}px;`
+                }
+            },
+          dwrapperStyle: function () {
+                return {
+                    height: this.height + 'px'
+                }
+            }
+        },
+
+        watch: {},
+
+        methods: {
+            init () {
+              window.addEventListener('keydown', this.KeyDown, true)// 监听按键事件
+              window.addEventListener('resize', this.initScale, true)
+              this.listenResize()
+            },
+            scanHome () {
+              var rate = 1 / ((window.innerWidth / 1920) * 0.95)
+              return "transform: scale(" + rate + ")"
+            },
+            KeyDown () {
+              if (event.keyCode === 122 && document.getElementById('fullArea') != null) {
+                event.returnValue = false
+                this.fullScreen()   //触发全屏的按钮
+              }
+            },
+            fullScreen () {
+              var fullArea = document.getElementById('fullArea')
+              if (this.fullscreen) {
+                if (document.exitFullscreen) {
+                  document.exitFullscreen();
+                } else if (document.webkitCancelFullScreen) {
+                  document.webkitCancelFullScreen();
+                } else if (document.mozCancelFullScreen) {
+                  document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                  document.msExitFullscreen();
+                }
+              } else {
+                if (fullArea.requestFullscreen) {
+                  fullArea.requestFullscreen();
+                } else if (fullArea.webkitRequestFullScreen) {
+                  fullArea.webkitRequestFullScreen();
+                } else if (fullArea.mozRequestFullScreen) {
+                  fullArea.mozRequestFullScreen();
+                } else if (fullArea.msRequestFullscreen) {
+                  // IE11
+                  fullArea.msRequestFullscreen();
+                }
+              }
+              this.fullscreen = !this.fullscreen;
+            },
+            initScale () {
+                let $container = document.querySelector('.container')
+                let containerWidth = getComputedStyle($container, 'width').replace("px", "")
+                let containerHeight = getComputedStyle($container, 'height').replace("px", "")
+                containerWidth = Number(containerWidth)
+                containerHeight = Number(containerHeight)
+                containerWidth = isNaN(containerWidth) ? 0 : containerWidth
+                containerHeight = isNaN(containerHeight) ? 0 : containerHeight
+
+                let defaultHeight = 1080
+                let defaultWidth = 1920
+                // sacle 缩放比例。
+                let scale = 1
+                if (containerHeight < defaultHeight) {
+                    scale = containerHeight / defaultHeight
+                }
+
+                this.scaleX = scale
+                this.scaleY = scale
+
+                let marginWidth = defaultWidth * scale
+                //
+                this.marginHorizontal = 0
+                if (containerWidth > marginWidth) {
+                    marginWidth = (containerWidth - marginWidth) / 2
+                    this.marginHorizontal = marginWidth
+                }
+            },
+            listenResize () {
+                this.initScale()
+            }
+        },
+
+        destroyed () {
+
         }
-      }
-    },
-    activated () {
-      this.menuCard()
-    },
-    mounted () {
-    },
-    components: {
-    },
-    methods: {
-      menuCard () {
-        this.$http({
-          url: this.$http.adornUrl('/sys/menu/nav'),
-          method: 'get',
-          params: this.$http.adornParams()
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-          for(var item in data.menuList){
-            data.menuList[item].sicon = 'icon-svg__'+data.menuList[item].icon
-            data.menuList[item].icon = '#icon-'+data.menuList[item].icon
-          }
-          this.menuList = data.menuList
+
+    };
+</script>
+
+<style lang="scss">
+
+    .dwrapper {
+        height:1080px;
+        width: 102.5%;
+        margin: -20px;
+        position: relative;
+    }
+
+    .dcontainer {
+        background-color: rgb(3, 12, 59);
+        overflow: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+
+    .dashboard-bg-image {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background: url('../../assets/img/background.jpg');
+    }
+
+    .dashboard-container {
+        position: relative;
+        user-select: none;
+        width: 100%;
+        height: 100%;
+        transform-origin: 0 0;
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, .5);
+        transition: all .3s linear;
+        overflow: hidden;
+    }
+
+    .dashboard-error {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .dashboard-error-inner {
+            color: #fff;
+            font-size: 32px;
         }
-      }).catch((e) => {
-          console.log(`%c${e} 请求菜单列表和权限失败，跳转至登录页！！`, 'color:blue')
-          router.push({ name: 'login' })
-      })
-      },
-      openMenu (id , menu) {
-        this.menuRout.set(id, true)
-        this.reload()
-        this.$store.commit('common/updateSidebarFold', false)
-        // console.log(menu.url)
-         this.$router.push({ name: menu.url.replace('/', '-') })
-      },
-      playClick () {
-        this.isPlay = !this.isPlay;
-        this.playStatus = 'paused';
-      },
-      closeSoundClick () {
-        this.isMute = !this.isMute;
-        if(this.isMute){
-          this.muteStatus = '';
-        }else{
-          this.muteStatus = 'muted';
+    }
+    .d-chart-item {
+      position: absolute;
+
+      .chart-item {
+        position: relative;
+        height: 100%;
+        background: rgba(14, 36, 59, 0.59);
+        overflow: hidden;
+
+        &::after {
+          position: absolute;
+          content: '';
+          width: 17px;
+          height: 15px;
+          background: url("../../assets/img/border-arrow.png");
+          left: 0;
+          bottom: 0;
+        }
+
+        &::before {
+          position: absolute;
+          content: '';
+          width: 17px;
+          height: 15px;
+          background: url("../../assets/img/border-arrow.png");
+          right: 0;
+          bottom: 0;
+          transform: rotate(-90deg);
+        }
+
+        .arrow-top-left {
+          position: absolute;
+          content: '';
+          width: 17px;
+          height: 15px;
+          background: url("../../assets/img/border-arrow.png");
+          left: 0;
+          top: 0;
+          transform: rotate(90deg);
+        }
+
+        .arrow-top-right {
+          position: absolute;
+          content: '';
+          width: 17px;
+          height: 15px;
+          background: url("../../assets/img/border-arrow.png");
+          right: 0;
+          top: 0;
+          transform: rotate(180deg);
         }
       }
     }
-  }
-</script>
-<style >
-  .boxItme .icon-svg{
-    font-size:38px;
-  }
-  .boxItme{
-    width:100px!important;
-    height:100px!important;
-    text-align: center;
-    display: inline-block;
-    margin: 30px 2px;
-  }
-  .boxCard {
-    width:100px!important;
-    height:100px!important;
-    font-size: 9px!important;
-  }
-  .boxItme .site-sidebar__menu-icon{
-    margin-right: 0px;
-  }
-  .boxItme .el-card__body{
-    background:#ffffff;
-  }
-  .view{
-    height:100%;
-    background: #ededed;
-  }
-  .head-div{
-    height:70%;
-  }
-  .el-carousel__container{
-    height:100%;
-  }
-  .buttom-div{
-    margin-top:1%;
-  }
-  .homeCol{
-    margin-bottom: 0px !important;
-  }
-  .imageBox{
-    width:100%;
-    height: 61vh;
-    margin-top: 7%;
-  }
-  .videoBox{
-    width:100%;
-    height: 61vh;
-    margin-top: 7%;
-  }
-  .flowBox{
-    background: white;
-    height: 160px;
-    white-space: nowrap;
-    overflow-y: hidden;
-    border-style:double ;
-  }
-  .cardEl {
-    transition: all .5s;
-    padding: 0;
-    background-color:rgba(245,248,253,1)
-  }
-  .cardEl:hover{
-    margin-top: -10px;
-    background: RGB(49,199,201);
-  }
-  .homeP{
-    font-family: "宋体","仿宋",sans-serif;/*若电脑不支持宋体，则用仿宋，若不支持仿宋，则在sans-serif中找*/
-    font-weight: bold;
-    position: absolute;
-    left: 0;
-    font-size: 80%;
-    /*font-style: italic;*/
-    color: RGB(54, 163, 247);/*字体颜色*/
-    opacity: 1;/*字体的透明度：1：默认样式，0：全透明*/
-  }
-  .homeDiv{
-    font-family: "宋体","仿宋",sans-serif;/*若电脑不支持宋体，则用仿宋，若不支持仿宋，则在sans-serif中找*/
-    font-weight: bold;
-    position: absolute;
-    left: 0;
-    font-size: 150%;
-    /*font-style: normal;*/
-    color: RGB(54, 163, 247);/*字体颜色*/
-    opacity: 1;/*字体的透明度：1：默认样式，0：全透明*/
-  }
-  .homespan{
-    font-family: "宋体","仿宋",sans-serif;/*若电脑不支持宋体，则用仿宋，若不支持仿宋，则在sans-serif中找*/
-    font-weight: bold;
-    font-size: 100%;
-    /*font-style: italic;*/
-    color: RGB(140,140,140);/*字体颜色*/
-    opacity: 1;/*字体的透明度：1：默认样式，0：全透明*/
-  }
-  .homevalue{
-    font-family: "宋体","仿宋",sans-serif;/*若电脑不支持宋体，则用仿宋，若不支持仿宋，则在sans-serif中找*/
-    font-weight: bold;
-    font-size: 120%;
-    color: RGB(102,102,102);/*字体颜色*/
-    opacity: 1;/*字体的透明度：1：默认样式，0：全透明*/
-  }
-  .ptitle{
-    font-size: 150%;
-    font-family: '宋体';
-    color: #aa1111;
-    font-style: italic;
-    opacity: 0.5;
-    font-weight: bold;
-    position:relative;
-    text-align:center;
-    margin:0;
-  }
-  .homeimg {
-    width: 36px;
-    height: auto;
-    margin-right: 5px;
-    border-radius: 100%;
-    vertical-align: middle;
-  }
-  .paddingS{
-    margin-top: 10px;
-  }
+
+
+    .dashboard-top, .dashboard-top-big {
+      position: absolute;
+      top: -31px;
+      left: -2px;
+
+
+      .dashboard-top-title {
+        position: relative;
+        font-size: 18px;
+        color: #77C6FF;
+        width: 155px;
+        text-align: center;
+        line-height: 31px;
+        overflow: hidden;
+        height: 100%;
+      }
+    }
+
+    .dashboard-top {
+      width: 453px;
+      height: 31px;
+      background: url("../../assets/img/db-top2.png") no-repeat;
+      background-size: 100% 100%;
+    }
+
+    .dashboard-top-big {
+      width: 462px;
+      height: 31px;
+      background: url("../../assets/img/db-top-big2.png") no-repeat;
+      background-size: 100% 100%;
+    }
+
+
+    .item-loading{
+      text-align: center;
+      line-height: 200px;
+      font-size: 16px;
+      color: rgba(92, 197, 227, 1);
+    }
+
+
 </style>

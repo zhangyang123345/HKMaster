@@ -1,14 +1,14 @@
 <template>
   <div :style="backgroundDiv">
-    <div style="width: 100%;height: 60px;background-color: #00a2d4;text-align: center;" >
+    <div style="width: 100%;height: 40px;background-color: #00a2d4;text-align: center;" >
        <span  class=" title">
             仓库管理数据展示
         </span>
-      <div class=" title2">
-        (负责人：姚江)
-      </div>
+      <!--<div class=" title2">-->
+        <!--(负责人：姚江)-->
+      <!--</div>-->
     </div>
-    <el-row :gutter="24"  class="el-row" type="flex" style="background-color:rgba(51,94,193,0.4)">
+    <el-row :gutter="24"  class="el-row" type="flex" style="margin-bottom:0px!important; background-color:rgba(51,94,193,0.4)">
       <el-col :span="7">
         <el-card class="box-card" style="min-height: 200px;background-color:rgba(51,94,193,0)" align="middle"  >
           <!--<div   class="el-card__body mid">-->
@@ -172,7 +172,8 @@
         timer: null,  // 定时器
         isFullscreen: false,
         backgroundDiv: {
-          backgroundImage: 'url(' + require('../../../../assets/img/46.jpg') + ')'
+          // backgroundImage: 'url(' + require('../../../../assets/img/46.jpg') + ')'
+          backgroundImage: 'url('+require('../../../../assets/img/background.jpg')+')'
         },
         isOk1: true,
         isOk2: true,
@@ -400,7 +401,7 @@
           this.play1()
         }
       })
-        this.keyTime1 = [moment(moment().add(-9, 'days').valueOf()).format('YYYY-MM-DD 00:00:00'), moment(moment().valueOf()).format('YYYY-MM-DD 00:00:00')]
+        this.keyTime1 = [moment(moment().add(-7, 'days').valueOf()).format('YYYY-MM-DD 00:00:00'), moment(moment().valueOf()).format('YYYY-MM-DD 00:00:00')]
           this.$http({
             url: this.$http.adornUrl('/store/store/costData'),
             method: 'get',
@@ -528,9 +529,9 @@
             {
               name: '',
               type: 'pie',
-              // color: ['#8378EA', '#96BFFF', '#37A2DA', '#32C5E9', '#67E0E3', '#FFDB5C','#ff9f7f', '#fb7293', '#E062AE', '#E690D1', '#e7bcf3', '#9d96f5'],
-              color: ['#32C5E9', '#67E0E3', '#9FE6B8', '#FFDB5C','#ff9f7f', '#fb7293', '#E062AE', '#E690D1', '#e7bcf3', '#9d96f5'],
-              radius: '70%',
+             // color: [ '#96BFFF', '#37A2DA', '#32C5E9', '#8A2BE2', '#4B3D8B','#7B68EE','#1E90FF', '#008BBB', '#FFFF00', '#8B4513','#8378EA', '#FF8C00'],
+              color: ['#008BBB','#32C5E9', '#67E0E3', '#9FE6B8', '#FFDB5C','#ff9f7f', '#fb7293', '#E062AE', '#9d96f5','#0000FF'],
+              radius: '68%',
               center: ['50%', '65%'],
               data: this.manage1_val,
               // roseType: 'radius',
@@ -553,7 +554,7 @@
                   label: {
                     // color: '#c1c1c2',
                     show: true,
-                    formatter: '{b}\n{c}\n({d}%)'
+                    formatter: '{b}({d}%)\n￥:{c}'
                   },
                   labelLine: {show: true}
                 }
@@ -960,6 +961,12 @@
     font-size: 10em;
     font-weight: 400;
     color: rgb(34,139,34);
+  }
+  .dashboard-bg-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: url('../../../../assets/img/background.jpg');
   }
 </style>
 
