@@ -19,6 +19,7 @@ const _import = require('./import-' + process.env.NODE_ENV)
 const globalRoutes = [
   { path: '/404', component: _import('common/404'), name: '404', meta: { title: '404未找到' } },
   { path: '/login', component: _import('common/login'), name: 'login', meta: { title: '登录' } },
+  { path: '/openToS', component: _import('common/openToS'), name: 'openToS', meta: { title: '跳转中' } },
   { path: 'improve/caseDataShow', component: _import('modules/improve/caseDataShow'), name: 'caseDataShow', meta: { title: '登录' } },
   { path: '/show', component: _import('common/show'), name: 'show', meta: { title: 'show' } }
 ]

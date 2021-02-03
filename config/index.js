@@ -18,6 +18,34 @@ module.exports = {
         pathRewrite: {
           '^/proxyApi': '/'
         }
+      },
+      '/OP2PVDSVS': {
+        target: 'http:10.128.19.168:8091/HKService',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/OP2PVDSVS': '/'
+        }
+      },
+      '/PIS': {
+        target: 'http://cnctug0pdmsap01/pis_m/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/PIS': '/'
+        }
+      },
+      '/PIS_M': {
+        target: 'http://cnctug0pdmsap01/PIS_M/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/PIS_M': '/'
+        }
+      },
+      '/WIP': {
+        target: 'http://10.128.19.168:8015/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/WIP': '/'
+        }
       }
     },
 

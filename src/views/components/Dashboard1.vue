@@ -54,7 +54,7 @@
                 return {
                     isSingleRemUnit: true,
                     autoPlay: true,
-                    step: 0.1,
+                    step: 0.2,
                     limitMoveNum: 5,//这个是修改moveSwitch()之前的使用方法，这里的数值指的是数据条数
                     openTouch: true,
                     direction: 1 //方向 0 往下 1 往上 2向左 3向右

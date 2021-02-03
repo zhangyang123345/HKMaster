@@ -406,12 +406,26 @@
           this.$message.success('导入成功')
           this.fileUploadBtnText = '导入案件数据'
           this.getDataList()
+          if (data.backData) this.backData(data.backData)
         } else {
           this.$message.error(data.msg)
           this.fileUploadBtnText = '导入案件数据'
         }
         this.endLoading()
       })
+      },
+      // 导出数据
+      backData (backData) {
+          this.exportList = backData
+          require.ensure([], () => {
+            const { export_json_to_excel } = require('@/vendor/Export2Excel')
+            const tHeader = ['Project Id','Submitted by','Submitted By Email Address','Submitted Date','NT Account','State','Date of Last State Change','Project Name','Project Description','Project Type','Anticipated Start Date','Anticipated End Date','Division','Region','Site','Customer','Process Improved','Estimated Soft Savings','Estimated Hard Savings','Validated Soft Savings','Validated Hard Savings','Finance Approver','Finance Approver Email Address','Approver','Approver Email Address','Team Leader','Team Leader Email','12','Team Member 1','Team Member 1 Email Address','Team Member 2','Team Member 2 Email Address','Team Member 3','Team Member 3 Email Address','Team Member 4','Team Member 4 Email Address','Team Member 5','Team Member 5 Email Address','Team Member 6','Team Member 6 Email Address','Team Member 7','Team Member 7 Email Address','Team Member 8','Team Member 8 Email Address','Team Member 9','Team Member 9 Email Address','Team Member 10','Team Member 10 Email Address','Non NT ID Team Member 1','Non NT ID Team Member 2','Non NT ID Team Member 3','Impact on P&L','Final Project Outcome','Tags','Closed Date','Rejection Reason','Comments','DBP Submitted Date','Competition Year','Competition Category','Jabil Mission Alignment','Latest Competition Round','DBP Region','Corporate Initiative','Custom Field 1','Custom Field 2','Custom Field 3','Custom Field 4','Custom Field 5','Custom Field 6','Replication Counter','Original Project Id']
+            // 上面设置Excel的表格第一行的标题
+            const filterVal = ['Project Id','Submitted by','Submitted By Email Address','Submitted Date','NT Account','State','Date of Last State Change','Project Name','Project Description','Project Type','Anticipated Start Date','Anticipated End Date','Division','Region','Site','Customer','Process Improved','Estimated Soft Savings','Estimated Hard Savings','Validated Soft Savings','Validated Hard Savings','Finance Approver','Finance Approver Email Address','Approver','Approver Email Address','Team Leader','Team Leader Email','12','Team Member 1','Team Member 1 Email Address','Team Member 2','Team Member 2 Email Address','Team Member 3','Team Member 3 Email Address','Team Member 4','Team Member 4 Email Address','Team Member 5','Team Member 5 Email Address','Team Member 6','Team Member 6 Email Address','Team Member 7','Team Member 7 Email Address','Team Member 8','Team Member 8 Email Address','Team Member 9','Team Member 9 Email Address','Team Member 10','Team Member 10 Email Address','Non NT ID Team Member 1','Non NT ID Team Member 2','Non NT ID Team Member 3','Impact on P&L','Final Project Outcome','Tags','Closed Date','Rejection Reason','Comments','DBP Submitted Date','Competition Year','Competition Category','Jabil Mission Alignment','Latest Competition Round','DBP Region','Corporate Initiative','Custom Field 1','Custom Field 2','Custom Field 3','Custom Field 4','Custom Field 5','Custom Field 6','Replication Counter','Original Project Id']
+            const list = this.exportList
+            const data = this.formatJson(filterVal, list)
+            export_json_to_excel(tHeader, data, '可疑案件')
+          })
       }
     }
   }

@@ -1,6 +1,6 @@
 <template>
     <div class="d-chart-item dashboard3">
-        <div class="dashboard-top">
+        <div class="dashboard-top" @click.stop="openHtml">
             <div class="dashboard-top-title">品质</div>
         </div>
         <div class="chart-item">
@@ -29,15 +29,20 @@
       }
     },
     activated () {
-      this.startDate = moment(moment().add(-14, 'days').valueOf()).format('YYYY-MM-DD')
-      this.endDate = moment(moment().valueOf()).format('YYYY-MM-DD')
       this.getData()
+    },
+    created () {
+        setInterval(() => {
+          this.getData()
+      }, 1800000)
     },
     mounted () {
       this.drawLine()
     },
     methods: {
       getData () {
+        this.startDate = moment(moment().add(-14, 'days').valueOf()).format('YYYY-MM-DD')
+        this.endDate = moment(moment().valueOf()).format('YYYY-MM-DD')
         this.$http({
           url: this.$http.adornUrl('/homeCentrol/getQCS'),
           method: 'post',
@@ -74,6 +79,29 @@
           this.$message.error(data.msg)
         }
       })
+      },
+      openHtml () {
+        // var parma = new Object()
+        // parma.userName = 'UserName'
+        // parma.userId = '2680715'
+        // parma.passName = 'Password'
+        // parma.passId = 'Jabil$1234'
+        // parma.token = '__RequestVerificationToken'
+        // parma.domain = 'cnctug0pdmsap01'
+        // parma.loginPath = 'http://cnctug0pdmsap01/PIS_M/Login/SignIn'
+        // parma.direct = 'http://cnctug0pdmsap01/pis_m/quality/qareportsum'
+        // const wind = this.$router.resolve({name: 'openToS', query: parma})
+        // window.open(wind.href, '_blank')
+        var wind = window.open('about:blank', '_blank')
+        //组装form表单
+        var html = "<form action='http://cnctug0pdmsap01/PIS_M/Login/SignIn' method='post'>"
+        html += "<input type='text' name='UserName' value='666666' style='display: none'>"
+        html += "<input type='text' name='Password' value='123456' style='display: none'>"
+        html += "<input type='checkbox' name='IsEmployee' value='1' class='js-checkbox-all' checked>"
+        html += " </form> "
+        wind.document.body.innerHTML = html
+        wind.document.forms[0].submit()
+        //wind.document.location.href = 'http://cnctug0pdmsap01/pis_m/quality/qareportsum'
       },
       drawLine () {
         // 基于准备好的dom，初始化echarts实例
@@ -126,6 +154,9 @@
             show: true
           }, {
             type: 'value',
+            max: function (value) {
+              return value.max + 100000
+            },
             position: 'right',
             splitLine: {
               show: true,

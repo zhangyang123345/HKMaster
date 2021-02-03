@@ -105,6 +105,18 @@
               align="center"
               label="规格">
             </el-table-column>
+            <el-table-column
+              prop="store_no"
+              header-align="center"
+              align="center"
+              label="入仓库">
+              <template slot-scope="scope">
+                 <el-select  v-model="scope.row.store_no" @change="chengeStore(scope.row.goods_no)">
+                   <el-option v-for="(item,index) in scope.row.stores" :key="index" :label="item.store_name" :value="item.store_no" >
+                   </el-option>
+                 </el-select>
+              </template>
+            </el-table-column>
           </el-table>
         </el-col>
       </el-row>
@@ -181,6 +193,9 @@
               params: this.$http.adornParams({"order_no":order_no})
             }).then(({data}) => {
               if (data && data.code === 0) {
+                for (var dat in data.cacheData) {
+                  data.cacheData[dat].stores = JSON.parse(data.cacheData[dat].stores)
+                }
                 this.scanList = data.cacheData
                 this.dataForm.order_no = order_no
                 this.learning()
@@ -216,6 +231,31 @@
         }
       })
       },
+      chengeStore (goods_no) {
+        var dataS = null ;
+        for (var index in this.scanList) {
+          if (this.scanList[index].goods_no == goods_no) {
+            dataS = this.scanList[index]
+          }
+        }
+        this.$http({
+          url: this.$http.adornUrl(`/inoutmsg/saveCache`),
+          method: 'post',
+          data: this.$http.adornData({ "goods": JSON.stringify(dataS) ,
+            "order_no":this.dataForm.order_no,
+            "order_type":this.dataForm.order_type})
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+          dataS.id = data.goods.id
+          this.learning()
+        } else {
+          this.$message({
+            message: data.msg,
+            type: 'error'
+          });
+        }
+      })
+      },
       //输入检测->入缓存
       checkNum(goods_no,input,qunatity){
         if (input > qunatity) {
@@ -237,11 +277,10 @@
               dataS = this.scanList[index]
             }
           }
-          //TODO
           this.$http({
             url: this.$http.adornUrl(`/inoutmsg/saveCache`),
             method: 'post',
-            params: this.$http.adornParams({ "goods": JSON.stringify(dataS) ,
+            data: this.$http.adornData({ "goods": JSON.stringify(dataS) ,
               "order_no":this.dataForm.order_no,
               "order_type":this.dataForm.order_type})
           }).then(({data}) => {

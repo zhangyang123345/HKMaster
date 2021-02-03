@@ -83,8 +83,10 @@
                          <div class="inputA">{{ item.article_name }}</div>
                          <div class="inputM">{{ item.manufacturer_name }}</div>
                          <div class="inputP">{{ item.price }}</div>
-                         <div class="inputU">{{ item.unit_name }}</div>
                          <div class="inputS">{{ item.specs_name }}</div>
+                         <div class="inputN">{{ item.goods_num }}</div>
+                         <div class="inputU">{{ item.unit_name }}</div>
+                         <div class="inputT">{{ item.store_name }}</div>
                        </div>
                      </template>
                    </el-autocomplete>
@@ -223,13 +225,19 @@
               label="厂商">
             </el-table-column>
             <el-table-column
+              prop="goods_num"
+              header-align="center"
+              align="center"
+              label="预库存">
+            </el-table-column>
+            <el-table-column
               prop="operation"
               header-align="center"
               align="center"
               label="操作数量">
               <template slot-scope="scope">
                 <el-input v-model="scope.row.operation" type="number" size="small"
-                          @change="checkNum(scope.row.operation,scope.row.article_no)"></el-input>
+                          @change="checkNum(scope.row.operation,scope.row.article_no,scope.row.goods_num)"></el-input>
               </template>
             </el-table-column>
             <el-table-column
@@ -257,6 +265,18 @@
               label="规格">
             </el-table-column>
             <el-table-column
+              prop="store_no"
+              header-align="center"
+              align="center"
+              label="仓库">
+              <template slot-scope="scope">
+                <el-select  v-model="scope.row.store_no"  :disabled="dataForm.order_type==2">
+                  <el-option v-for="(item,index) in scope.row.stores" :key="index" :label="item.store_name" :value="item.store_no" >
+                  </el-option>
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column
               prop="create_time"
               header-align="center"
               align="center"
@@ -268,8 +288,8 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="close">关闭</el-button>
-      <el-button v-if="$store.state.user.name == dataForm.order_luck" type="primary" @click="dataFormSubmit(false)">保存</el-button>
-      <el-button v-if="$store.state.user.name == dataForm.order_luck" type="primary" @click="dataFormSubmit(true)">结单</el-button>
+      <el-button v-if="$store.state.user.name == dataForm.order_luck && dataForm.order_state == 5" type="primary" @click="dataFormSubmit(false)">保存</el-button>
+      <el-button v-if="$store.state.user.name == dataForm.order_luck && dataForm.order_state == 5" type="primary" @click="dataFormSubmit(true)">结单</el-button>
     </span>
   </el-dialog>
   <!-- 弹窗, 新增 / 修改 -->
@@ -393,6 +413,9 @@
                 params: this.$http.adornParams({"order_no":order_no})
               }).then(({data}) => {
                 if (data && data.code === 0) {
+                for (var dat in data.cacheData) {
+                  data.cacheData[dat].stores = JSON.parse(data.cacheData[dat].stores)
+                }
                 this.scanList = data.cacheData
                 this.learning()
               }
@@ -443,6 +466,7 @@
           }
         }
         if (buff) {
+          item.stores = JSON.parse(item.stores)
           this.scanList.push(item)
         } else {
           this.$message({
@@ -489,8 +513,22 @@
                 }).then(({data}) => {
                   if (data && data.code === 0) {
                     if (buff) {
-                      this.visible = false
-                      this.$emit('refreshDataList')
+                      this.$http({
+                        url: this.$http.adornUrl(`/orders/unLuck`),
+                        method: 'post',
+                        params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
+                      }).then(({data}) => {
+                        if (data && data.code === 0) {
+                        this.scanList.splice(0,this.scanList.length)
+                        this.visible = false
+                        this.$emit('refreshDataList')
+                      } else {
+                        this.$message({
+                          message: data.msg,
+                          type: 'error'
+                        })
+                      }
+                    })
                     } else {
                       this.scanList.splice(0, this.scanList.length)
                       this.$message({
@@ -503,7 +541,18 @@
                     this.$message({
                       message: data.msg,
                       type: 'error'
-                    });
+                    })
+                    if (data.backData) {
+                      for (var i in this.scanList) {
+                        for (var j in data.backData) {
+                          if (this.scanList[i].article_no == data.backData[j].article_no) {
+                            this.scanList[i].goods_num = data.backData[j].num
+                            this.scanList[i].operation = data.backData[j].num
+                          }
+                        }
+                      }
+                      this.learning()
+                    }
                   }
               })
             } else {
@@ -519,8 +568,22 @@
                   })
                 }).then(({data}) => {
                   if (data && data.code === 0) {
+                  this.$http({
+                    url: this.$http.adornUrl(`/orders/unLuck`),
+                    method: 'post',
+                    params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
+                  }).then(({data}) => {
+                    if (data && data.code === 0) {
+                    this.scanList.splice(0,this.scanList.length)
                     this.visible = false
                     this.$emit('refreshDataList')
+                    } else {
+                      this.$message({
+                        message: data.msg,
+                        type: 'error'
+                      })
+                    }
+                  })
                 } else {
                   this.$message({
                     message: data.msg,
@@ -546,7 +609,7 @@
           this.$refs.addOrUpdate.init(this.dataForm.orderId)
       })
       },
-      checkNum (input,article_no) {
+      checkNum (input,article_no,goods_num) {
           if (input <= 0) {
               for (var ind in this.scanList) {
                 if (this.scanList[ind].article_no.indexOf(article_no)>= 0) {
@@ -559,8 +622,33 @@
               message: '数量不可小于1 !',
               type: 'error'
             })
+          } else if (input > goods_num) {
+            this.$message({
+              message: '库存不足!',
+              type: 'error'
+            })
           } else {
-            this.learning()
+            var numBuff = false
+            var dataS = null ;
+            for (var index in this.scanList) {
+              if (this.scanList[index].article_no == article_no) {
+                dataS = this.scanList[index]
+              }
+            }
+            for (var sdata in this.details) {
+              if (this.details[sdata].article_no.indexOf(article_no.substring(0,23)) >= 0 && (parseFloat(dataS.price) == parseFloat(this.details[sdata].price)) && this.details[sdata].actual_qunatity < this.details[sdata].qunatity) {
+                numBuff = true
+                break
+              }
+            }
+            if (!numBuff) {
+              this.$message({
+                message: "此类物品已处理完！",
+                type: 'error'
+              })
+            } else {
+              this.learning()
+            }
           }
       },
       // 计算
@@ -569,14 +657,39 @@
         for (var ind in this.scanList) {
           this.scanList[ind].amount = (this.scanList[ind].operation * this.scanList[ind].price).toFixed(2)
           var numpc = isNaN(daMap.get(this.scanList[ind].article_no.substring(0,27))) ? 0 : daMap.get(this.scanList[ind].article_no.substring(0,27))
+          var num23pc = isNaN(daMap.get(this.scanList[ind].article_no.substring(0,23))) ? 0 : daMap.get(this.scanList[ind].article_no.substring(0,23))
           daMap.set(this.scanList[ind].article_no.substring(0,27),parseInt(this.scanList[ind].operation) + parseInt(numpc))
+          daMap.set(this.scanList[ind].article_no.substring(0,23),parseInt(this.scanList[ind].operation) + parseInt(num23pc))
         }
         var num = 0
         for (var index in this.details) {
-          var quNum = isNaN(daMap.get(this.details[index].article_no)) ? parseInt(this.details[index].qunacache) : (parseInt(this.details[index].qunacache) + parseInt(daMap.get(this.details[index].article_no)))
-          this.details[index].actual_qunatity = quNum
+          this.details[index].actual_qunatity = this.details[index].qunacache
           this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+          if (!isNaN(daMap.get(this.details[index].article_no))) {
+            var quNum = parseInt(this.details[index].qunacache)
+            var cacNum = parseInt(daMap.get(this.details[index].article_no))
+            var reqNum = parseInt(this.details[index].qunatity)
+            var arlNum = (quNum + cacNum) > reqNum ? (reqNum - quNum) : cacNum
+            this.details[index].actual_qunatity = (quNum + arlNum)
+            this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+            daMap.set(this.details[index].article_no.substring(0,27), cacNum - arlNum)
+            daMap.set(this.details[index].article_no.substring(0,23),parseInt(daMap.get(this.details[index].article_no.substring(0,23))) - arlNum)
+          }
           num += parseFloat(this.details[index].actual_mount)
+        }
+        for (index in this.details) {
+          if ((this.details[index].actual_qunatity < this.details[index].qunatity) && !isNaN(daMap.get(this.details[index].article_no.substring(0,23)))) {
+            quNum = parseInt(this.details[index].actual_qunatity)
+            cacNum = parseInt(daMap.get(this.details[index].article_no.substring(0,23)))
+            if (cacNum > 0) {
+              reqNum = parseInt(this.details[index].qunatity)
+              arlNum = (quNum + cacNum) > reqNum ? (reqNum - quNum) : cacNum
+              this.details[index].actual_qunatity = (quNum + arlNum)
+              this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+              num += parseFloat((arlNum * this.details[index].price).toFixed(2))
+              daMap.set(this.details[index].article_no.substring(0, 23), parseInt(cacNum - arlNum))
+            }
+          }
         }
         this.dataForm.reall_total = num.toFixed(2)
       },
@@ -593,10 +706,9 @@
         if (this.scanList.length > 0) {
           this.$confirm('关闭则清除当前扫码数据，确认关闭？', '确认信息', {
             distinguishCancelAndClose: true,
-            confirmButtonText: '关闭',
+            confirmButtonText: '确认',
             cancelButtonText: '取消'
           }).then(() => {
-              if (data && data.code === 0) {
                   this.$http({
                     url: this.$http.adornUrl(`/orders/unLuck`),
                     method: 'post',
@@ -613,7 +725,6 @@
                       })
                     }
                 })
-            }
           }).catch(action => {
           });
         } else {
@@ -645,26 +756,36 @@
   }
   .autoComp{ width:800px;}
   .autoComp  .el-scrollbar{
-    width:800px;
+    width:900px;
   }
   .inputA{
     float:left;
-    width: 25%;
+    width: 20%;
   }
   .inputM{
     float:left;
-    width: 15%;
+    width: 10%;
   }
   .inputP{
     float:left;
-    width: 10%;
+    width: 9%;
   }
   .inputU{
     float:left;
-    width: 10%;
+    width: 7%;
   }
   .inputS{
     float:left;
-    width: 15%;
+    width: 8%;
+  }
+  .inputN{
+    float:left;
+    text-align: center;
+    width: 10%;
+  }
+  .inputT{
+    float:left;
+    text-align: right;
+    width: 14%;
   }
 </style>

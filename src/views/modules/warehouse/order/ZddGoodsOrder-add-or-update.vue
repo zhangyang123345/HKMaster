@@ -164,8 +164,9 @@
                         <div class="inputA">{{ item.article_name }}</div>
                         <div class="inputM">{{ item.manufacturer_name }}</div>
                         <div class="inputP">{{ item.price }}</div>
-                        <div class="inputU">{{ item.unit_name }}</div>
                         <div class="inputS">{{ item.specs_name }}</div>
+                        <div class="inputN">{{ item.goods_num }}</div>
+                        <div class="inputU">{{ item.unit_name }}</div>
                     </div>
                   </template>
                 </el-autocomplete>
@@ -291,17 +292,17 @@
       }
     }
   }
-  .autoComp{ width:800px;}
+  .autoComp{ width:870px;}
   .autoComp  .el-scrollbar{
-    width:800px;
+    width:870px;
   }
   .inputA{
      float:left;
-     width: 25%;
+     width: 24%;
   }
   .inputM{
      float:left;
-     width: 15%;
+     width: 14%;
   }
   .inputP{
      float:left;
@@ -309,11 +310,17 @@
   }
   .inputU{
      float:left;
-     width: 10%;
+     text-align: center;
+     width: 6%;
   }
   .inputS{
      float:left;
-     width: 15%;
+     width: 12%;
+  }
+  .inputN{
+    float:left;
+    text-align: center;
+    width: 10%;
   }
   .orderStyle{
 

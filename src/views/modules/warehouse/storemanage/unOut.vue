@@ -113,6 +113,12 @@
               label="规格余量">
             </el-table-column>
             <el-table-column
+              prop="goods_num"
+              header-align="center"
+              align="center"
+              label="预库存">
+            </el-table-column>
+            <el-table-column
               prop="operation"
               header-align="center"
               align="center"
@@ -145,6 +151,18 @@
               header-align="center"
               align="center"
               label="规格">
+            </el-table-column>
+            <el-table-column
+              prop="store_no"
+              header-align="center"
+              align="center"
+              label="仓库">
+              <template slot-scope="scope">
+                 <el-select v-model="scope.row.store_no" disabled>
+                   <el-option v-for="(item,index) in stores" :key="index" :label="item.store_name" :value="item.store_id" >
+                   </el-option>
+                 </el-select>
+              </template>
             </el-table-column>
           </el-table>
         </el-col>
@@ -190,7 +208,8 @@
         },
         typeOption: [{value:2,lable:"出库"},{value:3,lable:"报废"}],
         details: [],
-         scanList: [],
+        scanList: [],
+        stores: [],
         stata: '',
         showT: false,
         dataListLoading: false,
@@ -215,7 +234,6 @@
     },
     mounted () {
       // window.addEventListener( 'beforeunload', e => this.browerStatus() );
-      // TODO
     },
     methods: {
       S4 () {
@@ -223,6 +241,16 @@
       },
       guid () {
         return this.S4()+this.S4()+this.S4()+this.S4()+this.S4();
+      },
+      getStore () {
+        this.$http({
+          url: this.$http.adornUrl('/store/store/getStore'),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+              this.stores = data.storeData
+          }
+      })
       },
       emplosearch (queryString , cb) {
         this.$http({
@@ -309,9 +337,12 @@
             params: this.$http.adornParams({"order_no":order_no})
           }).then(({data}) => {
             if (data && data.code === 0) {
-            this.scanList = data.cacheData
-            this.dataForm.order_no = order_no
-            this.learning()
+              for (var dat in data.cacheData) {
+                data.cacheData[dat].stores = JSON.parse(data.cacheData[dat].stores)
+              }
+              this.scanList = data.cacheData
+              this.dataForm.order_no = order_no
+              this.learning()
           }
         })
         } else {
@@ -336,6 +367,7 @@
       //   ])
       // },
       init (order_no) {
+        this.getStore()
         this.dataListLoading = true
         this.visible = true
         this.dataForm.reall_total = 0
@@ -349,6 +381,9 @@
             params: this.$http.adornParams({"order_no":order_no})
           }).then(({data}) => {
             if (data && data.code === 0) {
+            for (var dat in data.cacheData) {
+              data.cacheData[dat].stores = JSON.parse(data.cacheData[dat].stores)
+            }
             this.scanList = data.cacheData
             this.dataForm.order_no = order_no
             this.learning()
@@ -384,24 +419,32 @@
               dataS = this.scanList[index]
             }
           }
-          //TODO
-          this.$http({
-            url: this.$http.adornUrl(`/inoutmsg/saveCache`),
-            method: 'post',
-            params: this.$http.adornParams({ "goods": JSON.stringify(dataS) ,
-                "order_no":this.dataForm.order_no,
-                "order_type":this.dataForm.order_type})
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              dataS.id = data.goods.id
-              this.learning()
-          } else {
+          if (input > dataS.goods_num) {
             this.$message({
-              message: data.msg,
+              message:  "库存不足！" ,
               type: 'error'
-            });
-          }
-        })
+            })
+          } else {
+              this.$http({
+                url: this.$http.adornUrl(`/inoutmsg/saveCache`),
+                method: 'post',
+                data: this.$http.adornData({
+                  "goods": JSON.stringify(dataS),
+                  "order_no": this.dataForm.order_no,
+                  "order_type": this.dataForm.order_type
+                })
+              }).then(({data}) => {
+                if (data && data.code === 0) {
+                  dataS.id = data.goods.id
+                  this.learning()
+                } else {
+                    this.$message({
+                      message: data.msg,
+                      type: 'error'
+                    });
+                  }
+               })
+            }
         }
       },
       remove (id,goods_no) {
@@ -443,8 +486,8 @@
             distinguishCancelAndClose: true,
             confirmButtonText: '确认',
             cancelButtonText: '取消'
-          }).then(() => {
-              if(this.scanList.length>0){
+          }).then( () => {
+              if (this.scanList.length>0) {
                   if(buff)this.dataForm.order_state = 6
                   this.$http({
                     url: this.$http.adornUrl(`/inoutmsg/saveUnStore`),
@@ -456,23 +499,34 @@
                       "detail": JSON.stringify(this.details)
                     })
                   }).then(({data}) => {
-                    if(data && data.code === 0){
-                      if(buff)this.visible = false
+                    if (data && data.code === 0) {
+                      if (buff) this.visible = false
                       this.scanList.splice(0,this.scanList.length)
                       this.$message({
                         message: data.msg,
                         type: 'success'
-                      });
+                      })
                       this.init()
-                    }else{
+                    } else {
                       this.$message({
                         message: data.msg,
                         type: 'error'
-                      });
+                      })
+                        if (data.backData) {
+                          for (var i in this.scanList) {
+                            for (var j in data.backData) {
+                              if (this.scanList[i].goods_no == data.backData[j].article_no) {
+                                this.scanList[i].goods_num = data.backData[j].num
+                                this.scanList[i].operation = data.backData[j].num
+                              }
+                            }
+                          }
+                          this.learning()
+                        }
                     }
                 })
-              }else{
-                if(buff){
+              } else {
+                if (buff) {
                   this.$http({
                     url: this.$http.adornUrl(`/orders/complete`),
                     method: 'post',

@@ -76,7 +76,6 @@
          </el-col>
         <el-col :span="16">
           <el-table
-          <el-table
             :data="details"
             border
             height="400"
@@ -218,6 +217,12 @@
               label="规格余量">
             </el-table-column>
             <el-table-column
+              prop="goods_num"
+              header-align="center"
+              align="center"
+              label="预库存">
+            </el-table-column>
+            <el-table-column
               prop="operation"
               header-align="center"
               align="center"
@@ -252,6 +257,18 @@
               label="规格">
             </el-table-column>
             <el-table-column
+              prop="store_no"
+              header-align="center"
+              align="center"
+              label="仓库">
+              <template slot-scope="scope">
+                <el-select v-model="scope.row.store_no" disabled>
+                  <el-option v-for="(item,index) in stores" :key="index" :label="item.store_name" :value="item.store_id" >
+                  </el-option>
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column
               prop="create_time"
               header-align="center"
               align="center"
@@ -263,8 +280,8 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="close">关闭</el-button>
-      <el-button  v-if="$store.state.user.name == dataForm.order_luck" type="primary" @click="dataFormSubmit(false)">保存</el-button>
-      <el-button  v-if="$store.state.user.name == dataForm.order_luck" type="primary" @click="dataFormSubmit(true)">结单</el-button>
+      <el-button  v-if="$store.state.user.name == dataForm.order_luck && dataForm.order_state == 5" type="primary" @click="dataFormSubmit(false)">保存</el-button>
+      <el-button  v-if="$store.state.user.name == dataForm.order_luck && dataForm.order_state == 5" type="primary" @click="dataFormSubmit(true)">结单</el-button>
     </span>
   </el-dialog>
   <!-- 弹窗, 新增 / 修改 -->
@@ -302,6 +319,7 @@
         },
         details: [],
         scanList: [],
+        stores: [],
         stata: '',
         showT: false,
         dataListLoading: false,
@@ -348,7 +366,18 @@
             }),
         ])
       },
+      getStore () {
+        this.$http({
+          url: this.$http.adornUrl('/store/store/getStore'),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+          this.stores = data.storeData
+        }
+      })
+      },
       init (order_no) {
+        this.getStore()
         this.dataListLoading = true
         this.visible = true
         this.$nextTick(() => {
@@ -402,9 +431,12 @@
                   method: 'post',
                   params: this.$http.adornParams({"order_no":order_no})
                 }).then(({data}) => {
-                  if (data && data.code === 0) {
-                  this.scanList = data.cacheData
-                  this.learning()
+                  if (data && data.code === 0){
+                    for (var dat in data.cacheData) {
+                      data.cacheData[dat].stores = JSON.parse(data.cacheData[dat].stores)
+                    }
+                    this.scanList = data.cacheData
+                    this.learning()
                 }
               })
             }
@@ -448,7 +480,7 @@
             this.$http({
               url: this.$http.adornUrl(`/inoutmsg/saveCache`),
               method: 'post',
-              params: this.$http.adornParams({ "goods": JSON.stringify(dataS) ,
+              data: this.$http.adornData({ "goods": JSON.stringify(dataS) ,
                   "order_no":this.dataForm.order_no,
                   "order_type":this.dataForm.order_type})
             }).then(({data}) => {
@@ -509,8 +541,8 @@
           confirmButtonText: '确认',
           cancelButtonText: '取消'
         }).then(() => {
-            if(this.scanList.length>0){
-                if(buff)this.dataForm.order_state = 6
+            if (this.scanList.length>0) {
+                if (buff) this.dataForm.order_state = 6
                 this.$http({
                   url: this.$http.adornUrl(`/inoutmsg/saveStore`),
                   method: 'post',
@@ -523,9 +555,23 @@
                   })
                 }).then(({data}) => {
                   if (data && data.code === 0) {
-                    if(buff){
-                      this.visible = false
-                      this.$emit('refreshDataList')
+                    if (buff) {
+                        this.$http({
+                          url: this.$http.adornUrl(`/orders/unLuck`),
+                          method: 'post',
+                          params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
+                        }).then(({data}) => {
+                          if (data && data.code === 0) {
+                          this.visible = false
+                          this.scanList.splice(0,this.scanList.length)
+                          this.$emit('refreshDataList')
+                        } else {
+                          this.$message({
+                            message: data.msg,
+                            type: 'error'
+                          })
+                        }
+                      })
                     }
                     this.scanList.splice(0,this.scanList.length)
                     this.$message({
@@ -537,33 +583,58 @@
                     this.$message({
                       message: data.msg,
                       type: 'error'
-                    });
+                    })
+                      if (data.backData) {
+                        for (var i in this.scanList) {
+                          for (var j in data.backData) {
+                            if (this.scanList[i].goods_no == data.backData[j].article_no) {
+                              this.scanList[i].goods_num = data.backData[j].num
+                              this.scanList[i].operation = data.backData[j].num
+                            }
+                          }
+                        }
+                        this.learning()
+                      }
                   }
               })
-            }else{
-              if(buff){
-                this.$http({
-                  url: this.$http.adornUrl(`/orders/complete`),
-                  method: 'post',
-                  params: this.$http.adornParams({
-                    "order_no": this.dataForm.order_no
-                  })
-                  }).then(({data}) => {
-                      if(data && data.code === 0){
-                        this.visible = false
-                        this.$emit('refreshDataList')
-                      }else{
+            } else {
+              if (buff) {
+                  this.$http({
+                    url: this.$http.adornUrl(`/orders/complete`),
+                    method: 'post',
+                    params: this.$http.adornParams({
+                      "order_no": this.dataForm.order_no
+                    })
+                    }).then(({data}) => {
+                        if (data && data.code === 0) {
+                    this.$http({
+                      url: this.$http.adornUrl(`/orders/unLuck`),
+                      method: 'post',
+                      params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
+                    }).then(({data}) => {
+                      if (data && data.code === 0) {
+                          this.visible = false
+                          this.scanList.splice(0,this.scanList.length)
+                          this.$emit('refreshDataList')
+                      } else {
                         this.$message({
                           message: data.msg,
                           type: 'error'
-                        });
+                        })
                       }
+                    })
+                  } else {
+                    this.$message({
+                      message: data.msg,
+                      type: 'error'
+                    });
+                  }
                  })
-              }else{
+              } else {
                 this.$message({
                   message: "请先扫码！",
                   type: 'error'
-                });
+                })
               }
             }
         }).catch(action => {
@@ -768,7 +839,7 @@
                   this.visible = false
                   this.scanList.splice(0,this.scanList.length)
                   this.$emit('refreshDataList')
-              } else {
+                } else {
                   this.$message({
                     message: data.msg,
                     type: 'error'

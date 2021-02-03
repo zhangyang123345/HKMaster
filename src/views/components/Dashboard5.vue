@@ -1,6 +1,6 @@
 <template>
   <div class="d-chart-item dashboard5">
-    <div class="dashboard-top">
+    <div class="dashboard-top" @click.stop="openHtml">
       <div class="dashboard-top-title">2H</div>
     </div>
     <div class="chart-item">
@@ -120,7 +120,7 @@
 </template>
 
 <script>
-  import moment from "moment";
+  import moment from 'moment';
   export default {
     inject: ['refresh'],
     name: "Dashboard5",
@@ -140,13 +140,14 @@
     created () {
         setInterval(() => {
           this.getData()
-      }, 600000)
+      }, 300000)
     },
     mounted () {
-      this.endDate = moment(moment().valueOf()).format('YYYY-MM-DD')
+
     },
     methods: {
-      getData() {
+      getData () {
+        this.endDate = moment(moment().valueOf()).format('YYYY-MM-DD')
         this.$http({
           url: this.$http.adornUrl('/homeCentrol/get2H'),
           method: 'post',
@@ -154,18 +155,36 @@
             'date': this.endDate
           })
         }).then(({data}) => {
-          if(data && data.code === 0
-      )
-        {
-          this.dataList = data.h2Data
-        }
-      else
-        {
-          this.$message.error(data.msg)
-        }
-      })
+          if (data && data.code === 0) {
+            this.dataList = data.h2Data
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
       },
-      tableCell({row, column, rowIndex, columnIndex}) {
+      openHtml () {
+        // var parma = new Object()
+        // parma.userName = 'UserID'
+        // parma.userId = '1029674'
+        // parma.passName = 'UserPassword'
+        // parma.passId = '123456'
+        // parma.token = '__RequestVerificationToken'
+        // parma.domain = '10.128.19.168:8015'
+        // parma.tokenPath = 'http://10.128.19.168:8015/'
+        // parma.loginPath = 'http://10.128.19.168:8015/'
+        // parma.direct = 'http://10.128.19.168:8015/PVD/pvdreport'
+        // const wind = this.$router.resolve({name: 'openToS', query: parma})
+        // window.open(wind.href, '_blank')
+        var wind = window.open('about:blank', '_blank')
+        //组装form表单
+        var html = "<form action='http://10.128.19.168:8015/' method='post'>"
+        html += "<input type='text' name='UserID' value='1029674' style='display: none'>"
+        html += "<input type='text' name='UserPassword' value='123456' style='display: none'>"
+        html += " </form> "
+        wind.document.body.innerHTML = html
+        wind.document.forms[0].submit()
+      },
+      tableCell ({row, column, rowIndex, columnIndex}) {
         if ((rowIndex == 2 || rowIndex == 5) && columnIndex != 0 ) {
             if (parseFloat(row[column.property]) >= 98) {
               return 'padding: 0px !important; background-color:green; color: white;'

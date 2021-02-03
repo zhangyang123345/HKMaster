@@ -34,6 +34,8 @@ if (process.env.NODE_ENV !== 'production') {
   require('@/mock')
 }
 
+import cookies from 'vue-cookies'
+Vue.prototype.$cookies = cookies
 // 挂载全局
  Vue.prototype.$http = httpRequest // ajax请求方法
 Vue.prototype.isAuth = isAuth     // 权限方法

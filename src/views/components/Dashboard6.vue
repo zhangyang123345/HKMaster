@@ -1,6 +1,6 @@
 <template>
-  <div class="d-chart-item dashboard6">
-    <div class="dashboard-top">
+  <div class="d-chart-item dashboard6" >
+    <div class="dashboard-top" @click.stop="openHtml">
       <div class="dashboard-top-title">OEE</div>
     </div>
     <div class="chart-item">
@@ -29,15 +29,21 @@
       }
     },
     activated () {
-      this.startDate = moment(moment().add(-10, 'days').valueOf()).format('YYYY-MM-DD')
-      this.endDate = moment(moment().valueOf()).format('YYYY-MM-DD')
+
       this.getData()
+    },
+    created () {
+        setInterval(() => {
+          this.getData()
+      }, 1800000)
     },
     mounted () {
       this.drawLine()
     },
     methods: {
       getData () {
+        this.startDate = moment(moment().add(-10, 'days').valueOf()).format('YYYY-MM-DD')
+        this.endDate = moment(moment().valueOf()).format('YYYY-MM-DD')
         this.$http({
           url: this.$http.adornUrl('/homeCentrol/getOEE'),
           method: 'post',
@@ -76,6 +82,37 @@
           this.$message.error(data.msg)
         }
       })
+      },
+      openHtml () {
+        // var parma = new Object()
+        // parma.proxyApi = 'PIS'
+        // parma.userName = 'UserName'
+        // parma.userId = '2680715'
+        // parma.passName = 'Password'
+        // parma.passId = 'Jabil$1234'
+        // parma.token = '__RequestVerificationToken'
+        // parma.domain = 'cnctug0pdmsap01'
+        // parma.loginPath = '/Login/SignIn'
+        // parma.loginMethod = 'POST'
+        // parma.return = '/oeereport/oee_trendreport'
+        // parma.returnMethod = 'get'
+        // parma.direct = 'http://cnctug0pdmsap01/pis_m/oeereport/oee_trendreport'
+        // const wind = this.$router.resolve({name: 'openToS', query: parma})
+        // window.open(wind.href, '_blank')
+      //<script>window.onload=function(){
+        //  alert('TTTTTT')
+       // }
+       // <script>
+         var wind = window.open('about:blank', '_blank')
+        // 组装form表单
+       var html = "<form action='http://cnctug0pdmsap01/PIS_M/Login/SignIn' method='post'>"
+        html += "<input type='text' name='UserName' value='666666' style='display: none'>"
+        html += "<input type='text' name='Password' value='123456' style='display: none'>"
+        html += "<input type='checkbox' name='IsEmployee' value='1' class='js-checkbox-all' checked>"
+        html += " </form> "
+        wind.document.body.innerHTML = html
+        wind.document.forms[0].submit()
+        // wind.document.location.href = 'http://cnctug0pdmsap01/pis_m/oeereport/oee_trendreport'
       },
       drawLine () {
         // 基于准备好的dom，初始化echarts实例
@@ -120,10 +157,10 @@
           yAxis: {
             type: 'value',
             min: function (value) {
-              return value.min
+              return value.min - 1
             },
             max: function (value) {
-              return value.max
+              return value.max + 1
             },
             splitLine: {
               show: true,
@@ -148,7 +185,7 @@
                   lineStyle: {
                     width: 3
                   },
-                  label: {show: true, formatter: '{c0}%', color: '#ffffff'}
+                  label: {show: true, formatter: '{c0}%', color: '#ffffff', position: 'top'}
                 }
               }
             },
@@ -162,7 +199,7 @@
                   lineStyle: {
                     width: 3
                   },
-                  label: {show: true, formatter: '{c0}%'}
+                  label: {show: true, formatter: '{c0}%', color: 'RGB(72, 188, 177)', position: 'top'}
                 }
               }
             },

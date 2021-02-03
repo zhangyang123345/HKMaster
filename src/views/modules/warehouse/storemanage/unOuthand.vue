@@ -26,8 +26,10 @@
                   <div class="inputA">{{ item.article_name }}</div>
                   <div class="inputM">{{ item.manufacturer_name }}</div>
                   <div class="inputP">{{ item.price }}</div>
-                  <div class="inputU">{{ item.unit_name }}</div>
                   <div class="inputS">{{ item.specs_name }}</div>
+                  <div class="inputN">{{ item.goods_num }}</div>
+                  <div class="inputU">{{ item.unit_name }}</div>
+                  <div class="inputT">{{ item.store_name }}</div>
                 </div>
               </template>
             </el-autocomplete>
@@ -117,13 +119,19 @@
               label="厂商">
             </el-table-column>
             <el-table-column
+              prop="goods_num"
+              header-align="center"
+              align="center"
+              label="预库存">
+            </el-table-column>
+            <el-table-column
               prop="operation"
               header-align="center"
               align="center"
               label="操作数量">
               <template slot-scope="scope">
                 <el-input v-model="scope.row.operation" type="number" size="small" :ref="scope.row.goods_no"
-                          @change="checkNum(scope.row.article_no,scope.row.operation,scope.row.sept)"></el-input>
+                          @change="checkNum(scope.row.article_no,scope.row.operation,scope.row.goods_num)"></el-input>
               </template>
             </el-table-column>
             <el-table-column
@@ -149,6 +157,18 @@
               header-align="center"
               align="center"
               label="规格">
+            </el-table-column>
+            <el-table-column
+              prop="store_no"
+              header-align="center"
+              align="center"
+              label="仓库">
+              <template slot-scope="scope">
+                <el-select  v-model="scope.row.store_no" disabled>
+                  <el-option v-for="(item,index) in scope.row.stores" :key="index" :label="item.store_name" :value="item.store_no" >
+                  </el-option>
+                </el-select>
+              </template>
             </el-table-column>
           </el-table>
         </el-col>
@@ -317,6 +337,7 @@
           }
         }
         if (buff) {
+          item.stores = JSON.parse(item.stores)
           this.scanList.push(item)
         } else {
           this.$message({
@@ -377,6 +398,11 @@
             message:  "操作数量不可小于1！" ,
             type: 'error'
           })
+        } else if (input > qunatity) {
+          this.$message({
+            message:  "出货不可大于库存量！" ,
+            type: 'error'
+          })
         } else {
           this.learning()
         }
@@ -411,7 +437,18 @@
               this.$message({
                 message: data.msg,
                 type: 'error'
-              });
+              })
+                if (data.backData) {
+                  for (var i in this.scanList) {
+                    for (var j in data.backData) {
+                      if (this.scanList[i].article_no == data.backData[j].article_no) {
+                        this.scanList[i].goods_num = data.backData[j].num
+                        this.scanList[i].operation = data.backData[j].num
+                      }
+                    }
+                  }
+                  this.learning()
+                }
             }
         })
         } else {
@@ -550,27 +587,37 @@
    }
   .autoComp{ width:700px;}
   .autoComp  .el-scrollbar{
-    width:700px;
+    width:900px;
   }
   .inputA{
     float:left;
-    width: 25%;
+    width: 20%;
   }
   .inputM{
     float:left;
-    width: 15%;
+    width: 10%;
   }
   .inputP{
     float:left;
-    width: 10%;
+    width: 9%;
   }
   .inputU{
     float:left;
-    width: 10%;
+    width: 7%;
   }
   .inputS{
     float:left;
-    width: 15%;
+    width: 8%;
+  }
+  .inputN{
+    float:left;
+    text-align: center;
+    width: 10%;
+  }
+  .inputT{
+    float:left;
+    text-align: right;
+    width: 14%;
   }
 
 </style>

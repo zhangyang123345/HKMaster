@@ -11,6 +11,13 @@
         </el-select>
       </el-form-item>
       <el-form-item>
+        <el-select v-model="dataForm.order_state" placeholder="订单状态">
+          <el-option label="待处理" value="5"></el-option>
+          <el-option label="待结单" value="6"></el-option>
+          <el-option label="完成" value="7"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
       </el-form-item>
       <el-form-item>
@@ -198,7 +205,8 @@
       return {
         dataForm: {
           key: '',
-          store_id: ''
+          store_id: '',
+          order_state: '5'
         },
         dataList: [],
         storeArr: [],
@@ -237,8 +245,8 @@
             'page': this.pageIndex,
             'rows': this.pageSize,
             'key': 1,
-            'order_type':1,
-            'order_state':5
+            'order_type': 1,
+            'order_state': this.dataForm.order_state
           })
         }).then(({data}) => {
           if (data && data.code === 0) {

@@ -228,6 +228,7 @@
 
 <script>
   // import AddOrUpdate from './tbgoods3-add-or-update'
+  import moment from "moment"
   export default {
     data () {
       return {
@@ -277,7 +278,7 @@
 
       init () {
           this.dataForm.director = this.$router.apps[0]._route.params.director
-          this.dataForm.keytwo = this.$router.apps[0]._route.params.keyTime
+          this.dataForm.keytwo = this.$router.apps[0]._route.params.keyTime!= 'undefined'?this.$router.apps[0]._route.params.keyTime:this.keyTime = [moment(moment().valueOf()).format('YYYY-MM-DD 00:00:00'), moment(moment().add(1, 'days').valueOf()).format('YYYY-MM-DD 00:00:00')]
           this.dataForm.msg_type = this.$router.apps[0]._route.params.msg_type
           this.dataForm.article_name = this.$router.apps[0]._route.params.article_name
           this.dataForm.goods_no = this.$router.apps[0]._route.params.goods_no != 'undefined'?this.$router.apps[0]._route.params.goods_no:''

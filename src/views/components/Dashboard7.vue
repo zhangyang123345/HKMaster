@@ -1,10 +1,10 @@
 <template>
-    <div class="d-chart-item dashboard7">
-        <div class="dashboard-top">
+    <div class="d-chart-item dashboard7" >
+        <div class="dashboard-top" @click.stop="openHtml">
             <div class="dashboard-top-title">WIP</div>
         </div>
         <div class="chart-item">
-            <div class="arrow-top-right"></div>
+            <div class="arrow-top-right" ></div>
             <div id="echarts_WIP" style="height: 330px;width: 100%"></div>
         </div>
     </div>
@@ -34,7 +34,7 @@
     created () {
         setInterval(() => {
           this.getData()
-      }, 600000)
+      }, 300000)
     },
     mounted () {
       this.drawLine()
@@ -92,6 +92,20 @@
           this.$message.error(data.msg)
         }
       })
+      },
+      openHtml () {
+        var parma = new Object()
+        parma.userName = 'UserID'
+        parma.userId = '1029674'
+        parma.passName = 'UserPassword'
+        parma.passId = '123456'
+        parma.token = '__RequestVerificationToken'
+        parma.domain = '10.128.19.168:8015'
+        parma.tokenPath = 'http://10.128.19.168:8015/'
+        parma.loginPath = 'http://10.128.19.168:8015/'
+        parma.direct = 'http://10.128.19.168:8015/Assy/IFTV'
+        const wind = this.$router.resolve({name: 'openToS', query: parma})
+        window.open(wind.href, '_blank')
       },
       drawLine () {
         // 基于准备好的dom，初始化echarts实例
@@ -169,7 +183,7 @@
                   lineStyle: {
                     width: 3
                   },
-                  label: {show: false}
+                  label: {show: true, formatter: '{c0}%', color: '#ffffff'}
                 }
               }
             },

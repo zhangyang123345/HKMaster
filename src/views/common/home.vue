@@ -51,7 +51,7 @@
                 scaleY: 1,
                 marginHorizontal: 0,
                 fullscreen: false,
-                title:'PVD DB Contral'
+                title:'PVD DB Center'
             }
         },
         components: {

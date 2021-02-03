@@ -183,7 +183,7 @@
               width="80"
               label=" ">
               <template slot-scope="scope">
-                <el-button type="text" size="small" @click="remove(scope.row.id)">移除</el-button>
+                <el-button type="text" size="small" @click="remove(scope.row.id,scope.row.goods_no)">移除</el-button>
               </template>
             </el-table-column>
             <el-table-column
@@ -206,7 +206,7 @@
               label="厂商">
             </el-table-column>
             <el-table-column
-              prop="inventory"
+              prop="operation"
               header-align="center"
               align="center"
               label="规格总量">
@@ -215,13 +215,11 @@
               prop="inventory"
               header-align="center"
               align="center"
-              label="规格余量">
-            </el-table-column>
-            <el-table-column
-              prop="inventory"
-              header-align="center"
-              align="center"
               label="操作数量">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.inventory" type="number" size="small" :ref="scope.row.goods_no"
+                          @change="checkNum(scope.row.goods_no,scope.row.inventory,scope.row.operation)"></el-input>
+              </template>
             </el-table-column>
             <el-table-column
               prop="amount"
@@ -253,14 +251,26 @@
               align="center"
               label="扫描时间">
             </el-table-column>
+            <el-table-column
+              prop="store_no"
+              header-align="center"
+              align="center"
+              label="入仓库">
+              <template slot-scope="scope">
+                <el-select  v-model="scope.row.store_no" @change="chengeStore(scope.row.goods_no)">
+                  <el-option v-for="(item,index) in scope.row.stores" :key="index" :label="item.store_name" :value="item.store_no" >
+                  </el-option>
+                </el-select>
+              </template>
+            </el-table-column>
           </el-table>
         </el-col>
       </el-row>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="close">关闭</el-button>
-      <el-button v-if="$store.state.user.name == dataForm.order_luck" type="primary" @click="dataFormSubmit(false)">保存</el-button>
-      <el-button v-if="$store.state.user.name == dataForm.order_luck" type="primary" @click="dataFormSubmit(true)">结单</el-button>
+      <el-button v-if="$store.state.user.name == dataForm.order_luck && dataForm.order_state == 5" type="primary" @click="dataFormSubmit(false)">保存</el-button>
+      <el-button v-if="$store.state.user.name == dataForm.order_luck && dataForm.order_state == 5" type="primary" @click="dataFormSubmit(true)">结单</el-button>
     </span>
   </el-dialog>
   <!-- 弹窗, 新增 / 修改 -->
@@ -378,8 +388,11 @@
                 params: this.$http.adornParams({"order_no":order_no})
               }).then(({data}) => {
                 if (data && data.code === 0) {
-                this.scanList = data.cacheData
-                this.learning()
+                  for (var dat in data.cacheData) {
+                     data.cacheData[dat].stores = JSON.parse(data.cacheData[dat].stores)
+                  }
+                  this.scanList = data.cacheData
+                  this.learning()
               }
             })
             }
@@ -388,36 +401,118 @@
       })
         this.dataListLoading = false
       },
-
-      remove (id){
+      chengeStore (goods_no) {
+        var dataS = null ;
+        for (var index in this.scanList) {
+          if (this.scanList[index].goods_no == goods_no) {
+            dataS = this.scanList[index]
+          }
+        }
         this.$http({
-          url: this.$http.adornUrl(`/inoutmsg/deleCache`),
+          url: this.$http.adornUrl(`/inoutmsg/saveCache`),
           method: 'post',
-          params: this.$http.adornParams({"ids": id})
+          data: this.$http.adornData({ "goods": JSON.stringify(dataS) ,
+            "order_no":this.dataForm.order_no,
+            "order_type":this.dataForm.order_type})
         }).then(({data}) => {
           if (data && data.code === 0) {
-            for (var ind in this.scanList) {
-              if (this.scanList[ind].id == id) {
-                var mount = this.scanList[ind].inventory * this.scanList[ind].price
-                for (var sdata in this.details) {
-                  if (this.details[sdata].article_no.indexOf(this.scanList[ind].article_no)>=0) {
-                    this.details[sdata].actual_mount = (this.details[sdata].actual_mount - mount).toFixed(2)
-                    this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity - this.scanList[ind].inventory
-                    this.learning()
-                    this.scanList.splice(ind,1)
-                    break
-                  }
-                }
-                break
-              }
-            }
-        }else{
+          dataS.id = data.goods.id
+          this.learning()
+        } else {
           this.$message({
             message: data.msg,
             type: 'error'
           });
         }
       })
+      },
+      //输入检测->入缓存
+      checkNum (goods_no,input,qunatity) {
+        if (input > qunatity) {
+          this.$message({
+            message: "操作数量不可大于规格总量！",
+            type: 'error'
+          })
+        } else if (input <= 0) {
+          this.$message({
+            message:  "操作数量不可小于1！" ,
+            type: 'error'
+          })
+        } else {
+          var numBuff = false
+          var dataS = null ;
+          for (var index in this.scanList) {
+            if (this.scanList[index].goods_no == goods_no) {
+              dataS = this.scanList[index]
+            }
+          }
+          for (var sdata in this.details) {
+            if (this.details[sdata].article_no.indexOf(goods_no.substring(0,23)) >= 0 && (parseFloat(dataS.price) == parseFloat(this.details[sdata].price)) && this.details[sdata].actual_qunatity < this.details[sdata].qunatity) {
+              numBuff = true
+              break
+            }
+          }
+          if (!numBuff) {
+            this.$message({
+              message: "此类物品已处理完！",
+              type: 'error'
+            })
+          }
+          this.$http({
+            url: this.$http.adornUrl(`/inoutmsg/saveCache`),
+            method: 'post',
+            data: this.$http.adornData({ "goods": JSON.stringify(dataS) ,
+              "order_no":this.dataForm.order_no,
+              "order_type":this.dataForm.order_type})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+            dataS.id = data.goods.id
+            this.learning()
+          } else {
+            this.$message({
+              message: data.msg,
+              type: 'error'
+            });
+          }
+        })
+        }
+      },
+      remove (id,goods_no) {
+        if (id == null) {
+          for (var ind in this.scanList) {
+            if (this.scanList[ind].goods_no == goods_no) {
+              this.scanList.splice(ind, 1)
+              this.learning()
+              break
+            }
+          }
+        } else {
+          this.$http({
+            url: this.$http.adornUrl(`/inoutmsg/deleCache`),
+            method: 'post',
+            params: this.$http.adornParams({"ids": id})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+            for (var ind in this.scanList) {
+              if (this.scanList[ind].id == id) {
+                for (var sdata in this.details) {
+                  if (this.details[sdata].article_no.indexOf(this.scanList[ind].goods_no.substring(0,27)) >= 0) {
+                    this.scanList.splice(ind, 1)
+                    this.learning()
+                    break
+                  }
+                }
+                break
+              }
+            }
+          } else {
+            this.$message({
+              message: data.msg,
+              type: 'error'
+            })
+          }
+        })
+        }
       },
       // 表单提交
       dataFormSubmit (buff) {
@@ -442,8 +537,22 @@
                 }).then(({data}) => {
                   if (data && data.code === 0) {
                     if (buff) {
-                      this.visible = false
-                      this.$emit('refreshDataList')
+                        this.$http({
+                          url: this.$http.adornUrl(`/orders/unLuck`),
+                          method: 'post',
+                          params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
+                        }).then(({data}) => {
+                          if (data && data.code === 0) {
+                          this.visible = false
+                          this.scanList.splice(0,this.scanList.length)
+                          this.$emit('refreshDataList')
+                        } else {
+                          this.$message({
+                            message: data.msg,
+                            type: 'error'
+                          })
+                        }
+                      })
                     }
                     this.scanList.splice(0,this.scanList.length)
                     this.$message({
@@ -467,10 +576,24 @@
                     "order_no": this.dataForm.order_no
                   })
                   }).then(({data}) => {
-                      if(data && data.code === 0){
-                        this.visible = false
-                        this.$emit('refreshDataList')
-                      }else{
+                      if (data && data.code === 0) {
+                          this.$http({
+                            url: this.$http.adornUrl(`/orders/unLuck`),
+                            method: 'post',
+                            params: this.$http.adornParams({"order_no": this.dataForm.order_no,"order_luck":this.dataForm.order_luck})
+                          }).then(({data}) => {
+                            if (data && data.code === 0) {
+                            this.visible = false
+                            this.scanList.splice(0,this.scanList.length)
+                            this.$emit('refreshDataList')
+                          } else {
+                            this.$message({
+                              message: data.msg,
+                              type: 'error'
+                            })
+                          }
+                        })
+                      } else {
                         this.$message({
                           message: data.msg,
                           type: 'error'
@@ -498,15 +621,31 @@
       //扫码提交
       scanSubmit () {
         var buff = false
+        var numBuff = false
+        var msg = "编码错误或不符合本订单!"
         if (this.underForm.scan_data.length > 27 && this.underForm.scan_data.length < 36) {
-            for (var sdata in this.details) {
-                if (this.details[sdata].article_no.indexOf(this.underForm.scan_data.substring(0,24)) >= 0) {
-                  buff = true
-                  break
-                }
+          for (var sdata in this.details) {
+            if (this.details[sdata].article_no.indexOf(this.underForm.scan_data.substring(0,23)) >= 0) {
+              if (this.details[sdata].actual_qunatity == this.details[sdata].qunatity) {
+                msg = "此类物品已满！"
+                if (!numBuff)numBuff = false
+              } else {
+                numBuff = true
+              }
+              buff = true
             }
+          }
+          if (buff) {
+            for (var ind in this.scanList) {
+              if (this.scanList[ind].goods_no.indexOf(this.underForm.scan_data) >= 0) {
+                msg = "此物件已扫码！"
+                buff = false
+                break
+              }
+            }
+          }
         }
-        if (buff) {
+        if (buff && numBuff) {
           this.dataForm.scan_data = this.underForm.scan_data
           this.$http({
             url: this.$http.adornUrl(`/inoutmsg/inoutStore`),
@@ -516,54 +655,92 @@
               "order_type": this.dataForm.order_type,
               "goods_no": this.dataForm.scan_data
             })
-           }).then(({data}) => {
+          }).then(({data}) => {
             if (data && data.code === 0) {
-              this.underForm.scan_data = ''
-              data.article.amount = (data.article.inventory * data.article.price).toFixed(2)
-              this.scanList.unshift(data.article)
-              var mount = data.article.inventory * data.article.price
-              var code24Buff = true
+            this.underForm.scan_data = ''
+            var code24Buff = true
+            for (var sdata in this.details) {
+              if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27)) >= 0) {
+                this.scanList.unshift(data.article)
+                data.article.operation = data.article.inventory
+                var mount = data.article.inventory * data.article.price
+                this.details[sdata].actual_mount = this.details[sdata].actual_mount + mount
+                this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.inventory
+                this.checkNum(this.dataForm.scan_data , data.article.inventory , data.article.operation)
+                code24Buff = false
+                break
+              }
+            }
+            if (code24Buff) {
               for (var sdata in this.details) {
-                if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,27)) >= 0) {
-                  this.details[sdata].actual_mount = (this.details[sdata].actual_mount + mount).toFixed(2)
-                  this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.inventory
-                  this.learning()
+                if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,23)) >= 0) {
+                  var nedNum = this.details[sdata].qunatity - this.details[sdata].actual_qunatity
+                  data.article.amount = data.article.operation * data.article.price
+                  this.scanList.unshift(data.article)
+                  var mount = data.article.operation * data.article.price
+                  this.details[sdata].actual_mount = this.details[sdata].actual_mount + mount
+                  this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.operation
+                  this.checkNum(this.dataForm.scan_data , data.article.inventory , data.article.operation)
                   code24Buff = false
                   break
                 }
               }
-              if (code24Buff) {
-                for (var sdata in this.details) {
-                  if (this.details[sdata].article_no.indexOf(this.dataForm.scan_data.substring(0,24)) >= 0) {
-                    this.details[sdata].actual_mount = (this.details[sdata].actual_mount + mount).toFixed(2)
-                    this.details[sdata].actual_qunatity = this.details[sdata].actual_qunatity + data.article.inventory
-                    this.learning()
-                    code24Buff = false
-                    break
-                  }
-                }
-              }
-            } else {
-              this.underForm.scan_data = ''
-              this.$message({
-                message: data.msg,
-                type: 'error'
-              });
             }
-          })
-        }else{
+          } else {
+            this.underForm.scan_data = ''
+            this.$message({
+              message: data.msg,
+              type: 'error'
+            });
+          }
+        })
+        } else {
           this.underForm.scan_data = ''
           this.$message({
-            message: '编码错误或不符合本订单!',
+            message: msg ,
             type: 'error'
           });
         }
       },
       // 计算
-      learning(){
-        var num = 0 ;
-        for(var index in this.details){
-            num += this.details[index].actual_mount
+      learning () {
+        var daMap = new Map()
+        for (var ind in this.scanList) {
+          this.scanList[ind].amount = (this.scanList[ind].inventory * this.scanList[ind].price).toFixed(2)
+          var numpc = isNaN(daMap.get(this.scanList[ind].goods_no.substring(0,27))) ? 0 : daMap.get(this.scanList[ind].goods_no.substring(0,27))
+          var num23pc = isNaN(daMap.get(this.scanList[ind].goods_no.substring(0,23))) ? 0 : daMap.get(this.scanList[ind].goods_no.substring(0,23))
+          daMap.set(this.scanList[ind].goods_no.substring(0,27),parseInt(this.scanList[ind].inventory) + parseInt(numpc))
+          daMap.set(this.scanList[ind].goods_no.substring(0,23),parseInt(this.scanList[ind].inventory) + parseInt(num23pc))
+        }
+        var num = 0
+        for (var index in this.details) {
+          this.details[index].actual_qunatity = this.details[index].qunacache
+          this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+          if (!isNaN(daMap.get(this.details[index].article_no))) {
+            var quNum = parseInt(this.details[index].qunacache)
+            var cacNum = parseInt(daMap.get(this.details[index].article_no))
+            var reqNum = parseInt(this.details[index].qunatity)
+            var arlNum = (quNum + cacNum) > reqNum ? (reqNum - quNum) : cacNum
+            this.details[index].actual_qunatity = (quNum + arlNum)
+            this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+            daMap.set(this.details[index].article_no.substring(0,27), cacNum - arlNum)
+            daMap.set(this.details[index].article_no.substring(0,23),parseInt(daMap.get(this.details[index].article_no.substring(0,23))) - arlNum)
+          }
+          num += parseFloat(this.details[index].actual_mount)
+        }
+        for (index in this.details) {
+          if ((this.details[index].actual_qunatity < this.details[index].qunatity) && !isNaN(daMap.get(this.details[index].article_no.substring(0,23)))) {
+            quNum = parseInt(this.details[index].actual_qunatity)
+            cacNum = parseInt(daMap.get(this.details[index].article_no.substring(0,23)))
+            if (cacNum > 0) {
+              reqNum = parseInt(this.details[index].qunatity)
+              arlNum = (quNum + cacNum) > reqNum ? (reqNum - quNum) : cacNum
+              this.details[index].actual_qunatity = (quNum + arlNum)
+              this.details[index].actual_mount = (this.details[index].actual_qunatity * this.details[index].price).toFixed(2)
+              num += parseFloat((arlNum * this.details[index].price).toFixed(2))
+              daMap.set(this.details[index].article_no.substring(0, 23), parseInt(cacNum - arlNum))
+            }
+          }
         }
         this.dataForm.reall_total = num.toFixed(2)
       },

@@ -38,6 +38,11 @@
       this.endDate = moment(moment().valueOf()).format('YYYY-MM-DD')
       // this.getData()
     },
+    created () {
+        setInterval(() => {
+          this.getData()
+      }, 1800000)
+    },
     mounted () {
       this.drawLine()
       this.getData()
