@@ -5,12 +5,22 @@
             </div>
             <div class="arrow-top-right">
             </div>
-            <el-carousel indicator-position="outside" class="homeImage">
-              <el-carousel-item v-for="item in imageList" :key="item">
-                <!--<el-image style="width: 400px;height:300px;" :src="require(item)"></el-image>-->
-                <img  :src="item" style="width: 658px;height:567px;"/>
-              </el-carousel-item>
-            </el-carousel>
+            <div style="padding-top:8px;">
+            <span class="titlex1"  v-text="title0"></span><span class="titlex2"  v-text="title1"></span><span class="title3" v-text="title2"></span>
+            </div>
+            <vue-seamless-scroll v-if="listData.length > 0" :data="listData" class="seamless-warp" :class-option="classOption">
+                    <p v-for="(item,index) in listData" :key="index">
+
+                        <span @click="drawLine(index)" :title="item.discrip">
+
+                        <span class="warp-test1" v-text="typeFormat(item.extype)"></span>
+                        <span class="warp-test2" v-text="item.discrip"></span>
+                        <span class="warp-test3" v-text="dateFormat(item.extime)"></span>
+                        </span>
+                    </p>
+
+            </vue-seamless-scroll>
+            <div v-else class="safeMsg">当月无异常</div>
         </div>
     </div>
 </template>
@@ -30,16 +40,14 @@
         //     type:String,
         //     default:top,
         // },
-        data () {
+        data() {
             return {
                 title0: '异常类型',
                 title1: '异常名称',
                 title2: '异常时间',
                 title3: '异常种类',
-                listData: [],
-                test: [],
-                imageList: []
-            }
+                listData: []
+            };
         },
         computed: {
             classOption () {
@@ -69,21 +77,22 @@
                if (value == 6) return '违纪事件'
                if (value == 7) return '不可记录事件'
             },
-          getData () {
-            this.$http({
-              url: this.$http.adornUrl('/image/search'),
-              method: 'get'
-            }).then(({data}) => {
-              if ( data && data.code === 0) {
-                var basrURL = window.SITE_CONFIG.baseUrl
-                for (var i in  data.list) {
-                   this.imageList.push(basrURL + data.list[i].url)
-                }
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-          },
+            getData () {
+              this.$http({
+                url: this.$http.adornUrl('/attendan/getExce'),
+                method: 'post'
+                // params: this.$http.adornParams({
+                //   'start': this.startDate,
+                //   'end': this.endDate
+                // })
+              }).then(({data}) => {
+                if (data && data.code === 0) {
+                    this.listData = data.excepts
+              } else {
+                this.$message.error(data.msg)
+              }
+            })
+            },
             drawLine () {
                 // alert(1)
                 // alert(msg)
@@ -92,16 +101,6 @@
     }
 </script>
 
-<style>
-  .homeImage{
-    padding: 5px;
-  }
-  .homeImage .el-carousel__container {
-    position: relative;
-    height: 576px;
-  }
-
-</style>
 <style  scoped>
     li { list-style:none; }
     .dashboard1{
@@ -112,10 +111,6 @@
         box-shadow: 2px -2px 8px 0px rgba(10, 47, 128, 1);
         border-radius: 4px;
         border: 2px solid rgba(5, 44, 127, 1);
-    }
-    .el-carousel__container {
-      position: relative;
-      height: 576px;
     }
     .titlex1{
         color: #a9aaa5;
