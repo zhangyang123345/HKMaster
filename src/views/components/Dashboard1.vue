@@ -5,7 +5,7 @@
             </div>
             <div class="arrow-top-right">
             </div>
-            <el-carousel indicator-position="outside" class="homeImage">
+            <el-carousel indicator-position="outside" class="homeImage" interval="10000">
               <el-carousel-item v-for="item in imageList" :key="item">
                 <!--<el-image style="width: 400px;height:300px;" :src="require(item)"></el-image>-->
                 <img  :src="item" style="width: 658px;height:567px;"/>

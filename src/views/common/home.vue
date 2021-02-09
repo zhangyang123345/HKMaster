@@ -6,7 +6,7 @@
                 <div style="position: relative; height:100%">
                     <div class="dashboard-container" style="width: 100%;height:100%" :style="transformStyle">
                         <top-title :title.sync="title"></top-title>
-                        <!-- left -->
+                        <!-- bottom -->
                         <dashboard1>
 
                         </dashboard1>

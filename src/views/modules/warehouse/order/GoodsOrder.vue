@@ -2,14 +2,14 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-select v-model="dataForm.order_type" placeholder="订单类型">
+        <el-select v-model="dataForm.order_type" placeholder="订单类型" clearable>
           <el-option label="入库" value="1"></el-option>
           <el-option label="出库" value="2"></el-option>
           <el-option label="报废" value="3"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-select v-model="dataForm.order_state" placeholder="订单状态">
+        <el-select v-model="dataForm.order_state" placeholder="订单状态" clearable>
           <el-option label="退单" value="-1"></el-option>
           <el-option label="待提交" value="0"></el-option>
           <el-option label="待EHS审核" value="1"></el-option>

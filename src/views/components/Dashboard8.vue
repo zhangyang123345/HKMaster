@@ -121,8 +121,8 @@
             this.dataForm.dataBox2 = (isNaN(this.articData.added) ? 0 : this.articData.added)
             this.dataForm.dataBox3 = (isNaN(this.articData.quite) ? 0 : this.articData.quite)
             this.dataForm.textBox1 = '总人力'
-            this.dataForm.textBox2 = '当日新增'
-            this.dataForm.textBox3 = '当日离职'
+            this.dataForm.textBox2 = this.articData.date + '新增'
+            this.dataForm.textBox3 = this.articData.date + '离职'
           } else if (this.current >= 2) {
             this.current += 1
             this.dataForm.dataBox1 = (isNaN(this.articData.ehs) ? 0 : this.articData.ehs)
@@ -136,9 +136,9 @@
             this.dataForm.dataBox1 = (isNaN(this.articData.sarrive) ? 0 : this.articData.sarrive)
             this.dataForm.dataBox2 = (isNaN(this.articData.carrive) ? 0 : this.articData.carrive)
             this.dataForm.dataBox3 = (isNaN(this.articData.attendanl) ? '0%' : parseFloat(this.articData.attendanl)*100) +"%"
-            this.dataForm.textBox1 = '当日应到'
-            this.dataForm.textBox2 = '当日出勤'
-            this.dataForm.textBox3 = '当日出勤率'
+            this.dataForm.textBox1 = this.articData.date + '应到'
+            this.dataForm.textBox2 = this.articData.date + '出勤'
+            this.dataForm.textBox3 = this.articData.date + '出勤率'
           }
         }
       },
