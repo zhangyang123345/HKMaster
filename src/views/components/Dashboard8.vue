@@ -105,6 +105,9 @@
     created () {
       /* 每20秒对list方法进行一次刷新 */
       setInterval(() => {
+        this.getData()
+      }, 50000)
+      setInterval(() => {
         this.update()
       }, 5000)
     },
@@ -256,6 +259,7 @@
                     }
                   ]
                 })
+                this.update()
             } else {
               this.$message.error(data.msg)
             }
