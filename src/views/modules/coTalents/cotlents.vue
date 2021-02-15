@@ -13,13 +13,13 @@
             <el-col span="12">
               <div class="cBox cBox1">
                   <div class="inerBox">计划人数</div>
-                  <div class="inerBox2">1412</div>
+                  <div class="inerBox2">{{this.dataFormMan.dataBox4}}</div>
               </div>
             </el-col>
             <el-col span="12">
               <div class="cBox cBox2">
                   <div class="inerBox">已完成</div>
-                  <div class="inerBox2">1411</div>
+                  <div class="inerBox2">{{this.dataFormMan.dataBox5}}</div>
               </div>
             </el-col>
          </el-row>
@@ -27,13 +27,13 @@
             <el-col span="12">
               <div class="cBox cBox3">
                   <div class="inerBox">待完成</div>
-                  <div class="inerBox2">1</div>
+                  <div class="inerBox2">{{this.dataFormMan.dataBox6}}</div>
               </div>
             </el-col>
             <el-col span="12">
               <div class="cBox cBox4">
                   <div class="inerBox">完成率</div>
-                  <div class="inerBox2">99.9%</div>
+                  <div class="inerBox2">{{this.dataFormMan.dataBox7}}</div>
               </div>
             </el-col>
          </el-row>
@@ -41,25 +41,25 @@
             <el-col span="6">
               <div class="aBox aBox1">
                 <div class="inerAox">总人力</div>
-                <div class="inerAox2">4365</div>
+                <div class="inerAox2">{{this.dataFormMan.dataBox4}}</div>
               </div>
             </el-col>
             <el-col span="6">
               <div class="aBox aBox2">
                 <div class="inerAox">应到</div>
-                <div class="inerAox2">3560</div>
+                <div class="inerAox2">{{this.dataFormMan.dataBox1}}</div>
               </div>
             </el-col>
             <el-col span="6">
               <div class="aBox aBox3">
                 <div class="inerAox">实到</div>
-                <div class="inerAox2">3421</div>
+                <div class="inerAox2">{{this.dataFormMan.dataBox2}}</div>
               </div>
             </el-col>
             <el-col span="6">
               <div class="aBox aBox4">
                 <div class="inerAox">出勤率</div>
-                <div class="inerAox2">96%</div>
+                <div class="inerAox2">{{this.dataFormMan.dataBox3}}</div>
               </div>
             </el-col>
          </el-row>
@@ -171,7 +171,7 @@
          </el-row>
          <el-row>
             <el-col span="24">
-               <div class="telec block-div" @contextmenu.prevent.stop="checkOut('station')">
+               <div class="telec block-div" @contextmenu.prevent.stop="checkOut('skill')">
                  <div id="tecGround"></div>
                </div>
             </el-col>
@@ -249,7 +249,43 @@
           ageCount: [],
           arounds: []
         },
-        talenList: []
+        talenList: [],
+        articData: {
+          date: '',
+          typeNList: [],
+          other: '',
+          sarrive: '',
+          added: '',
+          attend: 0,
+          rLineCount: [],
+          roundDList: [],
+          traceLineN: [],
+          carrive: '',
+          ehs: 0,
+          absenteeism: '',
+          trace: 0,
+          tracelineD: [],
+          tracelineN: [],
+          roundNList: [],
+          ehslineN: [],
+          vacation: '',
+          quite: '',
+          attendanl: '',
+          manpower: '',
+          typeNDList: [],
+          rLineName: [],
+          typeVDList: '',
+          ehslineD: []
+        },
+        dataFormMan: {
+          dataBox1: '',
+          dataBox2: '',
+          dataBox3: '',
+          dataBox4: '',
+          dataBox5: '',
+          dataBox6: '',
+          dataBox7: ''
+        }
           // [{jobNo: 2922682 , name: '谭瑜' , director: '刘国良' , entrydate: '2020/11/23' , position: '技术员II'},
           // {jobNo: 2922682 , name: '谭瑜' ,director: '刘国良' , entrydate: '2020/11/23' , position: '技术员II'},
           // {jobNo: 2920707 , name: '梁松博' ,director: '刘国良' , entrydate: '2020/11/19' , position: '技术员I'},
@@ -265,8 +301,156 @@
       this.drawLine()
       this.getDataList()
       this.getReport()
+      this.getData()
     },
     methods: {
+      update () {
+        //应到
+        this.dataFormMan.dataBox1 = (isNaN(this.articData.sarrive) ? 0 : this.articData.sarrive)
+        //实到
+        this.dataFormMan.dataBox2 = (isNaN(this.articData.carrive) ? 0 : this.articData.carrive)
+        //出勤率
+        this.dataFormMan.dataBox3 = (isNaN(this.articData.attendanl) ? '0%' : parseFloat(this.articData.attendanl)*100) +"%"
+        //总人力
+        this.dataFormMan.dataBox4 = (isNaN(this.articData.manpower) ? 0 : this.articData.manpower)
+        this.getDataMan()
+      },
+      getDataMan () {//获取已完成人数
+        this.dataListLoading = true
+        var stage = ''
+        for (var x in this.cacheData.station) {
+          stage += this.cacheData.station[x] + ','
+        }
+        stage = stage.substring(0, stage.length - 1)
+        this.$http({
+          url: this.$http.adornUrl('/cotalent/search'),
+          method: 'get',
+          params: this.$http.adornParams({
+            'page': 1,
+            'rows': 10
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.dataFormMan.dataBox5 = data.cotalent.total
+            this.dataFormMan.dataBox6 = parseInt(this.dataFormMan.dataBox4) - parseInt(this.dataFormMan.dataBox5)
+            this.dataFormMan.dataBox7 = (parseFloat(this.dataFormMan.dataBox5) / parseFloat(this.dataFormMan.dataBox4)).toFixed(2) * 100 + "%"
+          } else {
+            this.dataList = []
+            this.totalPage = 0
+          }
+          this.dataListLoading = false
+        })
+      },
+      getData () {//获取人力数据
+        this.$http({
+          url: this.$http.adornUrl('/attendan/queryAtten'),
+          method: 'post',
+          params: this.$http.adornParams({
+            'startDate': this.startDate,
+            'endDate': this.endDate
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.articData.date = data.attenData.date
+            this.articData.typeNList = data.attenData.typeNList
+            this.articData.other = data.attenData.other
+            this.articData.sarrive = data.attenData.sarrive
+            this.articData.added = data.attenData.added
+            this.articData.rLineCount = data.attenData.rLineCount
+            this.articData.roundDList = data.attenData.roundDList
+            this.articData.traceLineN = data.attenData.traceLineN
+            this.articData.carrive = data.attenData.carrive
+            this.articData.ehs = data.attenData.ehs
+            this.articData.absenteeism = data.attenData.absenteeism
+            this.articData.trace = data.attenData.trace
+            this.articData.tracelineD = data.attenData.tracelineD
+            this.articData.tracelineN = data.attenData.tracelineN
+            this.articData.roundNList = data.attenData.roundNList
+            this.articData.ehslineN = data.attenData.ehslineN
+            this.articData.vacation = data.attenData.vacation
+            this.articData.quite = data.attenData.quite
+            this.articData.attendanl = data.attenData.attendanl
+            this.articData.manpower = data.attenData.manpower
+            this.articData.typeNDList = data.attenData.typeNDList
+            this.articData.rLineName = data.attenData.rLineName
+            this.articData.typeVDList = data.attenData.typeVDList
+            this.articData.ehslineD = data.attenData.ehslineD
+            this.articData.attend = data.attenData.attend
+            this.update()
+            this.myChart.setOption({
+              yAxis: {
+                data: this.articData.typeNList
+              },
+              series: [
+                {
+                  name: '男',
+                  type: 'bar',
+                  data: this.articData.typeNDList
+                },
+                {
+                  name: '女',
+                  type: 'bar',
+                  data: this.articData.typeVDList
+                }
+              ]
+            })
+            this.myChart1.setOption({
+              series: [
+                {
+                  name: '访问来源',
+                  type: 'pie',
+                  data: this.humanFormat(this.articData.roundNList, this.articData.roundDList)
+                }
+              ]
+            })
+            this.current1.setOption({
+              xAxis: {
+                type: 'category',
+                data: this.articData.rLineName
+              },
+              series: [
+                {
+                  name: '缺勤人数',
+                  type: 'line',
+                  data: this.articData.rLineCount
+                }
+              ]
+            })
+            this.current2.setOption({
+              series: [
+                {
+                  data: [
+                    {value: this.articData.absenteeism, name: '旷工', itemStyle: {color: "RGB(255,160,34)"}},
+                    {value: this.articData.vacation, name: '请假', itemStyle: {color: "RGB(0,108,255)"}},
+                    {value: this.articData.other, name: '其他假', itemStyle: {color: "RGB(159,230,184)"}}
+                  ]
+                }
+              ]
+            })
+            this.exception1.setOption({
+              xAxis: {
+                type: 'category',
+                data: this.articData.ehslineD
+              },
+              series: [
+                {
+                  type: 'bar',
+                  data: this.articData.ehslineN
+                }
+              ]
+            })
+            this.exception2.setOption({
+              series: [
+                {
+                  data: this.humanFormat(this.articData.tracelineN, this.articData.tracelineD)
+                }
+              ]
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      },
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true
@@ -284,7 +468,7 @@
             'director': this.cacheData.director,
             'department': this.queryData.separtment ? this.queryData.separtment : this.cacheData.department,
             'position': this.queryData.position ? this.queryData.position : this.cacheData.position,
-            'station': this.queryData.station ? this.queryData.station : stage ,
+            'station': this.queryData.station ? this.queryData.station : stage,
             'sage': this.queryData.sage,
             'eage': this.queryData.eage,
             'entry': this.queryData.entry,
@@ -578,7 +762,7 @@
             trigger: 'item',
             formatter: '{b}: ({d}%)<br/>      {c}'
           },
-          color: ['#029ffc', '#29dfec', '#fa6676', '#4339f1', '#a680fa', '#f3fb43', '#ffb60f'],
+          color: ['#029ffc', '#29dfec', '#fa6676', '#4339f1', '#a680fa', '#D6D22E', '#ffb60f'],
           legend: {
             icon: 'circle',
             show: true,
@@ -607,7 +791,9 @@
                     formatter: '{b}\n{c}',
                     fontSize: 12
                   },
-                  labelLine: {show: true}
+                  labelLine: {
+                    show: true
+                  }
                 }
               },
               emphasis: {
@@ -618,7 +804,10 @@
                 }
               },
               labelLine: {
-                show: true
+                show: true,
+                normal: {
+                  length: 5
+                }
               },
               data: this.report.sepCount
               //   [{value: 335, name: '生技'},
@@ -682,7 +871,8 @@
                 }
               },
               labelLine: {
-                show: true
+                show: true,
+                length: 0
               },
               data: this.report.ageCount
               //   [
@@ -703,7 +893,7 @@
             trigger: 'item',
             formatter: '{b}: <br/>{c} ({d}%)'
           },
-          color: ['#029ffc', '#29dfec', '#fa6676', '#4339f1', '#a680fa', '#f3fb43', '#ffb60f'],
+            color: ['#029ffc', '#29dfec', '#fa6676', '#4339f1', '#a680fa', '#f3fb43', '#ffb60f'],
           legend: {
             show: true,
             icon: 'circle',
@@ -823,7 +1013,7 @@
             trigger: 'item',
             formatter: '{b}: <br/>{c} ({d}%)'
           },
-          color: ['#029ffc', '#29dfec', '#fa6676', '#4339f1', '#a680fa', '#f3fb43', '#ffb60f'],
+          color: ['#029ffc', '#29dfec', '#fa6676', '#4339f1', '#a680fa', '#D6D22E', '#ffb60f'],
           legend: {
             show: true,
             icon: 'circle',
@@ -912,7 +1102,8 @@
               fontSize: 15,
               textStyle: {
                 color: '#000000'
-              }
+              },
+              interval: 0
             },
             data: this.report.kinSet
           },
