@@ -210,10 +210,12 @@
     methods: {
       // 获取数据列表
       getDataList () {
+        var that = this
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/orders/search'),
           method: 'get',
+          timeout: 800000,
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'rows': this.pageSize,
@@ -232,6 +234,9 @@
             this.totalPage = 0
           }
           this.dataListLoading = false
+        }, function (err) {
+          that.$message.error(err.toString())
+          that.dataListLoading = false
         })
       },
       // 每页数
