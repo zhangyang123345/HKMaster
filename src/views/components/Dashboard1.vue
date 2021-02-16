@@ -53,6 +53,11 @@
                 }
             }
         },
+      created () {
+        setInterval(() => {
+          this.getData()
+        }, 1800000)
+      },
         mounted () {
             this.getData()
         },

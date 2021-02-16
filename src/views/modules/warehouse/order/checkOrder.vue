@@ -222,6 +222,7 @@
     },
     methods: {
       getDataList () {
+        var that = this
         // if (this.dataForm.keyTime == '' || this.dataForm.keyTime == null || this.dataForm.keyTime == undefined) {
         //   if (moment(moment().valueOf()).format('MM-DD') < moment('09-01').format('MM-DD')) {
         //     this.dataForm.keyTime = [moment(moment().add(-1, 'years').valueOf()).format('YYYY-09-01'), moment(moment().valueOf()).format('YYYY-MM-DD')]
@@ -233,6 +234,7 @@
         this.$http({
           url: this.$http.adornUrl('/orders/checkSearch'),
           method: 'get',
+          timeout: 800000,
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'rows': this.pageSize,
@@ -251,6 +253,9 @@
             })
           }
           this.dataListLoading = false
+        }, function (err) {
+          that.$message.error(err.toString())
+          that.dataListLoading = false
         })
       },
       // 获取数据列表
