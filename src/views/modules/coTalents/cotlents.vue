@@ -531,6 +531,11 @@
             this.report.sexs = data.report.sexs.split(',')
             this.report.ageCount = this.humanFormat(data.report.arounds.split(','), data.report.ageCount.split(','))
             this.report.arounds = data.report.arounds.split(',')
+            var kinAll = []
+            for (var i = 0, len = this.report.kin1.length; i < len; i++) {
+              let kinTemp = parseInt(this.report.kin1[i]) + parseInt(this.report.kin2[i])  + parseInt(this.report.kin3[i]) + parseInt(this.report.kin4[i])
+              kinAll.push(kinTemp)
+            }
             this.poGround.setOption({
               yAxis: {data: this.report.entryds},
               series: [{data: this.report.entryCount}]
@@ -557,10 +562,10 @@
           this.tecGround.setOption({
             xAxis: {data: this.report.kinSet},
             series: [
-              {data: this.report.kin1},
-              {data: this.report.kin2},
-              {data: this.report.kin3},
-              {data: this.report.kin4}
+              {data: []},
+              {data: []},
+              {data: kinAll},
+              {data: []}
             ]
           })
           this.pisGround1.setOption({
@@ -788,7 +793,7 @@
                 normal: {
                   label: {
                     show: true,
-                    formatter: '{b}\n{c}',
+                    formatter: '{b}\n{c}\n{d}%',
                     fontSize: 12
                   },
                   labelLine: {
@@ -840,7 +845,7 @@
             y: '80%',
             textStyle: { //图例文字的样式
               color: '#000000',
-              fontSize: 16
+              fontSize: 14
             },
             data: this.report.arounds
           },
@@ -857,8 +862,8 @@
                 normal: {
                   label: {
                     show: true,
-                    formatter: '{b}\n{c}',
-                    fontSize: 12
+                    formatter: '{b}\n{c}\n{d}%',
+                    fontSize: 10
                   },
                   labelLine: {show: true}
                 }
@@ -901,7 +906,7 @@
             y: '80%',
             textStyle: { //图例文字的样式
               color: '#000000',
-              fontSize: 16
+              fontSize: 14
             },
             data: ['单技能', '多技能']
           },
@@ -909,7 +914,7 @@
             {
               name: '访问来源',
               type: 'pie',
-              radius: ['30%', '50%'],
+              radius: ['30%', '48%'],
               center: ['50%', '40%', '50%', '50%'],
               avoidLabelOverlap: true,
               itemStyle: {
@@ -918,8 +923,8 @@
                 normal: {
                   label: {
                     show: true,
-                    formatter: '{b}\n{c}',
-                    fontSize: 12
+                    formatter: '{b}\n{c}\n{d}%',
+                    fontSize: 10
                   },
                   labelLine: {show: true}
                 }
@@ -934,7 +939,7 @@
               labelLine: {
                 show: true
               },
-              data:this.report.killCount
+              data: this.report.killCount
               //   [
               //   {value: 1656, name: '单技能'},
               //   {value: 467, name: '多技能'}
@@ -961,7 +966,7 @@
             y: '80%',
             textStyle: { //图例文字的样式
               color: '#000000',
-              fontSize: 16
+              fontSize: 14
             },
             data: this.report.sexs
           },
@@ -978,8 +983,8 @@
                 normal: {
                   label: {
                     show: true,
-                    formatter: '{b}\n{c}',
-                    fontSize: 12
+                    formatter: '{b}\n{c}\n{d}%',
+                    fontSize: 10
                   },
                   labelLine: {show: true}
                 }
@@ -1021,7 +1026,7 @@
             y: '80%',
             textStyle: { //图例文字的样式
               color: '#000000',
-              fontSize: 16
+              fontSize: 14
             },
             data: this.report.educations
           },
@@ -1038,8 +1043,8 @@
                 normal: {
                   label: {
                     show: true,
-                    formatter: '{b}\n{c}',
-                    fontSize: 12
+                    formatter: '{b}\n{c}\n{d}%',
+                    fontSize: 10
                   },
                   labelLine: {show: true}
                 }
@@ -1075,11 +1080,12 @@
           },
           tooltip: {
             trigger: 'axis',
-            formatter: '{b0}<br/> {a0}: {c0}<br/>{a1}: {c1}<br/>{a2}: {c2}<br/>{a3}: {c3}'
+            formatter: '{b0}<br/>{a0}: {c0}'
           },
-          color: [ '#029ffc', '#4339f2', '#ffb60f', '#f23829' ],
+          color: [ '#029ffc', '#4339f2', '#29dfec', '#f23829' ],
           legend: {
-            data: [ '入门', '熟练', '掌握', '精通' ],
+            show: true,
+            data: [ '', '', '掌握', '' ],
             top: '50px',
             icon: 'circle',
             textStyle: {
