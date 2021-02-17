@@ -3,17 +3,21 @@
     <div class='detail-list'>
       <div class='detail-list-item3'>
         <div class='detail-item-text'>
-          <h3 id="h3-1" v-bind:class="{ischeck:current==1}" v-on:click="addClass(3)" >人力</h3>
+          <h3 id="h3-1"  ></h3>
         </div>
         <div class='detail-item-text'>
-          <h3 id="h3-2" v-bind:class="{ischeck:current==2}" v-on:click="addClass(1)">考勤</h3>
+          <h3 id="h3-2" style="color: #77C6FF">PVD人才分布</h3>
         </div>
         <div class='detail-item-text'>
-          <h3 id="h3-3" v-bind:class="{ischeck:current==3}" v-on:click="addClass(2)">异常</h3>
+          <h3 id="h3-3" ></h3>
         </div>
       </div>
       <div class='detail-list-item1' key='3'>
         <div class='detail-list'>
+          <div class='detail-item-text'>
+            <h3>{{dataForm.dataBox4}}</h3>
+            <span>{{dataForm.textBox4}}</span>
+          </div>
           <div class='detail-item-text'>
             <h3>{{dataForm.dataBox1}}</h3>
             <span>{{dataForm.textBox1}}</span>
@@ -28,28 +32,10 @@
           </div>
         </div>
       </div>
-      <div  class="tableItem" v-show="current==1">
-        <div class='detail-list-item' key='2'>
-          <div id="human1" style="height: 200px;width: 100%"></div>
-        </div>
-        <div class='detail-list-item' key='1'>
-          <div id="human2" style="height: 200px;width: 100%"></div>
-        </div>
-      </div>
       <div  class="tableItem" v-show="current==2">
         <div class='detail-list-item' key='2'>
-          <div id="current1" style="height: 200px;width: 350px"></div>
+        <div id="tecGround" style="height: 300px;width: 100%">
         </div>
-        <div class='detail-list-item' key='1'>
-          <div id="current2" style="height: 200px;width: 350px"></div>
-        </div>
-      </div>
-      <div  class="tableItem" v-show="current==3">
-        <div class='detail-list-item' key='2'>
-          <div id="exception1" style="height: 200px;width: 350px"></div>
-        </div>
-        <div class='detail-list-item' key='1'>
-          <div id="exception2" style="height: 200px;width: 350px"></div>
         </div>
       </div>
     </div>
@@ -63,15 +49,25 @@
       return {
         myChart: '',
         myChart1: '',
-        current: 1,
+        myChart4: '',
+        current: 2,
         runBuff: true,
         dataForm: {
           dataBox1: 10,
           dataBox2: 5,
           dataBox3: '',
+          dataBox4: '',
           textBox1: '',
           textBox2: '',
-          textBox3: ''
+          textBox3: '',
+          textBox4: ''
+        },
+        report: {
+          kin1: [],
+          kin2: [],
+          kin3: [],
+          kin4: [],
+          kinSet: []
         },
         articData: {
           date: '',
@@ -107,42 +103,27 @@
       setInterval(() => {
         this.getData()
       }, 50000)
-      setInterval(() => {
-        this.update()
-      }, 5000)
+      // setInterval(() => {
+      //   this.update()
+      // }, 5000)
     },
     mounted () {
-      this.drawLine()
       this.getData()
+      this.getNewData()
+      this.drawLine()
     },
     methods: {
       update () {
         if (this.runBuff) {
-          if (this.current >= 3) {
-            this.current = 1
-            this.dataForm.dataBox1 = (isNaN(this.articData.manpower) ? 0 : this.articData.manpower)
-            this.dataForm.dataBox2 = (isNaN(this.articData.added) ? 0 : this.articData.added)
-            this.dataForm.dataBox3 = (isNaN(this.articData.quite) ? 0 : this.articData.quite)
-            this.dataForm.textBox1 = '总人力'
-            this.dataForm.textBox2 = this.articData.date + '新增'
-            this.dataForm.textBox3 = this.articData.date + '离职'
-          } else if (this.current >= 2) {
-            this.current += 1
-            this.dataForm.dataBox1 = (isNaN(this.articData.ehs) ? 0 : this.articData.ehs)
-            this.dataForm.dataBox2 = (isNaN(this.articData.attend) ? 0 : this.articData.attend)
-            this.dataForm.dataBox3 = (isNaN(this.articData.trace) ? 0 : this.articData.trace)
-            this.dataForm.textBox1 = '当月EHS异常'
-            this.dataForm.textBox2 = '当月考勤异常'
-            this.dataForm.textBox3 = '当月Trace异常'
-          } else {
-            this.current += 1
+            // this.current += 1
             this.dataForm.dataBox1 = (isNaN(this.articData.sarrive) ? 0 : this.articData.sarrive)
             this.dataForm.dataBox2 = (isNaN(this.articData.carrive) ? 0 : this.articData.carrive)
             this.dataForm.dataBox3 = (isNaN(this.articData.attendanl) ? '0%' : parseFloat(this.articData.attendanl)*100) +"%"
+          this.dataForm.dataBox4 = (isNaN(this.articData.manpower) ? 0 : this.articData.manpower)
             this.dataForm.textBox1 = this.articData.date + '应到'
             this.dataForm.textBox2 = this.articData.date + '出勤'
             this.dataForm.textBox3 = this.articData.date + '出勤率'
-          }
+          this.dataForm.textBox4 = this.articData.date + '总人力'
         }
       },
       addClass: function (index) {
@@ -153,6 +134,42 @@
       },
       runCon () {
           // this.runBuff = true
+      },
+      getNewData () {
+        this.$http({
+          url: this.$http.adornUrl('/cotalent/report'),
+          method: 'get',
+          params: this.$http.adornParams({
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            console.log(data)
+            this.report.kin1 = data.report.kin1
+            this.report.kin2 = data.report.kin2
+            this.report.kin3 = data.report.kin3
+            this.report.kin4 = data.report.kin4
+            this.report.kinSet = data.report.kinSet
+            var kinAll = []
+            for (var i = 0, len = this.report.kin1.length; i < len; i++) {
+              let kinTemp = parseInt(this.report.kin1[i]) + parseInt(this.report.kin2[i])  + parseInt(this.report.kin3[i]) + parseInt(this.report.kin4[i])
+              kinAll.push(kinTemp)
+            }
+            this.tecGround.setOption({
+              xAxis: {data: this.report.kinSet},
+              series: [
+                {data: []},
+                {data: []},
+                {data: kinAll},
+                {data: []}
+              ]
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        },
+        function (err) {
+          this.$message.error(err.toString())
+        })
       },
       getData () {
             this.$http({
@@ -189,76 +206,6 @@
                   this.articData.typeVDList = data.attenData.typeVDList
                   this.articData.ehslineD = data.attenData.ehslineD
                   this.articData.attend = data.attenData.attend
-
-                  this.myChart.setOption({
-                    yAxis: {
-                      data: this.articData.typeNList
-                    },
-                    series: [
-                      {
-                        name: '男',
-                        type: 'bar',
-                        data: this.articData.typeNDList
-                      },
-                      {
-                        name: '女',
-                        type: 'bar',
-                        data: this.articData.typeVDList
-                      }
-                    ]
-                  })
-                  this.myChart1.setOption({
-                    series: [
-                      {
-                        name: '访问来源',
-                        type: 'pie',
-                        data: this.humanFormat(this.articData.roundNList, this.articData.roundDList)
-                      }
-                    ]
-                  })
-                this.current1.setOption({
-                  xAxis: {
-                    type: 'category',
-                    data: this.articData.rLineName
-                  },
-                  series: [
-                    {
-                      name: '缺勤人数',
-                      type: 'line',
-                      data: this.articData.rLineCount
-                    }
-                  ]
-                })
-                this.current2.setOption({
-                  series: [
-                    {
-                      data: [
-                        {value: this.articData.absenteeism, name: '旷工', itemStyle: {color: "RGB(255,160,34)"}},
-                        {value: this.articData.vacation, name: '请假', itemStyle: {color: "RGB(0,108,255)"}},
-                        {value: this.articData.other, name: '其他假', itemStyle: {color: "RGB(159,230,184)"}}
-                      ]
-                    }
-                  ]
-                })
-                this.exception1.setOption({
-                  xAxis: {
-                    type: 'category',
-                    data: this.articData.ehslineD
-                  },
-                  series: [
-                    {
-                      type: 'bar',
-                      data: this.articData.ehslineN
-                    }
-                  ]
-                })
-                this.exception2.setOption({
-                  series: [
-                    {
-                      data: this.humanFormat(this.articData.tracelineN, this.articData.tracelineD)
-                    }
-                  ]
-                })
                 this.update()
             } else {
               this.$message.error(data.msg)
@@ -277,354 +224,35 @@
       },
       drawLine () {
         // 基于准备好的dom，初始化echarts实例
-        this.myChart = this.$echarts.init(document.getElementById('human1'))
-        this.myChart1 = this.$echarts.init(document.getElementById('human2'))
-        this.current1 = this.$echarts.init(document.getElementById('current1'))
-        this.current2 = this.$echarts.init(document.getElementById('current2'))
-        this.exception1 = this.$echarts.init(document.getElementById('exception1'))
-        this.exception2 = this.$echarts.init(document.getElementById('exception2'))
-        this.myChart.setOption({
-          title: {
-            show: true, //显示策略，默认值true,可选为：true（显示） | false（隐藏）
-            text: '各类别男女占比', //主标题文本，'\n'指定换行
-            x: 'center',//水平安放位置，默认为'left'，可选为：'center' | 'left' | 'right' | {number}（x坐标，单位px）
-            y: 'top', //垂直安放位置，默认为top，可选为：'top' | 'bottom' | 'center' | {number}（y坐标，单位px）
-            // backgroundColor: 'rgba(15,27,71,1)', //标题背景颜色，默认'rgba(0,0,0,0)'透明
-            // borderColor: '#ccc', //标题边框颜色,默认'#ccc'
-            // borderWidth: 1, //标题边框线宽，单位px，默认为0（无边框）
-            // padding: 5, //标题内边距，单位px，默认各方向内边距为5，接受数组分别设定上右下左边距
-            textStyle: { //主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
-              color: '#fff',
-              fontSize: 16,
-              fontStyle: 'normal',
-              fontWeight: 'normal'
-            }
-          },
-          tooltip: {
-            trigger: 'axis',
-            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
-              type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-            }
-          },
-          legend: {
-            x: 'right',
-            y: 'bottom',
-            textStyle: { //图例文字的样式
-              color: '#fff',
-              fontSize: 16
-            },
-            data: ['男', '女']
-          },
-          grid: {
-            top: '20%',
-            left: '1%',
-            right: '8%',
-            bottom: '5%',
-            containLabel: true
-          },
-          xAxis: {
-            show: false,
-            splitLine: {show: false},
-            type: 'value'
-          },
-          yAxis: {
-            splitLine: {show: false},
-            type: 'category',
-            data: this.articData.typeNList,
-            axisLine: {
-              lineStyle: {
-                color: '#fff'
-              }
-            }
-          },
-          series: [
-            {
-              name: '男',
-              type: 'bar',
-              label: {
-                show: true,
-                position: 'insideRight'
-              },
-              data: this.articData.typeNDList,
-              itemStyle: {
-                normal: {
-                  color: 'RGB(29,157,255)',
-                  label: {
-                    show: true, //开启显示
-                    position: 'right', //在上方显示
-                    textStyle: { //数值样式
-                      color: 'white',
-                      fontSize: 16
-                    }
-                  }
-                }
-              }
-            },
-            {
-              name: '女',
-              type: 'bar',
-              label: {
-                show: true,
-                position: 'insideRight'
-              },
-              data: this.articData.typeVDList,
-              itemStyle: {
-                normal: {
-                  color: 'RGB(50,197,233)',
-                  label: {
-                    show: true, //开启显示
-                    position: 'right', //在上方显示
-                    textStyle: { //数值样式
-                      color: 'white',
-                      fontSize: 16
-                    }
-                  }
-                }
-              }
-            }
-          ]
-        })
-        this.myChart1.setOption({
-          title: {
-            show: true, //显示策略，默认值true,可选为：true（显示） | false（隐藏）
-            text: '人力分布', //主标题文本，'\n'指定换行
-            x: 'center',//水平安放位置，默认为'left'，可选为：'center' | 'left' | 'right' | {number}（x坐标，单位px）
-            y: 'top', //垂直安放位置，默认为top，可选为：'top' | 'bottom' | 'center' | {number}（y坐标，单位px）
-            // backgroundColor: 'rgba(15,27,71,1)', //标题背景颜色，默认'rgba(0,0,0,0)'透明
-            // borderColor: '#ccc', //标题边框颜色,默认'#ccc'
-            // borderWidth: 1, //标题边框线宽，单位px，默认为0（无边框）
-            // padding: 5, //标题内边距，单位px，默认各方向内边距为5，接受数组分别设定上右下左边距
-            textStyle: { //主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
-              color: '#fff',
-              fontSize: 16,
-              fontStyle: 'normal',
-              fontWeight: 'normal'
-            }
-          },
-          tooltip: {
-            trigger: 'item',
-            formatter: '{b}: ({d}%)<br/>      {c}'
-          },
-          legend: {
-            show: false,
-            x: 'right',
-            y: 'bottom',
-            textStyle: { //图例文字的样式
-              color: '#fff',
-              fontSize: 10
-            },
-            data: this.articData.roundNList
-          },
-          series: [
-            {
-              name: '访问来源',
-              type: 'pie',
-              radius: ['0%', '64%'],
-              center: ['50%', '65%', '50%', '50%'],
-              avoidLabelOverlap: true,
-              itemStyle: {
-                // color: '#c1c1c2',
-                shadowBlur: 10,
-                shadowColor: 'rgba(0, 0, 0, 0.5)',
-                normal: {
-                  label: {
-                    show: true,
-                    formatter: '{b}\n{c}',
-                    fontSize: 12
-                  },
-                  labelLine: {show: true}
-                }
-              },
-              emphasis: {
-                label: {
-                  show: true,
-                  fontSize: '30',
-                  fontWeight: 'bold'
-                }
-              },
-              labelLine: {
-                show: true
-              },
-              data: this.articData.roundDList
-              //   [
-              //   {value: 335, name: '生计', itemStyle: {color: "RGB(255,160,34)"}},
-              //   {value: 2310, name: '生产', itemStyle: {color: "RGB(0,108,255)"}},
-              //   {value: 634, name: '阳极', itemStyle: {color: "RGB(159,230,184)"}},
-              //   {value: 185, name: '设备', itemStyle: {color: "RGB(29,157,255)"}},
-              //   {value: 135, name: '厂务', itemStyle: {color: "RGB(29,157,255)"}},
-              //   {value: 35, name: '办公室', itemStyle: {color: "RGB(29,157,255)"}},
-              //   {value: 835, name: '品质', itemStyle: {color: "RGB(29,157,255)"}},
-              // ]
-            }
-          ]
-        })
-        this.current1.setOption({
+        this.tecGround = this.$echarts.init(document.getElementById('tecGround'))
+        this.tecGround.setOption({
 
           title: {
-            text: '7日缺勤人数',
-            x: 'center',//水平安放位置，默认为'left'，可选为：'center' | 'left' | 'right' | {number}（x坐标，单位px）
-            y: 'top', //垂直安放位置，默认为top，可选为：'top' | 'bottom' | 'center' | {number}（y坐标，单位px）
-            // backgroundColor: 'rgba(15,27,71,1)', //标题背景颜色，默认'rgba(0,0,0,0)'透明
-            // borderColor: '#ccc', //标题边框颜色,默认'#ccc'
-            // borderWidth: 1, //标题边框线宽，单位px，默认为0（无边框）
-            // padding: 5, //标题内边距，单位px，默认各方向内边距为5，接受数组分别设定上右下左边距
-            textStyle: { //主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
-              color: '#fff',
-              fontSize: 16,
-              fontStyle: 'normal',
-              fontWeight: 'normal'
-            }
+            text: '技能熟练层别',
+            show: false,
+            x: '14px',
+            y: '5px'
           },
           tooltip: {
             trigger: 'axis',
             formatter: '{b0}<br/>{a0}: {c0}'
           },
-          color: ['RGB(65, 55, 217)', 'RGB(72, 188, 177)', 'RGB(63, 196, 86)', 'RGB(212, 130, 101)', 'RGB(29, 157, 255)'],
-          grid: {
-            left: '3%',
-            right: '10%',
-            top: '20%',
-            bottom: '5%',
-            containLabel: true
-          },
-          xAxis: {
-            type: 'category',
-            // boundaryGap: false,
-            axisLabel: {
-              show: true,
-              textStyle: {
-                color: '#fff'
-              }
-            },
-            data: this.articData.rLineName
-          },
-          yAxis: {
-            type: 'value',
-            max: function (value) {
-              return value.max
-            },
-            min: function (value) {
-              return value.min
-            },
-            splitLine: {show: false}, //去除网格线
-            axisLabel: {
-              show: true,
-              color: '#ffffff'
-            },
-            show: true
-          },
-          series: [
-            {
-              name: '缺勤人数',
-              type: 'line',
-              data: this.articData.rLineCount,
-              smooth: true,
-              itemStyle: {
-                normal: {
-                  lineStyle: {
-                    width: 3
-                  },
-                  label: {show: true, color: '#ffffff'}
-                }
-              }
-            }
-          ]
-        })
-        this.current2.setOption({
-          title: {
-            show: true, //显示策略，默认值true,可选为：true（显示） | false（隐藏）
-            text: '7日缺勤分布', //主标题文本，'\n'指定换行
-            x: 'center',//水平安放位置，默认为'left'，可选为：'center' | 'left' | 'right' | {number}（x坐标，单位px）
-            y: 'top', //垂直安放位置，默认为top，可选为：'top' | 'bottom' | 'center' | {number}（y坐标，单位px）
-            // backgroundColor: 'rgba(15,27,71,1)', //标题背景颜色，默认'rgba(0,0,0,0)'透明
-            // borderColor: '#ccc', //标题边框颜色,默认'#ccc'
-            // borderWidth: 1, //标题边框线宽，单位px，默认为0（无边框）
-            // padding: 5, //标题内边距，单位px，默认各方向内边距为5，接受数组分别设定上右下左边距
-            textStyle: { //主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
-              color: '#fff',
-              fontSize: 16,
-              fontStyle: 'normal',
-              fontWeight: 'normal'
-            }
-          },
-          tooltip: {
-            trigger: 'item',
-            formatter: '{a} <br/>{b}: {c} ({d}%)'
-          },
-          series: [
-            {
-              name: '访问来源',
-              type: 'pie',
-              radius: ['40%', '60%'],
-              center: ['50%', '60%', '50%', '50%'],
-              avoidLabelOverlap: true,
-              itemStyle: {
-                // color: '#c1c1c2',
-                shadowBlur: 10,
-                shadowColor: 'rgba(0, 0, 0, 0.5)',
-                normal: {
-                  label: {
-                    show: true,
-                    formatter: '{b}\n{c}',
-                    fontSize: 12
-                  },
-                  labelLine: {show: true}
-                }
-              },
-              emphasis: {
-                label: {
-                  show: true,
-                  fontSize: '30',
-                  fontWeight: 'bold'
-                }
-              },
-              labelLine: {
-                show: true
-              },
-              data: [
-                {value: this.articData.absenteeism, name: '旷工', itemStyle: {color: "RGB(255,160,34)"}},
-                {value: this.articData.vacation, name: '请假', itemStyle: {color: "RGB(0,108,255)"}},
-                {value: this.articData.other, name: '其他假', itemStyle: {color: "RGB(159,230,184)"}}
-              ]
-            }
-          ]
-        })
-        this.exception1.setOption({
-          title: {
-            show: true, //显示策略，默认值true,可选为：true（显示） | false（隐藏）
-            text: '当月EHS异常情况', //主标题文本，'\n'指定换行
-            x: 'center',//水平安放位置，默认为'left'，可选为：'center' | 'left' | 'right' | {number}（x坐标，单位px）
-            y: 'top', //垂直安放位置，默认为top，可选为：'top' | 'bottom' | 'center' | {number}（y坐标，单位px）
-            // backgroundColor: 'rgba(15,27,71,1)', //标题背景颜色，默认'rgba(0,0,0,0)'透明
-            // borderColor: '#ccc', //标题边框颜色,默认'#ccc'
-            // borderWidth: 1, //标题边框线宽，单位px，默认为0（无边框）
-            // padding: 5, //标题内边距，单位px，默认各方向内边距为5，接受数组分别设定上右下左边距
-            textStyle: { //主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
-              color: '#fff',
-              fontSize: 16,
-              fontStyle: 'normal',
-              fontWeight: 'normal'
-            }
-          },
-          tooltip: {
-            trigger: 'axis',
-            formatter: '{b0}:{c0}'
-          },
-          color: ['RGB(65, 55, 217)', 'RGB(72, 188, 177)', 'RGB(63, 196, 86)', 'RGB(212, 130, 101)', 'RGB(29, 157, 255)'],
+          color: [ 'RGB(29,157,255)' ],
           legend: {
-            data: ['EHS异常'],
-            icon: 'line',
-            top: '5px',
+            show: true,
+            data: [ '', '', 'PVD人员技能掌握分布', '' ],
+            top: '50px',
+            icon: 'circle',
             textStyle: {
-              color: '#ffffff'
+              color: '#fff'
             },
             inactiveColor: 'rgb(100, 107, 119)'
           },
           grid: {
             left: '3%',
-            right: '10%',
-            top: '20%',
-            bottom: '5%',
+            right: '4%',
+            top: '30%',
+            buttom: '3%',
             containLabel: true
           },
           xAxis: {
@@ -632,97 +260,92 @@
             // boundaryGap: false,
             axisLabel: {
               show: true,
+              fontSize: 10,
               textStyle: {
                 color: '#fff'
-              }
+              },
+              interval: 0
             },
-            data: this.articData.ehslineN
+            data: this.report.kinSet
           },
-          yAxis: {
+          yAxis: [{
+            show: false,
             type: 'value',
-            max: function (value) {
-              return value.max
-            },
+            position: 'left',
             splitLine: {show: false}, //去除网格线
             axisLabel: {
               show: true,
-              color: '#ffffff'
-            },
-            show: true
-          },
+              color: '#000000'
+            }
+          }],
           series: [
             {
+              name: '入门',
               type: 'bar',
-              data: this.articData.ehslineD,
+              icon: 'bar',
+              barWidth: 30,
+              stack: 'PCS',
+              data: this.report.kin1,
               smooth: true,
               itemStyle: {
                 normal: {
                   lineStyle: {
                     width: 3
                   },
-                  label: {show: true, fontSize: 16, color: '#ffffff'}
+                  label: {show: true}
                 }
               }
-            }
-          ]
-        })
-        this.exception2.setOption({
-          title: {
-            show: true, //显示策略，默认值true,可选为：true（显示） | false（隐藏）
-            text: '当月Trace异常分布', //主标题文本，'\n'指定换行
-            x: 'center',//水平安放位置，默认为'left'，可选为：'center' | 'left' | 'right' | {number}（x坐标，单位px）
-            y: 'top', //垂直安放位置，默认为top，可选为：'top' | 'bottom' | 'center' | {number}（y坐标，单位px）
-            // backgroundColor: 'rgba(15,27,71,1)', //标题背景颜色，默认'rgba(0,0,0,0)'透明
-            // borderColor: '#ccc', //标题边框颜色,默认'#ccc'
-            // borderWidth: 1, //标题边框线宽，单位px，默认为0（无边框）
-            // padding: 5, //标题内边距，单位px，默认各方向内边距为5，接受数组分别设定上右下左边距
-            textStyle: { //主标题文本样式{"fontSize": 18,"fontWeight": "bolder","color": "#333"}
-              color: '#fff',
-              fontSize: 16,
-              fontStyle: 'normal',
-              fontWeight: 'normal'
             },
-          },
-          tooltip: {
-            trigger: 'item',
-            formatter: '{a} <br/>{b}: {c} ({d}%)'
-          },
-          series: [
             {
-              name: '访问来源',
-              type: 'pie',
-              radius: ['40%', '60%'],
-              center: ['50%', '60%', '50%', '50%'],
-              avoidLabelOverlap: true,
+              name: '熟练',
+              type: 'bar',
+              icon: 'bar',
+              barWidth: 30,
+              stack: 'PCS',
+              data: this.report.kin2,
+              smooth: true,
               itemStyle: {
-                shadowBlur: 10,
-                shadowColor: 'rgba(0, 0, 0, 0.5)',
                 normal: {
-                  label: {
-                    show: true,
-                    formatter: '{b}\n{c}',
-                    fontSize: 12
+                  lineStyle: {
+                    width: 3
                   },
-                  labelLine: {show: true}
+                  label: {show: true}
                 }
-              },
-              emphasis: {
-                label: {
-                  show: true,
-                  fontSize: '30',
-                  fontWeight: 'bold'
+              }
+            },
+            {
+              name: 'PVD人员技能掌握分布',
+              type: 'bar',
+              icon: 'bar',
+              barWidth: 30,
+              stack: 'PCS',
+              data: this.report.kin3,
+              smooth: true,
+              itemStyle: {
+                normal: {
+                  lineStyle: {
+                    width: 3
+                  },
+                  label: {show: true}
                 }
-              },
-              labelLine: {
-                show: true
-              },
-              data: [
-                // {value: 1, name: '苏美晨', itemStyle: {color: "RGB(255,160,34)"}},
-                // {value: 1, name: '俞长勇', itemStyle: {color: "RGB(0,108,255)"}},
-                // {value: 1, name: '陈春陶', itemStyle: {color: "RGB(159,230,184)"}},
-                // {value: 1, name: '陶虎', itemStyle: {color: "RGB(29,157,255)"}},
-                // {value: 1, name: '肖卫华', itemStyle: {color: "RGB(29,157,255)"}}
-              ]
+              }
+            },
+            {
+              name: '精通',
+              type: 'bar',
+              icon: 'bar',
+              barWidth: 30,
+              stack: 'PCS',
+              data: this.report.kin4,
+              smooth: true,
+              itemStyle: {
+                normal: {
+                  lineStyle: {
+                    width: 3
+                  },
+                  label: {show: true}
+                }
+              }
             }
           ]
         })
@@ -805,7 +428,7 @@
       position: relative;
       height: 13rem;
       padding: 0 1.125rem;
-      width: 50%;
+      width: 100%;
       border-radius: 5px;
       border: 1px solid #343f4b;
       background-color: rgba(19, 25, 47, 0.8);
