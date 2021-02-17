@@ -1,5 +1,5 @@
 <template >
-  <div class="cot-container">
+  <div class="cot-container" id="fullArea">
     <el-row  :gutter = '20' class='chead'>
       <el-col span="24">
         <div class="backTalent">
@@ -304,6 +304,50 @@
       this.getData()
     },
     methods: {
+      init () {
+        window.addEventListener('keydown', this.KeyDown, true)// 监听按键事件
+        window.addEventListener('resize', this.initScale, true)
+        this.listenResize()
+      },
+      scanHome () {
+        var rate = 1 / ((window.innerWidth / 1920) * 0.95)
+        return "transform: scale(" + rate + ")"
+      },
+      KeyDown () {
+        if (event.keyCode === 122 && document.getElementById('fullArea') != null) {
+          event.returnValue = false
+          this.fullScreen()   //触发全屏的按钮
+        }
+      },
+      listenResize () {
+        this.initScale()
+      },
+      fullScreen () {
+        var fullArea = document.getElementById('fullArea')
+        if (this.fullscreen) {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitCancelFullScreen) {
+            document.webkitCancelFullScreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+        } else {
+          if (fullArea.requestFullscreen) {
+            fullArea.requestFullscreen();
+          } else if (fullArea.webkitRequestFullScreen) {
+            fullArea.webkitRequestFullScreen();
+          } else if (fullArea.mozRequestFullScreen) {
+            fullArea.mozRequestFullScreen();
+          } else if (fullArea.msRequestFullscreen) {
+            // IE11
+            fullArea.msRequestFullscreen();
+          }
+        }
+        this.fullscreen = !this.fullscreen;
+      },
       update () {
         //应到
         this.dataFormMan.dataBox1 = (isNaN(this.articData.sarrive) ? 0 : this.articData.sarrive)
@@ -1082,7 +1126,7 @@
             trigger: 'axis',
             formatter: '{b0}<br/>{a0}: {c0}'
           },
-          color: [ '#029ffc', '#4339f2', '#29dfec', '#f23829' ],
+          color: [ '#029ffc', '#4339f2', '#029ffc', '#f23829' ],
           legend: {
             show: true,
             data: [ '', '', '掌握', '' ],
