@@ -199,6 +199,8 @@
 
 <script>
   import { getUUID } from '@/utils'
+  import {getComputedStyle} from "../../utils";
+  import {debounce} from "lodash";
   export default {
     data () {
       return {
@@ -302,27 +304,71 @@
       this.getDataList()
       this.getReport()
       this.getData()
+      this.init()
+      this.KeyDown()
+    },
+    computed: {
+      transformStyle: function () {
+        // return {
+        //     transform: `scale(${this.scaleX}, ${this.scaleY})`
+        // };
+        // return 'height: ' + window.innerHeight + ';'
+      },
+      marginStyle: function () {
+        return {
+          margin: `0px ${this.marginHorizontal}px;`
+        }
+      },
+      dwrapperStyle: function () {
+        return {
+          height: this.height + 'px'
+        }
+      }
     },
     methods: {
-      init () {
+      init () {//全屏设置
         window.addEventListener('keydown', this.KeyDown, true)// 监听按键事件
         window.addEventListener('resize', this.initScale, true)
         this.listenResize()
       },
-      scanHome () {
-        var rate = 1 / ((window.innerWidth / 1920) * 0.95)
-        return "transform: scale(" + rate + ")"
-      },
-      KeyDown () {
+      KeyDown () {//全屏设置
         if (event.keyCode === 122 && document.getElementById('fullArea') != null) {
           event.returnValue = false
           this.fullScreen()   //触发全屏的按钮
         }
       },
-      listenResize () {
+      initScale () {//全屏设置
+        let $container = document.querySelector('.container')
+        let containerWidth = getComputedStyle($container, 'width').replace("px", "")
+        let containerHeight = getComputedStyle($container, 'height').replace("px", "")
+        containerWidth = Number(containerWidth)
+        containerHeight = Number(containerHeight)
+        containerWidth = isNaN(containerWidth) ? 0 : containerWidth
+        containerHeight = isNaN(containerHeight) ? 0 : containerHeight
+
+        let defaultHeight = 1080
+        let defaultWidth = 1920
+        // sacle 缩放比例。
+        let scale = 1
+        if (containerHeight < defaultHeight) {
+          scale = containerHeight / defaultHeight
+        }
+
+        this.scaleX = scale
+        this.scaleY = scale
+
+        let marginWidth = defaultWidth * scale
+        //
+        this.marginHorizontal = 0
+        if (containerWidth > marginWidth) {
+          marginWidth = (containerWidth - marginWidth) / 2
+          this.marginHorizontal = marginWidth
+        }
+      },
+      listenResize () {//全屏设置
         this.initScale()
       },
-      fullScreen () {
+      fullScreen () {//全屏设置
         var fullArea = document.getElementById('fullArea')
         if (this.fullscreen) {
           if (document.exitFullscreen) {
@@ -348,7 +394,7 @@
         }
         this.fullscreen = !this.fullscreen;
       },
-      update () {
+      update () {//人力出勤模块数据初始化
         //应到
         this.dataFormMan.dataBox1 = (isNaN(this.articData.sarrive) ? 0 : this.articData.sarrive)
         //实到
@@ -359,7 +405,7 @@
         this.dataFormMan.dataBox4 = (isNaN(this.articData.manpower) ? 0 : this.articData.manpower)
         this.getDataMan()
       },
-      getDataMan () {//获取已完成人数
+      getDataMan () {//人力出勤模块数据初始化
         this.dataListLoading = true
         var stage = ''
         for (var x in this.cacheData.station) {
@@ -385,7 +431,7 @@
           this.dataListLoading = false
         })
       },
-      getData () {//获取人力数据
+      getData () {//人力出勤模块数据初始化
         this.$http({
           url: this.$http.adornUrl('/attendan/queryAtten'),
           method: 'post',
@@ -496,7 +542,7 @@
         })
       },
       // 获取数据列表
-      getDataList () {
+      getDataList () {//员工列表数据获取
         this.dataListLoading = true
         var stage = ''
         for (var x in this.cacheData.station) {
@@ -508,11 +554,11 @@
           method: 'get',
           params: this.$http.adornParams({
             'page': 1,
-            'rows': 10,
+            'rows': 5000,
             'director': this.cacheData.director,
             'department': this.queryData.separtment ? this.queryData.separtment : this.cacheData.department,
             'position': this.queryData.position ? this.queryData.position : this.cacheData.position,
-            'station': this.queryData.station ? this.queryData.station : stage,
+            'station': this.queryData.skill ? this.queryData.skill : stage,
             'sage': this.queryData.sage,
             'eage': this.queryData.eage,
             'entry': this.queryData.entry,
@@ -530,7 +576,7 @@
         this.dataListLoading = false
       })
       },
-      humanFormat (nameList, dataList) {
+      humanFormat (nameList, dataList) {//数据类型设定
         var list = []
         for (var i = 0, len = dataList.length; i < len; i++) {
           var data = new Object()
@@ -540,7 +586,7 @@
         }
         return list
       },
-      getReport () {
+      getReport () {//echarts图表 数据 获取
         this.$http({
           url: this.$http.adornUrl('/cotalent/report'),
           method: 'get',
@@ -620,7 +666,7 @@
           }
       })
       },
-      eClick (key , params) {
+      eClick (key , params) { //echarts点击事件
         if ('age' === key) {
           var keys =  ( params.name.indexOf('~') > 0) ?  params.name.split('~') :  params.name.split('<')
           this.queryData.sage = keys[0]
@@ -631,7 +677,7 @@
         this.getReport()
         this.getDataList()
       },
-      checkOut (key) {
+      checkOut (key) { //去除当前图表查询条件
         if ('age' === key) {
           this.queryData.sage = ''
           this.queryData.eage = ''
