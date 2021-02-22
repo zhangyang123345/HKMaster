@@ -1,5 +1,5 @@
 <template >
-  <div class="cot-container" id="fullArea">
+  <div class="cot-container" id="fullArea" :style="marginStyle">
     <el-row  :gutter = '20' class='chead'>
       <el-col span="24">
         <div class="backTalent">
@@ -95,7 +95,7 @@
                  </el-col>
                  <el-col span="12">
                    <el-form-item >
-                     <el-select v-model="cacheData.station" multiple collapse-tags  placeholder="工站" @change="getDataList">
+                     <el-select v-model="cacheData.station" multiple collapse-tags  placeholder="工站" @change="selectStation">
                        <el-option v-for="(item,index) in report.kinSet" :key="index" :label="item" :value="item" >
                        </el-option>
                      </el-select>
@@ -200,10 +200,14 @@
 <script>
   import { getUUID } from '@/utils'
   import {getComputedStyle} from "../../utils";
-  import {debounce} from "lodash";
   export default {
     data () {
       return {
+        scaleX: 1,
+        scaleY: 1,
+        marginHorizontal: 0,
+        fullscreen: false,
+        title: 'PVD DB Center',
         dataForm: {
           userName: '',
           password: '',
@@ -305,70 +309,38 @@
       this.getReport()
       this.getData()
       this.init()
-      this.KeyDown()
+      // var width = window.innerWidth
+      // var rate = (width / 1920)
+      // if (rate == 1)document.body.style.zoom = rate
+      // else document.body.style.zoom = (rate * 0.95)
+      // document.body.style.zoom = rate
     },
     computed: {
-      transformStyle: function () {
-        // return {
-        //     transform: `scale(${this.scaleX}, ${this.scaleY})`
-        // };
-        // return 'height: ' + window.innerHeight + ';'
-      },
       marginStyle: function () {
         return {
           margin: `0px ${this.marginHorizontal}px;`
         }
-      },
-      dwrapperStyle: function () {
-        return {
-          height: this.height + 'px'
-        }
       }
     },
     methods: {
-      init () {//全屏设置
-        window.addEventListener('keydown', this.KeyDown, true)// 监听按键事件
-        window.addEventListener('resize', this.initScale, true)
-        this.listenResize()
+      selectStation () {
+        this.checkOut('skill')
+        this.getDataList()
       },
-      KeyDown () {//全屏设置
+      init () { //全屏设置（3）钩子函数
+        window.addEventListener('keydown', this.KeyDown, true)// 监听按键事件
+        window.addEventListener('resize', this.initScale, true)//监听页面分辨率变化
+      },
+      KeyDown () { //全屏设置（1）
         if (event.keyCode === 122 && document.getElementById('fullArea') != null) {
           event.returnValue = false
           this.fullScreen()   //触发全屏的按钮
         }
       },
-      initScale () {//全屏设置
-        let $container = document.querySelector('.container')
-        let containerWidth = getComputedStyle($container, 'width').replace("px", "")
-        let containerHeight = getComputedStyle($container, 'height').replace("px", "")
-        containerWidth = Number(containerWidth)
-        containerHeight = Number(containerHeight)
-        containerWidth = isNaN(containerWidth) ? 0 : containerWidth
-        containerHeight = isNaN(containerHeight) ? 0 : containerHeight
-
-        let defaultHeight = 1080
-        let defaultWidth = 1920
-        // sacle 缩放比例。
-        let scale = 1
-        if (containerHeight < defaultHeight) {
-          scale = containerHeight / defaultHeight
-        }
-
-        this.scaleX = scale
-        this.scaleY = scale
-
-        let marginWidth = defaultWidth * scale
-        //
-        this.marginHorizontal = 0
-        if (containerWidth > marginWidth) {
-          marginWidth = (containerWidth - marginWidth) / 2
-          this.marginHorizontal = marginWidth
-        }
+      initScale () {
+        // alert(window.innerHeight)
       },
-      listenResize () {//全屏设置
-        this.initScale()
-      },
-      fullScreen () {//全屏设置
+      fullScreen () {//全屏设置（2）
         var fullArea = document.getElementById('fullArea')
         if (this.fullscreen) {
           if (document.exitFullscreen) {
@@ -407,11 +379,6 @@
       },
       getDataMan () {//人力出勤模块数据初始化
         this.dataListLoading = true
-        var stage = ''
-        for (var x in this.cacheData.station) {
-          stage += this.cacheData.station[x] + ','
-        }
-        stage = stage.substring(0, stage.length - 1)
         this.$http({
           url: this.$http.adornUrl('/cotalent/search'),
           method: 'get',
@@ -884,7 +851,7 @@
                   label: {
                     show: true,
                     formatter: '{b}\n{c}\n{d}%',
-                    fontSize: 12
+                    fontSize: 14
                   },
                   labelLine: {
                     show: true
@@ -953,7 +920,7 @@
                   label: {
                     show: true,
                     formatter: '{b}\n{c}\n{d}%',
-                    fontSize: 10
+                    fontSize: 12
                   },
                   labelLine: {show: true}
                 }
@@ -1014,7 +981,7 @@
                   label: {
                     show: true,
                     formatter: '{b}\n{c}\n{d}%',
-                    fontSize: 10
+                    fontSize: 12
                   },
                   labelLine: {show: true}
                 }
@@ -1074,7 +1041,7 @@
                   label: {
                     show: true,
                     formatter: '{b}\n{c}\n{d}%',
-                    fontSize: 10
+                    fontSize: 12
                   },
                   labelLine: {show: true}
                 }
@@ -1134,7 +1101,7 @@
                   label: {
                     show: true,
                     formatter: '{b}\n{c}\n{d}%',
-                    fontSize: 10
+                    fontSize: 12
                   },
                   labelLine: {show: true}
                 }
@@ -1162,32 +1129,32 @@
           ]
         })
         this.tecGround.setOption({
-
+          //标题
           title: {
             text: '技能熟练层别',
             x: '14px',
             y: '5px'
           },
-          tooltip: {
+          tooltip: { //明细内容
             trigger: 'axis',
             formatter: '{b0}<br/>{a0}: {c0}'
           },
           color: [ '#029ffc', '#4339f2', '#029ffc', '#f23829' ],
-          legend: {
+          legend: { //图例
             show: true,
             data: [ '', '', '掌握', '' ],
-            top: '50px',
+            top: '20px',
             icon: 'circle',
             textStyle: {
               color: '#000000'
             },
             inactiveColor: 'rgb(100, 107, 119)'
           },
-          grid: {
+          grid: { //位置
             left: '3%',
             right: '4%',
-            top: '30%',
-            buttom: '3%',
+            top: '20%',
+            buttom: '2%',
             containLabel: true
           },
           xAxis: {
@@ -1371,7 +1338,7 @@
 
     .cBox{
       text-align: center;
-      height: 10vh;
+      height: 11vh;
       margin: 0.8vh 0.8vh;
       border-radius:8px;
       color: #ffffff;
@@ -1399,7 +1366,7 @@
     }
     .aBox{
       text-align: center;
-      height: 6vh;
+      height: 7vh;
       margin: 0.1vh 0.6vh;
       border-radius:8px;
       color: #ffffff;
@@ -1492,36 +1459,36 @@
 
     #pisGround1{
       width:100%;
-      height: 26vh;
+      height: 27vh;
     }
     #pisGround2{
       width:100%;
-      height: 26vh;
+      height: 27vh;
     }
     #pisGround3{
       width:100%;
-      height: 26vh;
+      height: 27vh;
     }
     #pisGround4{
-      height: 26vh;
+      height: 27vh;
       width:100%;
     }
     #pdiGround{
       width:100%;
-      height: 52vh;
+      height: 54vh;
     }
     #tecGround{
       width:100%;
-      height: 33.6vh;
+      height: 34.6vh;
     }
     #piGround{
       width:100%;
-      height: 52vh;
+      height: 54vh;
       padding-right: 10px;
     }
     #poGround{
       width:100%;
-      height: 33.6vh;
+      height: 34.6vh;
       margin-top:20px;
       padding-right: 10px;
     }
