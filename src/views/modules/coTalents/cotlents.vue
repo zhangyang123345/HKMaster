@@ -13,7 +13,7 @@
             <el-col span="12">
               <div class="cBox cBox1">
                   <div class="inerBox">计划人数</div>
-                  <div class="inerBox2">{{this.dataFormMan.dataBox4}}</div>
+                  <div class="inerBox2">{{this.dataFormMan.dataBox8}}</div>
               </div>
             </el-col>
             <el-col span="12">
@@ -281,7 +281,8 @@
           typeNDList: [],
           rLineName: [],
           typeVDList: '',
-          ehslineD: []
+          ehslineD: [],
+          countOfficial: 0
         },
         dataFormMan: {
           dataBox1: '',
@@ -290,7 +291,8 @@
           dataBox4: '',
           dataBox5: '',
           dataBox6: '',
-          dataBox7: ''
+          dataBox7: '',
+          dataBox8: ''
         }
           // [{jobNo: 2922682 , name: '谭瑜' , director: '刘国良' , entrydate: '2020/11/23' , position: '技术员II'},
           // {jobNo: 2922682 , name: '谭瑜' ,director: '刘国良' , entrydate: '2020/11/23' , position: '技术员II'},
@@ -375,6 +377,7 @@
         this.dataFormMan.dataBox3 = (isNaN(this.articData.attendanl) ? '0%' : parseFloat(this.articData.attendanl)*100) +"%"
         //总人力
         this.dataFormMan.dataBox4 = (isNaN(this.articData.manpower) ? 0 : this.articData.manpower)
+        this.dataFormMan.dataBox8 = this.articData.countOfficial
         this.getDataMan()
       },
       getDataMan () {//人力出勤模块数据初始化
@@ -389,8 +392,8 @@
         }).then(({data}) => {
           if (data && data.code === 0) {
             this.dataFormMan.dataBox5 = data.cotalent.total
-            this.dataFormMan.dataBox6 = parseInt(this.dataFormMan.dataBox4) - parseInt(this.dataFormMan.dataBox5)
-            this.dataFormMan.dataBox7 = (parseFloat(this.dataFormMan.dataBox5) / parseFloat(this.dataFormMan.dataBox4)).toFixed(2) * 100 + "%"
+            this.dataFormMan.dataBox6 = this.dataFormMan.dataBox8 - parseInt(this.dataFormMan.dataBox5)
+            this.dataFormMan.dataBox7 = (parseFloat(this.dataFormMan.dataBox5) / this.dataFormMan.dataBox8).toFixed(2) * 100 + "%"
           } else {
             this.dataList = []
             this.totalPage = 0
@@ -433,6 +436,7 @@
             this.articData.typeVDList = data.attenData.typeVDList
             this.articData.ehslineD = data.attenData.ehslineD
             this.articData.attend = data.attenData.attend
+            this.articData.countOfficial = data.attenData.countOfficial
             this.update()
             this.myChart.setOption({
               yAxis: {
