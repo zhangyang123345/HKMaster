@@ -597,6 +597,22 @@
               let kinTemp = parseInt(this.report.kin1[i]) + parseInt(this.report.kin2[i])  + parseInt(this.report.kin3[i]) + parseInt(this.report.kin4[i])
               kinAll.push(kinTemp)
             }
+            let data0 = this.report.kinSet
+            let data1 = kinAll
+            for (let i = 0; i < len; i++) {
+              for (let j = 0; j < len - 1 - i; j++) {
+                if (Number(data1[j]) < Number(data1[j + 1])) { //相邻元素两两对比
+                  let temp = data1[j + 1]  //元素交换
+                  data1[j + 1] = data1[j]
+                  data1[j] = temp
+
+                  //交换横坐标元素
+                  let te = data0[j + 1]  //元素交换
+                  data0[j + 1] = data0[j]
+                  data0[j] = te
+                }
+              }
+            }
             this.poGround.setOption({
               yAxis: {data: this.report.entryds},
               series: [{data: this.report.entryCount}]
@@ -607,7 +623,7 @@
           })
           this.pdiGround.setOption({
             legend: {data: this.report.separtments},
-            series: [{data: this.report.sepCount }]
+            series: [{ data: this.report.sepCount }]
           })
           this.pisGround2.setOption({
             series: [{data: this.report.killCount}]
@@ -621,11 +637,11 @@
             series: [{data: this.report.eduCount}]
           })
           this.tecGround.setOption({
-            xAxis: {data: this.report.kinSet},
+            xAxis: {data: data0},
             series: [
               {data: []},
               {data: []},
-              {data: kinAll},
+              {data: data1},
               {data: []}
             ]
           })

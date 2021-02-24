@@ -113,6 +113,48 @@
       this.drawLine()
     },
     methods: {
+      /**
+       * Echarts堆积柱状图排序
+       * @Author
+       * @Date 2019/2/25
+       * @Version 1.0
+       * @param obj
+       * @returns {*}
+       *
+       */
+      multi_bubbleSort (obj) {
+        let data0 = obj.data0;//横坐标数组
+        let data = new Array(data0.length).fill(0);//定义一组与横坐标数组相同大小的且全部为0的数组，用来存储堆积柱状图的和
+        let len = obj.data0.length;//横坐标数组长度
+        for (let k = 0; k < len; k++) {
+          for (let m = 0; m < obj.data1.length; m++) {
+            data[k] = Number(data[k]) + Number(obj.data1[m][k]);//求和，用来排序
+          }
+        }
+        //简单排序
+        for (let i = 0; i < len; i++) {
+          for (let j = 0; j < len - 1 - i; j++) {
+            if (Number(data[j]) < Number(data[j + 1])) { //相邻元素两两对比
+              let temp = data[j + 1]; //元素交换
+              data[j + 1] = data[j];
+              data[j] = temp;
+
+              //交换横坐标元素
+              let te = obj.data0[j + 1]; //元素交换
+              obj.data0[j + 1] = obj.data0[j];
+              obj.data0[j] = te;
+
+              //交换各堆积柱状图元素
+              for (let m = 0; m < obj.data2.length; m++) {
+                let tem = obj.data2[m][j + 1];
+                obj.data2[m][j + 1] = obj.data2[m][j];
+                obj.data2[m][j] = tem;
+              }
+            }
+          }
+        }
+        return obj
+      },
       update () {
         if (this.runBuff) {
             // this.current += 1
@@ -154,12 +196,28 @@
               let kinTemp = parseInt(this.report.kin1[i]) + parseInt(this.report.kin2[i])  + parseInt(this.report.kin3[i]) + parseInt(this.report.kin4[i])
               kinAll.push(kinTemp)
             }
+            let data0 = this.report.kinSet
+            let data1 = kinAll
+            for (let i = 0; i < len; i++) {
+              for (let j = 0; j < len - 1 - i; j++) {
+                if (Number(data1[j]) < Number(data1[j + 1])) { //相邻元素两两对比
+                  let temp = data1[j + 1]  //元素交换
+                  data1[j + 1] = data1[j]
+                  data1[j] = temp
+
+                  //交换横坐标元素
+                  let te = data0[j + 1]  //元素交换
+                  data0[j + 1] = data0[j]
+                  data0[j] = te
+                }
+              }
+            }
             this.tecGround.setOption({
-              xAxis: {data: this.report.kinSet},
+              xAxis: {data: data0},
               series: [
                 {data: []},
                 {data: []},
-                {data: kinAll},
+                {data: data1},
                 {data: []}
               ]
             })
