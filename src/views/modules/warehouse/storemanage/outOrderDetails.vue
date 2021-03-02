@@ -63,6 +63,14 @@
            </el-row>
            <el-row>
              <el-col :span="24">
+               <el-form-item label="制程">
+                 <el-input v-model="dataForm.separtment" placeholder="制程" readonly>
+                 </el-input>
+               </el-form-item>
+             </el-col>
+           </el-row>
+           <el-row>
+             <el-col :span="24">
                <el-form-item label="备注">
                  <el-input type="textarea" :rows="3" v-model="dataForm.remarks"  placeholder="备注">
                  </el-input>

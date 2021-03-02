@@ -329,9 +329,13 @@
         this.checkOut('skill')
         this.getDataList()
       },
-      init () { //全屏设置（3）钩子函数
-        window.addEventListener('keydown', this.KeyDown, true)// 监听按键事件
-        window.addEventListener('resize', this.initScale, true)//监听页面分辨率变化
+      init () {
+        window.addEventListener('keydown', this.KeyDown, true) // 监听按键事件
+        window.addEventListener('resize', this.initScale, true) //监听页面分辨率变化
+        this.listenResize()
+      },
+      listenResize () {
+        this.initScale()
       },
       KeyDown () { //全屏设置（1）
         if (event.keyCode === 122 && document.getElementById('fullArea') != null) {
@@ -340,19 +344,18 @@
         }
       },
       initScale () {
-        // alert(window.innerHeight)
       },
-      fullScreen () {//全屏设置（2）
+      fullScreen () { //全屏设置（2）
         var fullArea = document.getElementById('fullArea')
         if (this.fullscreen) {
           if (document.exitFullscreen) {
-            document.exitFullscreen();
+            document.exitFullscreen()
           } else if (document.webkitCancelFullScreen) {
-            document.webkitCancelFullScreen();
+            document.webkitCancelFullScreen()
           } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
+            document.mozCancelFullScreen()
           } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
+            document.msExitFullscreen()
           }
         } else {
           if (fullArea.requestFullscreen) {
@@ -1293,7 +1296,6 @@
       display: inline-block;
       height: 47px;
       width: 100%;
-
       input {
         background: transparent;
         border: 0px;
