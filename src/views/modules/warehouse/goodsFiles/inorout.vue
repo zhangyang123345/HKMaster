@@ -31,6 +31,9 @@
         </el-select>
       </el-form-item>
       <el-form-item>
+        <el-input  v-model="dataForm.recipient_name" placeholder="领用人" ></el-input>
+      </el-form-item>
+      <el-form-item>
         <el-input  v-model="dataForm.director" placeholder="主管" ></el-input>
       </el-form-item>
       <el-form-item>
@@ -241,7 +244,8 @@
           store_id: '',
           department: '',
           director: '',
-          msg_type: 2
+          msg_type: 2,
+          recipient_name: ''
         },
         // faangledoubleup: 'fa-angle-double-up',
         // faangledoubledown: 'fa-angle-double-down',
@@ -310,7 +314,8 @@
             'store_id': this.dataForm.store_id,
             'director': this.dataForm.director,
             'msg_type': this.dataForm.msg_type,
-            'department': this.dataForm.department
+            'department': this.dataForm.department,
+            'recipient_name' : this.dataForm.recipient_name
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
