@@ -190,7 +190,7 @@
               return 'padding: 0px !important; background-color:green; color: white;'
             } else if (parseFloat(row[column.property]) > 90) {
               return 'padding: 0px !important; background-color:#c7c718; color: white;'
-            } else {
+            } else if (parseFloat(row[column.property]) != 0) {
               return 'padding: 0px !important; background-color:red; color: white;'
             }
         } else {

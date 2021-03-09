@@ -59,6 +59,9 @@
           this.avdata3 = data.QTEData.firstTarget
           this.avdata4 = data.QTEData.firstRate
           let options1 = {
+            legend: {
+              data: ['PVD一次良率', '目标(' + this.avdata3[0] + ')', '良品数', '不良数']
+            },
             xAxis: {
               data: this.nameList
             },
@@ -66,6 +69,7 @@
               {
                 data: this.avdata4
               }, {
+                name: '目标(' + this.avdata3[0] + ')',
                 data: this.avdata3
               }, {
                 data: this.dataList4
@@ -115,9 +119,9 @@
             trigger: 'axis',
             formatter: '{b0}<br/>{a0}: {c0}%  {a1}: {c1}% <br />{a2}: {c2}  {a3}: {c3}'
           },
-          color: [ 'RGB(65, 55, 217)', 'RGB(63, 196, 86)','RGB(29, 157, 255)', 'RGB(252, 37, 1)','RGB(29, 157, 255)', 'RGB(212, 130, 101)' ],
+          color: [ 'RGB(65, 55, 217)', 'RGB(63, 196, 86)', 'RGB(29, 157, 255)', 'RGB(252, 37, 1)', 'RGB(29, 157, 255)', 'RGB(212, 130, 101)' ],
           legend: {
-            data: ['PVD一次良率', '目标', '良品数', '不良数'],
+            data: ['PVD一次良率', '目标(' + this.avdata3[0] + ')', '良品数', '不良数'],
             top: '5px',
             textStyle: {
               color: '#ffffff'
@@ -188,7 +192,7 @@
               }
             },
             {
-              name: '目标',
+              name: '目标(' + this.avdata3[0] + ')',
               type: 'line',
               icon: 'line',
               data: this.avdata3,
@@ -216,7 +220,7 @@
                   lineStyle: {
                     width: 3
                   },
-                  label: {show: false}
+                  label: {show: true}
                 }
               }
             },
@@ -233,7 +237,7 @@
                   lineStyle: {
                     width: 3
                   },
-                  label: {show: false}
+                  label: {show: true}
                 }
               }
             }

@@ -160,7 +160,7 @@
             // this.current += 1
             this.dataForm.dataBox1 = (isNaN(this.articData.sarrive) ? 0 : this.articData.sarrive)
             this.dataForm.dataBox2 = (isNaN(this.articData.carrive) ? 0 : this.articData.carrive)
-            this.dataForm.dataBox3 = (isNaN(this.articData.attendanl) ? '0%' : parseFloat(this.articData.attendanl)*100) +"%"
+            this.dataForm.dataBox3 = (isNaN(this.articData.attendanl) ? '0%' : parseFloat(this.articData.attendanl)*100) + "%"
           this.dataForm.dataBox4 = (isNaN(this.articData.manpower) ? 0 : this.articData.manpower)
             this.dataForm.textBox1 = this.articData.date + '应到'
             this.dataForm.textBox2 = this.articData.date + '出勤'
@@ -193,7 +193,7 @@
             this.report.kinSet = data.report.kinSet
             var kinAll = []
             for (var i = 0, len = this.report.kin1.length; i < len; i++) {
-              let kinTemp = parseInt(this.report.kin1[i]) + parseInt(this.report.kin2[i])  + parseInt(this.report.kin3[i]) + parseInt(this.report.kin4[i])
+              let kinTemp = parseInt(this.report.kin1[i]) + parseInt(this.report.kin2[i]) + parseInt(this.report.kin3[i]) + parseInt(this.report.kin4[i])
               kinAll.push(kinTemp)
             }
             let data0 = this.report.kinSet
@@ -330,7 +330,7 @@
             show: false,
             type: 'value',
             position: 'left',
-            splitLine: {show: false}, //去除网格线
+            splitLine: {show: false}, // 去除网格线
             axisLabel: {
               show: true,
               color: '#000000'
