@@ -109,7 +109,11 @@
           method: 'get',
           params: this.$http.adornParams()
         }).then(({data}) => {
+          console.log("-----------------------------------------------------------------------")
+          console.log(data)
           this.dataList = treeDataTranslate(data, 'menuId')
+          console.log("-----------------------------------------------------------------------")
+          console.log(this.dataList)
           this.dataListLoading = false
         })
       },

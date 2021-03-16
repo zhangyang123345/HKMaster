@@ -301,6 +301,9 @@
       },
       // 获取数据列表
       getDataList () {
+        if (this.dataForm.keytwo == null || this.dataForm.keytwo == undefined || this.dataForm.keytwo == '') {
+          this.$message.error('日期不能为空')
+        }
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/inoutmsg/queryMsg'),
@@ -378,10 +381,6 @@
       })
       },
       querySearchAsync(queryString, cb) {
-        // var restaurants = this.restaurants;
-        if (queryString === 'undefined') {
-          this.dataForm.article_name = ''
-        } else {
           this.$http({
             url: this.$http.adornUrl("/code/queryArtic"),
             method: "get",
@@ -416,6 +415,5 @@
       //     this.$refs.addOrUpdate.init(id)
       //   })
       // },
-    }
   }
 </script>

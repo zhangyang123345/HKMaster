@@ -24,7 +24,8 @@
             border
             :row-style="tableRowStyle"
             :header-cell-style="tableHeaderColor"
-            v-loading="dataListLoading"
+            row-key="id"
+            border
             style="width: 100%;">
             <el-table-column
               prop="SN"
@@ -91,10 +92,11 @@
 </template>
 
 <script>
+  import { treeDataTranslate } from '@/utils'
   export default {
     data (){
       return {
-        dataList: [{SN: 'FM70165005BQ44Y3808', name: '2D-3', time: '2020-07-16 19:19', type: '三伤'}, {SN: 'FM70166005BQ4Y3FG08', name: '清洗-1', time: '2020-07-16 19:20', type: '麻点'}, {SN: 'FM70165005BQ44Y3808', name: '清洗-2', time: '2020-07-16 16:50', type: '三伤'}],
+        dataList: [],
         myChart: '',
         myChart1: '',
         myChart2: '',
@@ -124,10 +126,28 @@
         }]
       }
     },
+    activated () {
+      this.getData()
+    },
     mounted () {
       this.drawLine()
+      this.getData()
     },
     methods: {
+      getData () {
+        var dataList1 = [{id: 1, SN: 'FM70165005BQ44Y380', name: '2D-3', time: '2020-07-16 19:19', type: '三伤', parentId: 0}, {id: 2, SN: 'FM70166005BQ4Y3FG08', name: '清洗-1', time: '2020-07-16 19:20', type: '麻点', parentId: 1}, {id: 3, SN: 'FM70165005BQ44Y3808', name: '清洗-2', time: '2020-07-16 16:50', type: '三伤', parentId: 2}, {id: 4, SN: 'FM70165005BQ44Y3808', name: '清洗-2', time: '2020-07-16 16:50', type: '三伤', parentId: 3}]
+        this.dataList = treeDataTranslate(dataList1, 'id')
+        this.$http({
+          url: this.$http.adornUrl('/homeCentrol/getPISH'),
+          method: 'post',
+          params: this.$http.adornParams({
+            'startDate': this.startDate,
+            'endDate': this.endDate
+          })
+        }).then(({data}) => {
+          console.log(data)
+        })
+      },
       drawLine () {
         var myColor = ['RGB(182,162,222,1)'];
         var dataLine = [23, 40,  56]

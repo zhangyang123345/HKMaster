@@ -29,7 +29,6 @@
       }
     },
     activated () {
-
       this.getData()
     },
     created () {
