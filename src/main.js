@@ -13,6 +13,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import Blob from '@/vendor/Blob.js'
 import Export2Excel from '@/vendor/Export2Excel.js'
 import { Loading } from 'element-ui'
+import  echarts from 'echarts'
+import 'echarts-liquidfill'
 // import axios from 'axios'
 // import VueAxios from 'vue-axios'
 //
@@ -23,9 +25,6 @@ import VideoPlayer from 'vue-video-player'
 import 'vue-video-player/src/custom-theme.css'
 import 'video.js/dist/video-js.css'
 Vue.use(VideoPlayer)
-
-
-import echarts from 'echarts'
 Vue.prototype.$echarts = echarts
 Vue.use(VueCookie)
 Vue.config.productionTip = false

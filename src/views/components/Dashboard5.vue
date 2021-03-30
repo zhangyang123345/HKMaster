@@ -176,7 +176,7 @@
         // const wind = this.$router.resolve({name: 'openToS', query: parma})
         // window.open(wind.href, '_blank')
         var wind = window.open('about:blank', '_blank')
-        //组装form表单
+        // 组装form表单
         var html = "<form action='http://10.128.19.168:8015/' method='post'>"
         html += "<input type='text' name='UserID' value='1029674' style='display: none'>"
         html += "<input type='text' name='UserPassword' value='123456' style='display: none'>"

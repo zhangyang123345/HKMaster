@@ -7,7 +7,7 @@
   // api接口请求地址
   //  window.SITE_CONFIG['baseUrl'] = 'http://DESKTOP-YONGLI:8082/HKService';
   // window.SITE_CONFIG['baseUrl'] = 'http://DESKTO-95RUTUB:8082/renren-fast';
-  // window.SITE_CONFIG['baseUrl'] = 'http://10.128.19.168:8091/HKService';
+  // window.SITE_CONFIG['baseUrl'] = 'http://10.128.19.168:8092/HKService';
   window.SITE_CONFIG['baseUrl'] = 'http://localhost:8082/HKService'
   // window.SITE_CONFIG['baseUrl'] = 'http://3q2189y798.qicp.vip:32411/renren-fast';
    // window.SITE_CONFIG['baseUrl'] = 'http://op2pvdsvs:8082/HKService';
