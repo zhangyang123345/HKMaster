@@ -395,8 +395,13 @@
         }).then(({data}) => {
           if (data && data.code === 0) {
             this.dataFormMan.dataBox5 = data.cotalent.total
-            this.dataFormMan.dataBox6 = this.dataFormMan.dataBox8 - parseInt(this.dataFormMan.dataBox5)
-            this.dataFormMan.dataBox7 = (parseFloat(this.dataFormMan.dataBox5) / this.dataFormMan.dataBox8).toFixed(2) * 100 + "%"
+            if (this.dataFormMan.dataBox8 > parseInt(this.dataFormMan.dataBox5) ){
+              this.dataFormMan.dataBox6 = this.dataFormMan.dataBox8 - parseInt(this.dataFormMan.dataBox5)
+              this.dataFormMan.dataBox7 = (parseFloat(this.dataFormMan.dataBox5) / this.dataFormMan.dataBox8).toFixed(2) * 100 + "%"
+            } else {
+              this.dataFormMan.dataBox6 = 0
+              this.dataFormMan.dataBox7 = "100%"
+            }
           } else {
             this.dataList = []
             this.totalPage = 0

@@ -5,6 +5,9 @@
         <el-input v-model="dataForm.key" placeholder="物品名" clearable></el-input>
       </el-form-item>
       <el-form-item>
+        <el-input v-model="dataForm.material_no" placeholder="料号" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
         <el-button type="primary" @click="addOrUpdateHandle()">新增</el-button>
         <!--<el-button v-if="isAuth('store:goods:save')"  type="warning" @click="">excel导入</el-button>-->
@@ -40,6 +43,12 @@
         header-align="center"
         align="center"
         label="商品名称">
+      </el-table-column>
+      <el-table-column
+        prop="material_no"
+        header-align="center"
+        align="center"
+        label="料号">
       </el-table-column>
       <el-table-column
         prop="smallValue"
@@ -91,7 +100,8 @@
     data () {
       return {
         dataForm: {
-          key: ''
+          key: '',
+          material_no: ''
         },
         fileUploadBtnText: '导入数据',
         dataList: [],
@@ -119,7 +129,8 @@
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
-            'key': this.dataForm.key
+            'key': this.dataForm.key,
+            'material_no': this.dataForm.material_no
           })
         }).then(({data}) => {
           if (data && data.code === 0) {

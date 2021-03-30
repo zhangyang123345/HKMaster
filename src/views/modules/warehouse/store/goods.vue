@@ -5,6 +5,9 @@
         <el-input v-model="dataForm.key" placeholder="商品名称" clearable></el-input>
       </el-form-item>
       <el-form-item>
+        <el-input v-model="dataForm.material_no" placeholder="料号" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
         <el-input v-model="dataForm.manufacturer" placeholder="厂商" clearable></el-input>
       </el-form-item>
       <el-form-item>
@@ -57,6 +60,12 @@
         align="center"
         width="250"
         label="商品编码">
+      </el-table-column>
+      <el-table-column
+        prop="material_no"
+        header-align="center"
+        align="center"
+        label="料号">
       </el-table-column>
       <el-table-column
         prop="article_name"
@@ -167,7 +176,8 @@
           specs: '',
           unit: '',
           class: '',
-          kind: ''
+          kind: '',
+          material_no: ''
         },
         fileUploadBtnText: '导入数据',
         dataList: [],
@@ -276,7 +286,8 @@
             'specs_name':this.dataForm.specs,
             'unit_name':this.dataForm.unit,
             'kind_name':this.dataForm.kind,
-            'classification_name':this.dataForm.class
+            'classification_name':this.dataForm.class,
+            'material_no': this.dataForm.material_no
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
