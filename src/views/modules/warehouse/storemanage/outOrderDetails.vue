@@ -63,8 +63,8 @@
            </el-row>
            <el-row>
              <el-col :span="24">
-               <el-form-item label="制程">
-                 <el-input v-model="dataForm.separtment" placeholder="制程" readonly>
+               <el-form-item label="线别">
+                 <el-input v-model="dataForm.office_line" placeholder="线别" readonly>
                  </el-input>
                </el-form-item>
              </el-col>
@@ -323,7 +323,8 @@
           states: '',
           exp_date: '',
           scan_data: '',
-          exam_type: ''
+          exam_type: '',
+          office_line: ''
         },
         details: [],
         scanList: [],
@@ -417,6 +418,7 @@
                 this.dataForm.remarks = data.orders.remarks
                 this.dataForm.types = data.orders.order_type == 1 ? "入库":(data.orders.order_type == 2?"出库":"报废")
                 this.dataForm.exp_date = data.orders.exp_date
+                this.dataForm.office_line = this.dataForm.office_location + this.dataForm.line_type
 
                 if(data.orders.order_state == -2)this.dataForm.states ="订单异常结束"
                 if(data.orders.order_state == -1)this.dataForm.states ="存在异常"
