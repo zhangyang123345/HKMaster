@@ -191,8 +191,8 @@
         manage2_val: [],
         manage3: [],
         manage3_val: [],
-        manage4: ['420', '硫酸', '纯水树脂', '无水乙醇', '钝化剂'],
-        manage4_val: [700, 1205, 1900, 3320, 6720],
+        manage4: [],
+        manage4_val: [],
         numgeg: [],
         // manage2_val: [73489, 12501, 32102, 65212, 65123],
         dataList: [],
@@ -498,7 +498,7 @@
               }]
             }
             this.myChart4.setOption(option)
-            this.myChart2.on("click", (params) => {this.eClick(params,2)})
+            this.myChart4.on("click", (params) => {this.eClick(params,2)})
         }
       })
       },
