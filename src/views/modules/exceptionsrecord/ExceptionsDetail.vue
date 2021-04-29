@@ -26,6 +26,13 @@
                   <el-option label="E3-1F" value="1"></el-option>
                   <el-option label="E3-2F" value="2"></el-option>
                   <el-option label="D4-1F" value="3"></el-option>
+                  <el-option label="D4-2F" value="4"></el-option>
+                  <el-option label="B6-2F" value="5"></el-option>
+                  <el-option label="B1-1F" value="6"></el-option>
+                  <el-option label="B1-2F" value="7"></el-option>
+                  <el-option label="E4-1F" value="8"></el-option>
+                  <el-option label="E4-2F" value="9"></el-option>
+                  <el-option label="E3-1.5F" value="10"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -52,8 +59,12 @@
             <el-col :span="12">
               <el-form-item label="惩处措施" >
                 <el-select type="area" v-model="detailForm.pu_measures" clearable style="width:25vh">
-                  <el-option label="书面警告" value="1"></el-option>
-                  <el-option label="劝退处理" value="2"></el-option>
+                  <el-option label="口头警告" value="1"></el-option>
+                  <el-option label="书面警告" value="2"></el-option>
+                  <el-option label="书面检讨" value="3"></el-option>
+                  <el-option label="解除合同" value="3"></el-option>
+                  <el-option label="退回劳务公司" value="3"></el-option>
+                  <el-option label="严重书面警告" value="3"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -69,11 +80,11 @@
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="类型">
+              <el-form-item label="大类" prop="exception_type2">
                 <el-select v-model="detailForm.exception_type2" clearable placeholder="请选择" style="width:25vh">
-                  <el-option label="_5S标准化" value="1"></el-option>
-                  <el-option label="不可记录事件" value="2"></el-option>
-                  <el-option label="可记录事件" value="3"></el-option>
+                  <el-option label="品质" value="1"></el-option>
+                  <el-option label="Trace" value="2"></el-option>
+                  <el-option label="EHS" value="0"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -258,6 +269,9 @@
           ],
           current_situation: [
             { required: true, message: '当前情况不能为空', trigger: 'blur' }
+          ],
+          exception_type2: [
+            { required: true, message: '大类不能为空', trigger: 'blur' }
           ]
         },
         options1: [{
@@ -274,13 +288,16 @@
           label: '工伤事件'
         }, {
           value: '5',
-          label: '外部稽核'
+          label: '异常事件'
         }, {
           value: '6',
-          label: 'Trace异常'
+          label: '违纪'
         }, {
           value: '7',
-          label: '违纪'
+          label: 'Trace异常'
+        }, {
+          value: '8',
+          label: '品质异常'
         }]
       }
     },

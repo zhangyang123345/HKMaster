@@ -77,9 +77,10 @@
           <div v-if="scope.row.exception_type==2">内部稽核</div>
           <div v-if="scope.row.exception_type==3">外部稽核</div>
           <div v-if="scope.row.exception_type==4">工伤事件</div>
-          <div v-if="scope.row.exception_type==5">外部稽核</div>
-          <div v-if="scope.row.exception_type==6">Trace异常</div>
-          <div v-if="scope.row.exception_type==7">违纪</div>
+          <div v-if="scope.row.exception_type==5">异常事件</div>
+          <div v-if="scope.row.exception_type==6">违纪</div>
+          <div v-if="scope.row.exception_type==7">Trace异常</div>
+          <div v-if="scope.row.exception_type==8">品质异常</div>
         </template>
       </el-table-column>
       <el-table-column
