@@ -9,14 +9,11 @@
         <el-col :span="14">
           <el-row>
             <el-col :span="12">
-              <el-form-item label="异常类型" prop="exception_type" autocomplete="off">
-                <el-select v-model="detailForm.exception_type" clearable placeholder="请选择"  style="width:25vh">
-                  <el-option
-                    v-for="item in options1"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
+              <el-form-item label="大类" prop="exception_type2">
+                <el-select v-model="detailForm.exception_type2" clearable placeholder="请选择" style="width:25vh">
+                  <el-option label="品质" value="1"></el-option>
+                  <el-option label="Trace" value="2"></el-option>
+                  <el-option label="EHS" value="0"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -39,14 +36,30 @@
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="发生时间" prop="happen_date">
-                <el-date-picker  style="width:25vh"
-                  v-model="detailForm.happen_date"
-                  type="datetime"
-                  placeholder="选择日期时间"
-                  align="right"
-                  :picker-options="pickerOptions">
-                </el-date-picker>
+              <el-form-item label="异常类型" prop="exception_type" autocomplete="off">
+                <el-select v-model="detailForm.exception_type" clearable placeholder="请选择"  style="width:25vh">
+                  <el-option
+                    v-if="detailForm.exception_type2 === '0'"
+                    v-for="item in options1"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                  <el-option
+                    v-if="detailForm.exception_type2 === '2'"
+                    v-for="item in options2"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                  <el-option
+                    v-if="detailForm.exception_type2 === '1'"
+                    v-for="item in options3"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -57,15 +70,14 @@
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="惩处措施" >
-                <el-select type="area" v-model="detailForm.pu_measures" clearable style="width:25vh">
-                  <el-option label="口头警告" value="1"></el-option>
-                  <el-option label="书面警告" value="2"></el-option>
-                  <el-option label="书面检讨" value="3"></el-option>
-                  <el-option label="解除合同" value="3"></el-option>
-                  <el-option label="退回劳务公司" value="3"></el-option>
-                  <el-option label="严重书面警告" value="3"></el-option>
-                </el-select>
+              <el-form-item label="发生时间" prop="happen_date">
+                <el-date-picker  style="width:25vh"
+                                 v-model="detailForm.happen_date"
+                                 type="datetime"
+                                 placeholder="选择日期时间"
+                                 align="right"
+                                 :picker-options="pickerOptions">
+                </el-date-picker>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -80,11 +92,14 @@
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="大类" prop="exception_type2">
-                <el-select v-model="detailForm.exception_type2" clearable placeholder="请选择" style="width:25vh">
-                  <el-option label="品质" value="1"></el-option>
-                  <el-option label="Trace" value="2"></el-option>
-                  <el-option label="EHS" value="0"></el-option>
+              <el-form-item label="惩处措施" >
+                <el-select type="area" v-model="detailForm.pu_measures" clearable style="width:25vh">
+                  <el-option label="口头警告" value="1"></el-option>
+                  <el-option label="书面警告" value="2"></el-option>
+                  <el-option label="书面检讨" value="3"></el-option>
+                  <el-option label="解除合同" value="4"></el-option>
+                  <el-option label="退回劳务公司" value="5"></el-option>
+                  <el-option label="严重书面警告" value="6"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -287,15 +302,14 @@
           value: '4',
           label: '工伤事件'
         }, {
-          value: '5',
-          label: '异常事件'
-        }, {
           value: '6',
           label: '违纪'
-        }, {
+        }],
+        options2: [{
           value: '7',
           label: 'Trace异常'
-        }, {
+        }],
+        options3: [{
           value: '8',
           label: '品质异常'
         }]
@@ -339,6 +353,7 @@
       init (val, val1) {
         if (val1 === 1) {
           this.showDialog = true
+          this.detailForm.id = ''
           this.detailForm.exception_type = ''
           this.detailForm.exception_describe = ''
           this.detailForm.up_measures = ''
@@ -368,11 +383,7 @@
             this.detailForm.building = val.building.toString()
             this.detailForm.dri = val.dri
             this.detailForm.img_url = val.img_url
-            if (val.exception_type2 === 0) {
-              this.detailForm.exception_type2 = ''
-            } else {
-              this.detailForm.exception_type2 = val.exception_type2.toString()
-            }
+            this.detailForm.exception_type2 = val.exception_type2.toString()
             this.detailForm.ordinance = val.ordinance
             if (val.pu_measures === 0) {
               this.detailForm.pu_measures = ''
@@ -404,11 +415,7 @@
           this.detailForm.building = val.building.toString()
           this.detailForm.dri = val.dri
           this.detailForm.img_url = val.img_url
-          if (val.exception_type2 === 0) {
-            this.detailForm.exception_type2 = ''
-          } else {
-            this.detailForm.exception_type2 = val.exception_type2.toString()
-          }
+          this.detailForm.exception_type2 = val.exception_type2.toString()
           this.detailForm.ordinance = val.ordinance
           if (val.pu_measures === 0) {
             this.detailForm.pu_measures = ''

@@ -51,7 +51,6 @@
       element-loading-background = "rgb(217, 217,217)"
       element-loading-text = "数据正在加载中"
       element-loading-spinner = "el-icon-loading"
-      @selection-change="selectionChangeHandle"
       style="width: 100%;">
       <el-table-column
         type="index"
@@ -77,7 +76,6 @@
           <div v-if="scope.row.exception_type==2">内部稽核</div>
           <div v-if="scope.row.exception_type==3">外部稽核</div>
           <div v-if="scope.row.exception_type==4">工伤事件</div>
-          <div v-if="scope.row.exception_type==5">异常事件</div>
           <div v-if="scope.row.exception_type==6">违纪</div>
           <div v-if="scope.row.exception_type==7">Trace异常</div>
           <div v-if="scope.row.exception_type==8">品质异常</div>
@@ -93,6 +91,13 @@
           <div v-if="scope.row.building==1">E3-1F</div>
           <div v-if="scope.row.building==2">E3-2F</div>
           <div v-if="scope.row.building==3">D4-1F</div>
+          <div v-if="scope.row.building==4">D4-2F</div>
+          <div v-if="scope.row.building==5">B6-2F</div>
+          <div v-if="scope.row.building==6">B1-1F</div>
+          <div v-if="scope.row.building==7">B1-2F</div>
+          <div v-if="scope.row.building==8">E4-1F</div>
+          <div v-if="scope.row.building==9">E4-2F</div>
+          <div v-if="scope.row.building==10">E3-1.5F</div>
         </template>
       </el-table-column>
       <el-table-column

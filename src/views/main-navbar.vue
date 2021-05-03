@@ -95,7 +95,7 @@
       document.body.style.zoom = rate
     },
     created () {
-      this.mynoontip()
+      // this.mynoontip()
     },
     methods: {
       // // 获取当前时间
