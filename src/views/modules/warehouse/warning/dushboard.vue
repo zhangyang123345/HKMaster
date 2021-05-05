@@ -518,25 +518,25 @@
             trigger: 'item',
             formatter: '{b} : {c} ({d}%)'
           },
-
-          visualMap: {
-            show: false,
-            inRange: {
-              colorLightness: [0, 1]
-            }
-          },
+          color: ['#008BBB', '#32C5E9', '#67E0E3', '#9FE6B8', '#FFDB5C', '#ff9f7f', '#fb7293', '#E062AE', '#9d96f5', '#0000FF'],
+          // visualMap: {
+          //   show: false,
+          //   inRange: {
+          //     colorLightness: [0, 1]
+          //   }
+          // },
           series: [
             {
               name: '',
               type: 'pie',
              // color: [ '#96BFFF', '#37A2DA', '#32C5E9', '#8A2BE2', '#4B3D8B','#7B68EE','#1E90FF', '#008BBB', '#FFFF00', '#8B4513','#8378EA', '#FF8C00'],
-              color: ['#008BBB','#32C5E9', '#67E0E3', '#9FE6B8', '#FFDB5C','#ff9f7f', '#fb7293', '#E062AE', '#9d96f5','#0000FF'],
               radius: '68%',
               center: ['50%', '65%'],
               data: this.manage1_val,
               // roseType: 'radius',
               label: {
                 color: 'rgba(255, 255, 255, 0.3)'
+                // color: ['#008BBB', '#32C5E9', '#67E0E3', '#9FE6B8', '#FFDB5C', '#ff9f7f', '#fb7293', '#E062AE', '#9d96f5', '#0000FF'],
               },
               labelLine: {
                 lineStyle: {
