@@ -4,18 +4,21 @@
             <!--<div class="dashboard-bg-image"></div>-->
             <div style="height:100%;" :style="marginStyle">
                 <div style="position: relative; height:100%">
+
                     <div class="dashboard-container" style="width: 100%;height:100%" :style="transformStyle">
-                        <top-title :title.sync="title"></top-title>
-                      <DashboardR11></DashboardR11>
-                      <DashboardR12></DashboardR12>
-                      <DashboardR13></DashboardR13>
-                      <DashboardR14></DashboardR14>
-                      <DashboardR15></DashboardR15>
-                      <DashboardR16></DashboardR16>
-                      <DashboardR17></DashboardR17>
-                      <DashboardR18></DashboardR18>
-                      <DashboardR19></DashboardR19>
-                      <DashboardR20></DashboardR20>
+                      <top-title :title.sync="title"></top-title>
+
+                      <DashboardR10 ref="MyDashboardR10"></DashboardR10>
+                      <DashboardR11 ref="MyDashboardR11"></DashboardR11>
+                      <DashboardR12 ref="MyDashboardR12"></DashboardR12>
+                      <DashboardR13 ref="MyDashboardR13"></DashboardR13>
+                      <DashboardR14 ref="MyDashboardR14"></DashboardR14>
+                      <DashboardR15 ref="MyDashboardR15"></DashboardR15>
+                      <DashboardR16 ref="MyDashboardR16"></DashboardR16>
+                      <DashboardR17 ref="MyDashboardR17"></DashboardR17>
+                      <DashboardR18 ref="MyDashboardR18"></DashboardR18>
+                      <DashboardR19 ref="MyDashboardR19"></DashboardR19>
+                      <DashboardR20 ref="MyDashboardR20"></DashboardR20>
                       <DashboardTitle></DashboardTitle>
                     </div>
                 </div>
@@ -25,20 +28,21 @@
 </template>
 
 <script>
-  import TopTitle from '../components/TopTitle';
-  import {getComputedStyle} from "../utils";
-  import {debounce} from "lodash";
-  import DashboardR11 from '../dashboard1/DashboardR11';
-  import DashboardR12 from '../dashboard1/DashboardR12';
-  import DashboardR13 from '../dashboard1/DashboardR13';
-  import DashboardR14 from '../dashboard1/DashboardR14';
-  import DashboardR15 from '../dashboard1/DashboardR15';
-  import DashboardR16 from '../dashboard1/DashboardR16';
-  import DashboardR17 from '../dashboard1/DashboardR17';
-  import DashboardR18 from '../dashboard1/DashboardR18';
-  import DashboardR19 from '../dashboard1/DashboardR19';
-  import DashboardR20 from '../dashboard1/DashboardR20';
-  import DashboardTitle from '../dashboard1/DashboardTitle';
+  import TopTitle from '../components/TopTitle'
+  import {getComputedStyle} from '../utils'
+  import {debounce} from 'lodash'
+  import DashboardR10 from '../dashboard1/DashboardR10'
+  import DashboardR11 from '../dashboard1/DashboardR11'
+  import DashboardR12 from '../dashboard1/DashboardR12'
+  import DashboardR13 from '../dashboard1/DashboardR13'
+  import DashboardR14 from '../dashboard1/DashboardR14'
+  import DashboardR15 from '../dashboard1/DashboardR15'
+  import DashboardR16 from '../dashboard1/DashboardR16'
+  import DashboardR17 from '../dashboard1/DashboardR17'
+  import DashboardR18 from '../dashboard1/DashboardR18'
+  import DashboardR19 from '../dashboard1/DashboardR19'
+  import DashboardR20 from '../dashboard1/DashboardR20'
+  import DashboardTitle from '../dashboard1/DashboardTitle'
   export default {
         name: "HomeNew",
         data () {
@@ -52,6 +56,7 @@
         },
         components: {
             TopTitle,
+           DashboardR10,
             DashboardR11,
           DashboardR12,
           DashboardR13,
@@ -132,7 +137,16 @@
                 fullArea.msRequestFullscreen();
               }
             }
-            this.fullscreen = !this.fullscreen;
+            this.fullscreen = !this.fullscreen
+            this.$refs.MyDashboardR11.reInfo()
+            this.$refs.MyDashboardR12.reInfo12()
+            // this.$refs.MyDashboardR13.reInfo()
+            this.$refs.MyDashboardR14.reInfo()
+            this.$refs.MyDashboardR15.reInfo()
+            this.$refs.MyDashboardR16.reInfo()
+            this.$refs.MyDashboardR17.reInfo()
+            this.$refs.MyDashboardR18.reInfo()
+            this.$refs.MyDashboardR19.reInfo()
           },
           initScale () {
             let $container = document.querySelector('.container')
@@ -143,7 +157,7 @@
             containerWidth = isNaN(containerWidth) ? 0 : containerWidth
             containerHeight = isNaN(containerHeight) ? 0 : containerHeight
 
-            let defaultHeight = 900
+            let defaultHeight = 1080
             let defaultWidth = 1920
             // sacle 缩放比例。
             let scale = 1
@@ -176,8 +190,8 @@
 <style lang="scss">
 
     .dwrapper {
-        height:900px;
-        width: 101.08%;
+        height:1080px;
+        width: 102.5%;
         margin: -20px;
         position: relative;
     }

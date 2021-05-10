@@ -280,6 +280,12 @@
       },
       startTimer () {
         this.timer = setInterval(this.draw, 70)
+      },
+      reInfo () {
+        setTimeout(this.ondoing, 1000)
+      },
+      ondoing () {
+        this.myChart.resize()
       }
     }
   }
@@ -288,7 +294,7 @@
 <style lang="scss" scoped>
 
   .DashboardR17 {
-    left: 52%;
+    left: 50%;
     top: 14%;
     width: 20%;
     height: 25%;

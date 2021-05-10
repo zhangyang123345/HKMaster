@@ -14,6 +14,7 @@
     "build": "gulp"
   },
   "dependencies": {
+    "@jiaminghi/data-view": "^2.10.0",
     "animate.css": "^4.1.0",
     "axios": "^0.21.1",
     "babel-plugin-component": "0.10.1",

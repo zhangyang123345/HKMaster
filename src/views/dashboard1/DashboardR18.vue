@@ -154,6 +154,12 @@
         //     }
         //   }]
         })
+      },
+      reInfo () {
+        setTimeout(this.ondoing, 1000)
+      },
+      ondoing () {
+        this.myChart.resize()
       }
   //  this.startTimer() {
   //   timer = setInterval(this.doing, 100);

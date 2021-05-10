@@ -13,13 +13,15 @@
 <script>
   import vueSeamlessScroll from 'vue-seamless-scroll'
   export default {
+    inject: ['reload'],
     name: 'DashboardR12',
     components: {
     },
     data () {
       return {
         timer: '',
-        myChart: ''
+        myChart: '',
+        name1: '英语学习'
       }
     },
     created () {
@@ -362,7 +364,7 @@
               },
                 {
                   value: 113,
-                  name: '英语学习',
+                  name: this.name1,
                   itemStyle: {
                     borderColor: '#2C6BA0',
                     borderWidth: 2,
@@ -816,9 +818,9 @@
           value: 25,
           itemStyle: {
             normal: {
-              color: "rgba(88,142,197,0.5)",
+              color: 'rgba(88,142,197,0.5)',
               borderWidth: 0,
-              borderColor: "rgba(0,0,0,0)"
+              borderColor: 'rgba(0,0,0,0)'
             }
           }
         })
@@ -828,9 +830,9 @@
           value: 20,
           itemStyle: {
             normal: {
-              color: "rgba(0,0,0,0)",
+              color: 'rgba(0,0,0,0)',
               borderWidth: 0,
-              borderColor: "rgba(0,0,0,0)"
+              borderColor: 'rgba(0,0,0,0)'
             }
           }
         })
@@ -877,6 +879,13 @@
   },
   startTimer () {
     this.timer = setInterval(this.doing, 700)
+  },
+  reInfo12 () {
+        // this.ondoing()
+     setTimeout(this.ondoing, 1000)
+  },
+  ondoing () {
+    this.myChart.resize()
   }
   //  this.startTimer() {
   //   timer = setInterval(this.doing, 100);
@@ -895,9 +904,9 @@
 <style lang="scss" scoped>
 
   .DashboardR12 {
-    left: 32.5%;
+    left: 32%;
     top: 30%;
-    width: 37%;
+    width: 36%;
     height: 65%;
     border: 2px solid rgba(5, 44, 127, 0);
     border-top: none;

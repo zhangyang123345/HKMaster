@@ -155,7 +155,7 @@
 <style lang="scss">
 
     .dwrapper {
-        height:900px;
+        height:1080px;
         width: 101.08%;
         margin: -20px;
         position: relative;

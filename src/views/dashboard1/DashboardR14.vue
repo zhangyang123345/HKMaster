@@ -5,9 +5,10 @@
       <!--</div>-->
       <!--<div class="arrow-top-right">-->
       <!--</div>-->
+
       <div id='echarts_left2' style='margin:0 auto;height: 100%;width: 100%' ></div>
-  <!--</div>-->
   </div>
+  <!--</div>-->
 </template>
 
 <script>
@@ -179,6 +180,12 @@
             z: 10
           }]
         })
+      },
+      reInfo () {
+        setTimeout(this.ondoing, 1000)
+      },
+      ondoing () {
+        this.myChart.resize()
       }
   }
   }

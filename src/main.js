@@ -15,6 +15,7 @@ import Export2Excel from '@/vendor/Export2Excel.js'
 import { Loading } from 'element-ui'
 import  echarts from 'echarts'
 import 'echarts-liquidfill'
+import dataV from '@jiaminghi/data-view'
 // import axios from 'axios'
 // import VueAxios from 'vue-axios'
 //
@@ -27,6 +28,7 @@ import 'video.js/dist/video-js.css'
 Vue.use(VideoPlayer)
 Vue.prototype.$echarts = echarts
 Vue.use(VueCookie)
+Vue.use(dataV)
 Vue.config.productionTip = false
 // 非生产环境, 适配mockjs模拟数据                 // api: https://github.com/nuysoft/Mock
 if (process.env.NODE_ENV !== 'production') {
