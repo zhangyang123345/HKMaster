@@ -72,13 +72,13 @@
         label="异常类型"
         width="180">
         <template slot-scope="scope">
-          <div v-if="scope.row.exception_type==1">异常情况</div>
-          <div v-if="scope.row.exception_type==2">内部稽核</div>
-          <div v-if="scope.row.exception_type==3">外部稽核</div>
-          <div v-if="scope.row.exception_type==4">工伤事件</div>
-          <div v-if="scope.row.exception_type==6">违纪</div>
-          <div v-if="scope.row.exception_type==7">Trace异常</div>
-          <div v-if="scope.row.exception_type==8">品质异常</div>
+          <div v-if="scope.row.exception_type===1">异常情况</div>
+          <div v-if="scope.row.exception_type===2">内部稽核</div>
+          <div v-if="scope.row.exception_type===3">外部稽核</div>
+          <div v-if="scope.row.exception_type===4">工伤事件</div>
+          <div v-if="scope.row.exception_type===6">违纪</div>
+          <div v-if="scope.row.exception_type===7">Trace异常</div>
+          <div v-if="scope.row.exception_type===8">品质异常</div>
         </template>
       </el-table-column>
       <el-table-column
@@ -242,16 +242,16 @@
         }, {
           value: '4',
           label: '工伤事件'
-        }, {
-          value: '5',
-          label: '外部稽核'
-        }, {
+        },{
           value: '6',
-          label: 'Trace异常'
+          label: '违纪'
         }, {
           value: '7',
-          label: '违纪'
-        }],
+          label: 'Trace异常'
+        }, {
+        value: '8',
+        label: '品质异常'
+      }],
         options2: [{
           value: '0',
           label: '待审核'

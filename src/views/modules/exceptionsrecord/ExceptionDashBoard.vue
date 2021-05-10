@@ -13,123 +13,127 @@
         <div class="d-chart-item">
           <el-row>
             <div style="padding: 2px">
-            <el-col :span="8">
+              <el-col :span="8">
+                <div class="chart-item">
+                  <div class="arrow-top-left">
+                  </div>
+                  <div class="arrow-top-right">
+                  </div>
+                  <div class="div-block">
+                      <div id="eChartQuality"></div>
+                  </div>
+                </div>
+              </el-col>
+              <el-col :span="8">
+                <div style="margin-left: 4px">
+                <div class="chart-item">
+                  <div class="arrow-top-left">
+                  </div>
+                  <div class="arrow-top-right">
+                  </div>
+                  <div class="div-block">
+                    <!--<h1 style="line-height: 50px;color:white;font-size: 2.2em" >EHS</h1>-->
+                    <div id="eChartEHS"></div>
+                  </div>
+                </div>
+                </div>
+              </el-col>
+              <el-col :span="8">
+                <div style="margin-left: 4px">
 
-
-              <div class="chart-item">
-                <div class="arrow-top-left">
+                <div class="chart-item">
+                  <div class="arrow-top-left">
+                  </div>
+                  <div class="arrow-top-right">
+                  </div>
+                  <div class="div-block">
+                    <div id="eChartTrace"></div>
+                  </div>
                 </div>
-                <div class="arrow-top-right">
                 </div>
-                <div class="div-block">
-                  <!--<h1 style="line-height: 50px;color:white;font-size: 2.2em" >品质</h1>-->
-                    <div id="eChartQuality"></div>
-                </div>
-              </div>
-
-            </el-col>
-            <el-col :span="8">
-              <div style="margin-left: 4px">
-              <div class="chart-item">
-                <div class="arrow-top-left">
-                </div>
-                <div class="arrow-top-right">
-                </div>
-                <div class="div-block">
-                  <!--<h1 style="line-height: 50px;color:white;font-size: 2.2em" >EHS</h1>-->
-                  <div id="eChartEHS"></div>
-                </div>
-              </div>
-              </div>
-            </el-col>
-            <el-col :span="8">
-              <div style="margin-left: 4px">
-
-              <div class="chart-item">
-                <div class="arrow-top-left">
-                </div>
-                <div class="arrow-top-right">
-                </div>
-                <div class="div-block">
-                  <div id="eChartTrace"></div>
-                </div>
-              </div>
-              </div>
-            </el-col>
+              </el-col>
             </div>
           </el-row>
           <el-row>
-            <!--<el-col :span="8">-->
-              <!--<div class="chart-item" style="margin-top: 5px">-->
-                <!--<div class="arrow-top-left">-->
-                <!--</div>-->
-                <!--<div class="arrow-top-right">-->
-                <!--</div>-->
-                <!--<div class="div-block2">-->
-
-                  <!--<el-form :inline="true" :model="searchForm" ref="searchForm" label-width="100px">-->
-                    <!--<el-row>-->
-                      <!--<div style="height: 50px"></div>-->
-                    <!--</el-row>-->
-                    <!--<el-row>-->
-                      <!--<el-form-item label="发生时间" prop="happen_date" autocomplete="off">-->
-                        <!--<el-input></el-input>-->
-                      <!--</el-form-item>-->
-                    <!--</el-row>-->
-                    <!--<el-row>-->
-                    <!--<el-form-item label="大类" prop="exception_type2" autocomplete="off">-->
-                      <!--<el-input></el-input>-->
-                    <!--</el-form-item>-->
-                    <!--</el-row>-->
-                    <!--<el-row>-->
-                      <!--<el-form-item label="异常类型" prop="exception_type" autocomplete="off">-->
-                        <!--<el-input></el-input>-->
-                      <!--</el-form-item>-->
-                    <!--</el-row>-->
-                    <!--<el-row>-->
-                      <!--<el-form-item label="DRI" prop="dri" autocomplete="off">-->
-                        <!--<el-input></el-input>-->
-                      <!--</el-form-item>-->
-                    <!--</el-row>-->
-                    <!--<el-row>-->
-                      <!--<el-form-item label="区域" prop="building" autocomplete="off">-->
-                        <!--<el-input></el-input>-->
-                      <!--</el-form-item>-->
-                    <!--</el-row>-->
-                  <!--</el-form>-->
-                  <!--&lt;!&ndash;<el-table ref="dailyRef" :data="tableData1" max-height="680px" class="table" :row-class-name="tableRowClassName" v-loading="templateLoading" element-loading-text="加载中"&ndash;&gt;-->
-                            <!--&lt;!&ndash;element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<el-table-column prop="plantName" label="企业名称" width="200"></el-table-column>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<el-table-column label="排放量(tCO2)">&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="emCurDayVal" label="本日"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="emLastDayVal" label="同期"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="emCurMonthVal" label="本月"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="emLastMonthVal" label="同期"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="emCurYearVal" label="本年"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="emLastYearVal" label="同期"></el-table-column>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</el-table-column>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<el-table-column label="供电排放强度(tCO2/MWh)">&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="pemiCurDayVal" label="本日"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="pemiLastDayVal" label="同期"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="pemiCurMonthVal" label="本月"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="pemiLastMonthVal" label="同期"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="pemiCurYearVal" label="本年"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="pemiLastYearVal" label="同期"></el-table-column>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</el-table-column>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<el-table-column label="供热排放强度(tCO2/GJ)">&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="hemiCurDayVal" label="本日"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="hemiLastDayVal" label="同期"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="hemiCurMonthVal" label="本月"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="hemiLastMonthVal" label="同期"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="hemiCurYearVal" label="本年"></el-table-column>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<el-table-column prop="hemiLastYearVal" label="同期"></el-table-column>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</el-table-column>&ndash;&gt;-->
-                  <!--&lt;!&ndash;</el-table>&ndash;&gt;-->
-                <!--</div>-->
-              <!--</div>-->
-            <!--</el-col>-->
             <div style="padding: 2px">
-            <el-col :span="24">
+              <el-col :span="4">
+                <div class="chart-item" style="margin-top: 5px">
+                  <div class="arrow-top-left">
+                  </div>
+                  <div class="arrow-top-right">
+                  </div>
+                  <div class="div-block2" :class="{anim:animate==true}" @mouseenter="mouseenter" @mouseleave="mouseleave">
+                    <!--todo-->
+                    <el-row>
+                      <el-col :span="24">
+                        <div class="cBox cBox3" id="ehsDiv" @click="onClick1(0)">
+                          <div class="inerBox">EHS事件</div>
+                          <div class="inerBox2">{{this.dataFormSituation.ehsFinish + this.dataFormSituation.ehsInHand}}</div>
+                        </div>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="12">
+                        <div class="cBox cBox1" id="ehsFinish" @click="onClick2(0,1)">
+                          <div class="inerBox">已处理</div>
+                          <div class="inerBox2">{{this.dataFormSituation.ehsFinish}}</div>
+                        </div>
+                      </el-col>
+                      <el-col :span="12">
+                        <div class="cBox cBox2" id="ehsInHand" @click="onClick2(0,0)">
+                          <div class="inerBox">处理中</div>
+                          <div class="inerBox2">{{this.dataFormSituation.ehsInHand}}</div>
+                        </div>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="24">
+                        <div class="cBox cBox3" @click="onClick1(1)">
+                          <div class="inerBox">品质事件</div>
+                          <div class="inerBox2">{{this.dataFormSituation.quantityFinish + this.dataFormSituation.quantityInHand}}</div>
+                        </div>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="12">
+                        <div class="cBox cBox1" @click="onClick2(1,1)">
+                          <div class="inerBox">已处理</div>
+                          <div class="inerBox2">{{this.dataFormSituation.quantityFinish}}</div>
+                        </div>
+                      </el-col>
+                      <el-col :span="12">
+                        <div class="cBox cBox2" @click="onClick2(1,0)">
+                          <div class="inerBox">处理中</div>
+                          <div class="inerBox2">{{this.dataFormSituation.quantityInHand}}</div>
+                        </div>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="24">
+                        <div class="cBox cBox3" @click="onClick1(2)">
+                          <div class="inerBox">Trace事件</div>
+                          <div class="inerBox2">{{this.dataFormSituation.traceFinish + this.dataFormSituation.traceInHand}}</div>
+                        </div>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="12">
+                        <div class="cBox cBox1" @click="onClick2(2,1)">
+                          <div class="inerBox">已处理</div>
+                          <div class="inerBox2">{{this.dataFormSituation.traceFinish}}</div>
+                        </div>
+                      </el-col>
+                      <el-col :span="12">
+                        <div class="cBox cBox2"@click="onClick2(2,0)">
+                          <div class="inerBox">处理中</div>
+                          <div class="inerBox2">{{this.dataFormSituation.traceInHand}}</div>
+                        </div>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </div>
+              </el-col>
+              <el-col :span="20">
 
                 <div class="chart-item" style="margin-top: 5px">
                   <div class="arrow-top-left">
@@ -150,12 +154,12 @@
                         prop="exception_type2"
                         header-align="center"
                         align="center"
-                        width="110"
+                        width="80"
                         label="大类">
                         <template slot-scope="scope">
-                          <div v-if="scope.row.exception_type2==1">品质</div>
-                          <div v-if="scope.row.exception_type2==2">Trace</div>
-                          <div v-if="scope.row.exception_type2==0">EHS</div>
+                          <div v-if="scope.row.exception_type2 === 1">品质</div>
+                          <div v-if="scope.row.exception_type2 === 2">Trace</div>
+                          <div v-if="scope.row.exception_type2 === 0">EHS</div>
                         </template>
                       </el-table-column>
                       <el-table-column
@@ -163,7 +167,7 @@
                         header-align="center"
                         align="center"
                         label="异常类型"
-                        width="170">
+                        width="120">
                         <template slot-scope="scope">
                           <div v-if="scope.row.exception_type==1">异常情况</div>
                           <div v-if="scope.row.exception_type==2">内部稽核</div>
@@ -179,7 +183,7 @@
                         header-align="center"
                         align="center"
                         label="楼栋"
-                        width="130">
+                        width="80">
                         <template slot-scope="scope">
                           <div v-if="scope.row.building==1">E3-1F</div>
                           <div v-if="scope.row.building==2">E3-2F</div>
@@ -198,7 +202,7 @@
                         header-align="center"
                         align="center"
                         label="异常描述"
-                        width="660">
+                        width="610">
                       </el-table-column>
                       <el-table-column
                         prop="happen_date"
@@ -218,8 +222,8 @@
                         prop="current_situation"
                         header-align="center"
                         align="center"
-                        label="当前状态"
-                        width="100">
+                        label="状况"
+                        width="70">
                         <template slot-scope="scope">
                           <div v-if="scope.row.current_situation === 0">
                             <el-tag
@@ -243,7 +247,7 @@
                       <el-table-column
                         header-align="center"
                         label="稽核图例"
-                        width="429">
+                        width="320">
                         <template slot-scope="scope">
                           <div style="text-align: center; margin: 0px">
                             <img :src="scope.row.img_url" style="width: 300px;height:83px;"/>
@@ -272,6 +276,14 @@
     name: 'ExceptionDashBoard',
     data () {
       return {
+        dataFormSituation: {
+          ehsFinish: 0,
+          ehsInHand: 0,
+          quantityFinish: 0,
+          quantityInHand: 0,
+          traceFinish: 0,
+          traceInHand: 0
+        },
         driMax: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
         startDate: '',
         endDate: '',
@@ -298,12 +310,14 @@
           qualityCount: [],
           trace: [],
           traceCount: [],
-          ehs: ['ZP','SS','MV'],
-          ehsCount: [{name:'ZP',value:'7'}, {name:'SS',value:7},{name:'MV',value:8}]
+          ehs: [],
+          ehsCount: []
         },
         queryData: {
-          dri: '',
-          type: ''
+          current_situation: '',
+          exceptionType2: '',
+          exceptionType: '',
+          dri: ''
         },
         dataListLoading: false
       }
@@ -340,52 +354,27 @@
       }
     },
     methods: {
-      mouseenter () {
-        var self = this
-        clearInterval(self.interval)
-        self.interval = null
-      },
-      mouseleave () {
-        var self = this
-        this.interval = setInterval(self.scroll, 3000)
-      },
-      scroll () {
-        this.animate = !this.animate
-        var that = this // 在异步函数中会出现this的偏移问题，此处一定要先保存好this的指向
-        setTimeout(function () {
-          if (that.loadsgn > that.dataListShow.length - 2) {
-            that.loadsgn = 0
-          }
-          that.tableData.push(that.dataListShow[that.loadsgn])
-          if (that.tableData.length > 5) {
-            that.tableData.shift()
-            that.loadsgn = that.loadsgn + 1
-          } else {
-            that.loadsgn = that.loadsgn + 1
-          }
-
-          that.animate = !that.animate
-          setTimeout(function () {}, 50000) // 这个地方如果不把animate 取反会出现消息回滚的现象，此时把ul 元素的过渡属性取消掉就可以完美实现无缝滚动的效果了
-        }, 2000)
-      },
-      getDataList () {
-        this.startDate = moment(moment().add(-30, 'days').valueOf()).format('YYYY-MM-DD')
-        this.endDate = moment(moment().valueOf()).format('YYYY-MM-DD')
-        this.dataListLoading = true
-        this.baseUrl = window.SITE_CONFIG.baseUrl
+      onClick1 (val) {
+        this.queryData.current_situation = ''
+        this.queryData.dri = ''
+        this.queryData.exceptionType = ''
+        this.queryData.exceptionType2 = val.toString()
         this.$http({
           url: this.$http.adornUrl(`/exceptionsRecord/getDataList`),
           method: 'get',
           params: this.$http.adornParams({
             'exception_time': this.startDate + ',' + this.endDate,
-            'exception_type': this.queryData.type,
+            'exception_type2': this.queryData.exceptionType2,
+            'exception_type': this.queryData.exceptionType,
+            'current_situation': this.queryData.current_situation,
             'audit_status': '1',
             'dri': this.queryData.dri,
-            'rows': 100,
+            'rows': 20,
             'page': null
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
+            this.tableData = []
             this.dataListShow = data.exceptionsRecord.list
             for (let j = 0; j < this.dataListShow.length; j++) {
               if (this.dataListShow[j].img_url === '' || this.dataListShow[j].img_url === null){
@@ -393,6 +382,11 @@
               } else {
                 this.dataListShow[j].img_url = this.baseUrl +  this.dataListShow[j].img_url
               }
+            }
+            if (this.dataListShow.length > 5 ){
+              this.tableData = this.dataListShow.slice(0,6)
+            } else {
+              this.tableData = this.dataListShow
             }
             this.totalPage = data.exceptionsRecord.total
             // this.tableData = this.dataListShow
@@ -406,24 +400,182 @@
           }
         })
       },
+      onClick2 (val1, val2) {
+        this.queryData.current_situation = val2.toString()
+        this.queryData.dri = ''
+        this.queryData.exceptionType = ''
+        this.queryData.exceptionType2 = val1.toString()
+        this.$http({
+          url: this.$http.adornUrl(`/exceptionsRecord/getDataList`),
+          method: 'get',
+          params: this.$http.adornParams({
+            'exception_time': this.startDate + ',' + this.endDate,
+            'exception_type2': this.queryData.exceptionType2,
+            'exception_type': this.queryData.exceptionType,
+            'current_situation': this.queryData.current_situation,
+            'audit_status': '1',
+            'dri': this.queryData.dri,
+            'rows': 20,
+            'page': null
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.tableData = []
+            this.dataListShow = data.exceptionsRecord.list
+            for (let j = 0; j < this.dataListShow.length; j++) {
+              if (this.dataListShow[j].img_url === '' || this.dataListShow[j].img_url === null){
+                this.dataListShow[j].img_url = this.baseUrl + '/static/images/default.png'
+              } else {
+                this.dataListShow[j].img_url = this.baseUrl +  this.dataListShow[j].img_url
+              }
+            }
+            if (this.dataListShow.length > 5 ){
+              this.tableData = this.dataListShow.slice(0,6)
+            } else {
+              this.tableData = this.dataListShow
+            }
+            this.totalPage = data.exceptionsRecord.total
+            // this.tableData = this.dataListShow
+            this.dataListLoading = false
+          } else {
+            this.dataListLoading = false
+            this.$message({
+              message: data.message,
+              type: 'error'
+            })
+          }
+        })
+      },
+      mouseenter () {
+        var self = this
+        clearInterval(self.interval)
+        self.interval = null
+      },
+      mouseleave () {
+        var self = this
+        this.interval = setInterval(self.scroll, 3000)
+      },
+      scroll () {
+        this.animate = !this.animate
+        var that = this // 在异步函数中会出现this的偏移问题，此处一定要先保存好this的指向
+        setTimeout(function () {
+          if (that.loadsgn > that.dataListShow.length - 1) {
+            that.loadsgn = 0
+          }
+          that.tableData.push(that.dataListShow[that.loadsgn])
+          if (that.tableData.length > 5) {
+            that.tableData.shift()
+            that.loadsgn = that.loadsgn + 1
+          } else {
+            that.loadsgn = that.loadsgn + 1
+          }
+          that.animate = !that.animate
+          setTimeout(function () {}, 50000) // 这个地方如果不把animate 取反会出现消息回滚的现象，此时把ul 元素的过渡属性取消掉就可以完美实现无缝滚动的效果了
+        }, 2000)
+      },
+      // todo
+      getDataList () {
+        this.startDate = moment(moment().add(-30, 'days').valueOf()).format('YYYY-MM-DD')
+        this.endDate = moment(moment().valueOf()).format('YYYY-MM-DD')
+        this.dataListLoading = true
+        this.baseUrl = window.SITE_CONFIG.baseUrl
+        this.$http({
+          url: this.$http.adornUrl(`/exceptionsRecord/getDataList`),
+          method: 'get',
+          params: this.$http.adornParams({
+            'exception_time': this.startDate + ',' + this.endDate,
+            'exception_type2': this.queryData.exceptionType2,
+            'exception_type': this.queryData.exceptionType,
+            'current_situation': this.queryData.current_situation,
+            'audit_status': '1',
+            'dri': this.queryData.dri,
+            'rows': 20,
+            'page': null
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.tableData = []
+            this.dataListShow = data.exceptionsRecord.list
+            for (let j = 0; j < this.dataListShow.length; j++) {
+              if (this.dataListShow[j].img_url === '' || this.dataListShow[j].img_url === null){
+                this.dataListShow[j].img_url = this.baseUrl + '/static/images/default.png'
+              } else {
+                this.dataListShow[j].img_url = this.baseUrl +  this.dataListShow[j].img_url
+              }
+            }
+            if (this.dataListShow.length > 5 ){
+              this.tableData = this.dataListShow.slice(0,6)
+            } else {
+              this.tableData = this.dataListShow
+            }
+            this.totalPage = data.exceptionsRecord.total
+            // this.tableData = this.dataListShow
+            this.dataListLoading = false
+          } else {
+            this.dataListLoading = false
+            this.$message({
+              message: data.message,
+              type: 'error'
+            })
+          }
+        })
+        this.$http({
+          url: this.$http.adornUrl(`/exceptionsRecord/getSituation`),
+          method: 'get',
+          params: this.$http.adornParams({
+            'exception_time': this.startDate + ',' + this.endDate,
+            'audit_status': '1'
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            let temp = data.situation
+            for (var i = 0, len = temp.length; i < len; i++) {
+              if (temp[i].exception_type2 === 0) {
+                if (temp[i].current_situation === 0) {
+                  this.dataFormSituation.ehsInHand = temp[i].countNum
+                } else {
+                  this.dataFormSituation.ehsFinish = temp[i].countNum
+                }
+              } else if (temp[i].exception_type2 === 1) {
+                if (temp[i].current_situation === 0) {
+                  this.dataFormSituation.quantityInHand = temp[i].countNum
+                } else {
+                  this.dataFormSituation.quantityFinish  = temp[i].countNum
+                }
+              } else {
+                if (temp[i].current_situation === 0) {
+                  this.dataFormSituation.traceInHand = temp[i].countNum
+                } else {
+                  this.dataFormSituation.traceFinish = temp[i].countNum
+                }
+              }
+            }
+          } else {
+            this.$message({
+              message: data.message,
+              type: 'error'
+            })
+          }
+        })
+      },
       getDri (val) {
         this.$http({
           url: this.$http.adornUrl(`/exceptionsRecord/reDri`),
           method: 'get',
           params: this.$http.adornParams({
             'exception_type2': val,
-            // 'exception_time': this.startDate + ',' + this.endDate,
-            // 'audit_status': '1'
+            'exception_time': this.startDate + ',' + this.endDate,
+            'audit_status': '1'
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
-            if (val === 1) {
+            if (val === 1 && data != null) {
               this.report.quality = data.data.dri.split(',')
               this.report.qualityCount = data.data.count1.split(',')
               let driMaxs = this.driMax
               driMaxs = driMaxs.slice(0, this.report.quality.length)
               this.eChartQuality.setOption({
-                title:{text:'品质' },
+                title: {text: '品质'},
                 xAxis: {data: this.report.quality},
                 series: [{
                   type: 'custom',
@@ -578,7 +730,7 @@
                 // xAxis: {data: this.report.quality},
                 // series: [{data: this.report.qualityCount}]
               })
-            } else if (val === 2) {
+            } else if (val === 2 && data.data !== null) {
               this.report.trace = data.data.dri.split(',')
               this.report.traceCount = data.data.count1.split(',')
               let driMaxs = this.driMax
@@ -756,8 +908,8 @@
           method: 'get',
           params: this.$http.adornParams({
             'exception_type2': val,
-            // 'exception_time': this.startDate + ',' + this.endDate,
-            // 'audit_status': '1'
+            'exception_time': this.startDate + ',' + this.endDate,
+            'audit_status': '1'
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -767,7 +919,7 @@
             } else if (val === 2) {
               // this.report.trace = data.data.ex_type.split(',')
               // this.report.traceCount = data.data.count1.split(',')
-            } else {
+            } else if (val === 0) {
               this.report.ehs = data.data.ex_type.split(',')
               this.report.ehsCount = this.humanFormat(data.data.ex_type.split(','), data.data.count1.split(','))
               this.eChartEHS.setOption({
@@ -791,7 +943,7 @@
       },
       eClick (key, params){ //echarts点击事件
         let templet = ''
-        if ('type' === key) {
+        if ('ehs' === key) {
           switch (params.name) {
             case '异常情况' : templet = '1'
                   break;
@@ -809,9 +961,17 @@
               break;
             default: templet = ''
           }
-          this.queryData[key] = templet
+          this.queryData.dri = ''
+          this.queryData.exceptionType = templet
+          this.queryData.exceptionType2 = '0'
+        } else if ('quantity' === key) {
+          this.queryData.dri = params.name
+          this.queryData.exceptionType = ''
+          this.queryData.exceptionType2 = '1'
         } else {
-          this.queryData[key] = params.name
+          this.queryData.dri = params.name
+          this.queryData.exceptionType = ''
+          this.queryData.exceptionType2 = '2'
         }
         console.log(key)
         this.getDataList()
@@ -865,7 +1025,7 @@
         echarts.graphic.registerShape('CubeRight', CubeRight)
         echarts.graphic.registerShape('CubeTop', CubeTop)
         const MAX = [15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
-        const VALUE = [12, 12, 10, 10, 10, 9, 8, 8, 8, 7]
+        const VALUE = []
         const option1 = {
           // backgroundColor: "#012366",
           title: {
@@ -890,8 +1050,7 @@
           },
           xAxis: {
             type: 'category',
-            data: ['郭祥伟', '王启军', '岳平','周鹏','肖卫华','陈春陶',
-              '陶虎','芮科文','刘国梁','聂海'],
+            data: [],
             axisLine: {
               show: true,
               lineStyle: {
@@ -1086,9 +1245,9 @@
         this.eChartQuality = this.$echarts.init(document.getElementById('eChartQuality'))
         this.eChartEHS = this.$echarts.init(document.getElementById('eChartEHS'))
         this.eChartTrace = this.$echarts.init(document.getElementById('eChartTrace'))
-        // this.eChartQuality.on('click', (params) => {this.eClick('dri', params)})
-        // this.eChartEHS.on('click', (params) => {this.eClick('type', params)})
-        // this.eChartTrace.on('click', (params) => {this.eClick('dri', params)})
+        this.eChartQuality.on('click', (params) => {this.eClick('quantity', params)})
+        this.eChartEHS.on('click', (params) => {this.eClick('ehs', params)})
+        this.eChartTrace.on('click', (params) => {this.eClick('trace', params)})
         this.eChartQuality.setOption(option1)
         this.eChartEHS.setOption({
           title: {
@@ -1191,14 +1350,13 @@
           }
         } else {
           if (fullArea.requestFullscreen) {
-            fullArea.requestFullscreen();
+            fullArea.requestFullscreen()
           } else if (fullArea.webkitRequestFullScreen) {
-            fullArea.webkitRequestFullScreen();
+            fullArea.webkitRequestFullScreen()
           } else if (fullArea.mozRequestFullScreen) {
-            fullArea.mozRequestFullScreen();
+            fullArea.mozRequestFullScreen()
           } else if (fullArea.msRequestFullscreen) {
-            // IE11
-            fullArea.msRequestFullscreen();
+            fullArea.msRequestFullscreen()
           }
         }
         this.fullscreen = !this.fullscreen;
@@ -1249,7 +1407,38 @@
 </script>
 
 <style lang="scss">
-
+  .cBox{
+    text-align: center;
+    height: 82px;
+    margin: 0.8vh;
+    border-radius:8px;
+    border: 1px solid rgba(5, 44, 127, 1);
+  }
+  .cBox1{
+    /*background-color: #4339f2;*/
+    background: rgba(14, 36, 59, 0.59);
+    color: #34ff7c;
+  }
+  .cBox2{
+    background: rgba(14, 36, 59, 0.59);
+    color: rgba(255, 0, 15, 0.73);
+  }
+  .cBox3{
+    background: rgba(14, 36, 59, 0.59);
+    color: #FFFFFF;
+  }
+  .cBox4{
+    background-color: #f23829;
+  }
+  .inerBox{
+    width: 100%;
+    font-size: 25px;
+    padding-top: 4%
+  }
+  .inerBox2{
+    font-size: 25px;
+    width: 100%;
+  }
   .dwrapper {
     height:1080px;
     width: 102.5%;
