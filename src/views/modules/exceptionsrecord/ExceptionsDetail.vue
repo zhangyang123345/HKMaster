@@ -77,6 +77,9 @@
                   <el-option label="_B1.2F" value="6"></el-option>
                   <el-option label="_B4.1F" value="7"></el-option>
                   <el-option label="_B6.2F" value="8"></el-option>
+                  <el-option label="_B1.1F" value="9"></el-option>
+                  <el-option label="_E1.1F" value="10"></el-option>
+                  <el-option label="_E3.1F" value="11"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -369,20 +372,20 @@
         requsUrl: '',
         // 控制弹出框显示隐藏
         showDialog: false,
-        fileUploadBtnText: '上传',
+        fileUploadBtnText: '上传图片',
         excepType: '',
         pickerOptions: {
           shortcuts: [{
             text: '今天',
             onClick(picker) {
-              picker.$emit('pick', new Date());
+              picker.$emit('pick', new Date())
             }
           }, {
             text: '昨天',
             onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24);
-              picker.$emit('pick', date);
+              const date = new Date()
+              date.setTime(date.getTime() - 3600 * 1000 * 24)
+              picker.$emit('pick', date)
             }
           }, {
             text: '一周前',

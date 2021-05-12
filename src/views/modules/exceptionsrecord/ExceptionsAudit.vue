@@ -91,16 +91,17 @@
         label="楼栋"
         width="100">
         <template slot-scope="scope">
-          <div v-if="scope.row.building==1">E3-1F</div>
-          <div v-if="scope.row.building==2">E3-2F</div>
-          <div v-if="scope.row.building==3">D4-1F</div>
-          <div v-if="scope.row.building==4">D4-2F</div>
-          <div v-if="scope.row.building==5">B6-2F</div>
-          <div v-if="scope.row.building==6">B1-1F</div>
-          <div v-if="scope.row.building==7">B1-2F</div>
-          <div v-if="scope.row.building==8">E4-1F</div>
-          <div v-if="scope.row.building==9">E4-2F</div>
-          <div v-if="scope.row.building==10">E3-1.5F</div>
+          <div v-if="scope.row.building==1">_E3.2F</div>
+          <div v-if="scope.row.building==2">_E4.1F</div>
+          <div v-if="scope.row.building==3">_E4.2F</div>
+          <div v-if="scope.row.building==4">_D4.1F</div>
+          <div v-if="scope.row.building==5">_A5</div>
+          <div v-if="scope.row.building==6">_B1.2F</div>
+          <div v-if="scope.row.building==7">_B4.1F</div>
+          <div v-if="scope.row.building==8">_B6.2F</div>
+          <div v-if="scope.row.building==9">_B1.1F</div>
+          <div v-if="scope.row.building==10">_E1.1F</div>
+          <div v-if="scope.row.building==11">_E3.1F</div>
         </template>
       </el-table-column>
       <el-table-column
