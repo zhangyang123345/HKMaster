@@ -43,6 +43,10 @@
       <el-form-item>
         <el-button type="primary" @click="addOrUpdateHandle">异常新增</el-button>
       </el-form-item>
+      <!--<el-button type="primary" @click="export2Exce()" v-if="isAuth('employee:export')">-->
+      <el-button type="primary" @click="export2Exce()">
+        <i class="fa fa-lg fa-level-down"style="margin-right: 5px"></i>导出信息
+      </el-button>
     </el-form>
     <el-table
       :data="dataListShow"
@@ -88,16 +92,17 @@
         label="楼栋"
         width="100">
         <template slot-scope="scope">
-          <div v-if="scope.row.building==1">E3-1F</div>
-          <div v-if="scope.row.building==2">E3-2F</div>
-          <div v-if="scope.row.building==3">D4-1F</div>
-          <div v-if="scope.row.building==4">D4-2F</div>
-          <div v-if="scope.row.building==5">B6-2F</div>
-          <div v-if="scope.row.building==6">B1-1F</div>
-          <div v-if="scope.row.building==7">B1-2F</div>
-          <div v-if="scope.row.building==8">E4-1F</div>
-          <div v-if="scope.row.building==9">E4-2F</div>
-          <div v-if="scope.row.building==10">E3-1.5F</div>
+          <div v-if="scope.row.building==1">_E3.2F</div>
+          <div v-if="scope.row.building==2">_E4.1F</div>
+          <div v-if="scope.row.building==3">_E4.2F</div>
+          <div v-if="scope.row.building==4">_D4.1F</div>
+          <div v-if="scope.row.building==5">_A5</div>
+          <div v-if="scope.row.building==6">_B1.2F</div>
+          <div v-if="scope.row.building==7">_B4.1F</div>
+          <div v-if="scope.row.building==8">_B6.2F</div>
+          <div v-if="scope.row.building==9">_B1.1F</div>
+          <div v-if="scope.row.building==10">_E1.1F</div>
+          <div v-if="scope.row.building==11">_E3.1F</div>
         </template>
       </el-table-column>
       <el-table-column
@@ -271,6 +276,49 @@
       this.getDataList()
     },
     methods: {
+      // 导出数据
+      export2Exce () {
+        this.startLoading()
+        this.$http({
+          url: this.$http.adornUrl('/exceptionsRecord/export'),
+          method: 'post',
+          params: this.$http.adornParams({
+            'exception_time': this.dataForm.exceptionTime,
+            'audit_status': this.dataForm.auditType,
+            // 'create_man': this.dataForm.create_man,
+            'exception_type': this.dataForm.excepType,
+            // 'exception_type2': this.dataForm.exception_type2,
+            'page': this.pageIndex,
+            'rows': this.pageSize
+            // 'jobNo': this.dataForm.jobNo,
+            // 'name': this.dataForm.name,
+            // 'lineType': this.dataForm.lineType,
+            // 'costCategory': this.dataForm.costCategory,
+            // 'position': this.dataForm.position,
+            // 'director': this.dataForm.director,
+            // 'active': this.dataForm.active
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.exportList = data.list
+            require.ensure([], () => {
+              const { export_json_to_excel } = require('@/vendor/Export2Excel')
+              const tHeader = ['大类', '二类','发生日期','完成日期','异常描述','整改措施', '创建人', '楼栋', '区域主管', '班别','稽核人', '工站','当事人工号','惩处', '确认人','责任班长','责任股长','责任课长','责任理级','隐患类型','稽核条例']
+              // 上面设置Excel的表格第一行的标题
+              const filterVal = ['exception_type2', 'exception_type', 'happen_date', 'finish_date','exception_describe','up_measures','create_man','building', 'dri', 'class_no','ordinance_man', 'station','client_no','pu_measures', 'identify_man', 'monitor', 'unit_chief', 'section', 'manager', 'hazard_type', 'ordinance']
+              const list = this.exportList
+              const data = this.formatJson(filterVal, list)
+              export_json_to_excel(tHeader, data, 'EHS稽核')
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+          this.endLoading()
+        })
+      },
+      formatJson (filterVal, jsonData) {
+        return jsonData.map(v => filterVal.map(j => v[j]))
+      },
       deleteExceptions (val) {
         this.$confirm('是否确认删除, 是否继续?', '提示', {
           confirmButtonText: '确定',
