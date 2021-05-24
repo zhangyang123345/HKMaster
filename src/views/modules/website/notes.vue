@@ -60,7 +60,8 @@
             {name: 'Asset Tracker', tel: 'https://iact.apple.com/#/lines', status: "MPC-采购", imgSrc: '/static/img/Asset Tracker.png'},
             {name: '设备  Power BI', tel: 'https://app.powerbi.com/groups/me/reports/37f66d1a-98eb-476b-9db4-b4e392e2e5ba/ReportSection?redirectedFromSignup=1&ctid=bc876b21-f134-4c12-a265-8ed26b7f0f3b&openReportSource=ReportInvitation', status: "设备", imgSrc: '/static/img/Power BI.jpg'},
             {name: 'PIS 设备管理', tel: 'http://cnctug0pdmsap01/PISM21/emt/repair/charts/measure', status: "设备", imgSrc: '/static/img/PIS-beipinweixiu.jpg'},
-            {name: 'PEGA 系统', tel: 'https://bpm.jabil.com/prweb/SAML/54anLfhyQoN4KvhnrUyqdg%5B%5B*/!STANDARD?pzPostData=-1706434030', status: "设备", imgSrc: '/static/img/PEGA_ST.png'}
+            {name: 'PEGA 系统', tel: 'https://bpm.jabil.com/prweb/SAML/54anLfhyQoN4KvhnrUyqdg%5B%5B*/!STANDARD?pzPostData=-1706434030', status: "设备", imgSrc: '/static/img/PEGA_ST.png'},
+            {name: 'Ano4.0', tel: 'http://10.128.17.169:8080/#/login', status: "SME", imgSrc: '/static/img/ano.png'}
           ]
         }
       },

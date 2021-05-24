@@ -270,9 +270,10 @@
       //导出数据
       exportArt () {
         this.$http({
-          url: this.$http.adornUrl('/code/export'),
-          method: 'post',
+          url: this.$http.adornUrl('/cotalent/search'),
+          method: 'get',
           params: this.$http.adornParams({
+            'searchReport': 1,
             'page': this.pageIndex,
             'rows': this.pageSize,
             'goods_name': this.dataForm.key,
@@ -283,32 +284,22 @@
             'classification_name':this.dataForm.class
           })
         }).then(({data}) => {
+          console.log('---------------------------------------')
+          console.log(data)
           if (data && data.code === 0) {
-          var cacheData = data.list
+          var cacheData = data.cotalent.list
           require.ensure([], () => {
             const { export_json_to_excel } = require('@/vendor/Export2Excel')
-            const tHeader = ['物品编码', '品名', '厂商代码', '厂商', '保质期', '单价', '规格', '单位', '一类', '二类', '三类']
+
+            const tHeader = ['工号', '姓名', '电话', '性别', '部门', '职称', '成本别', '线别', '入职日期', '出生日期', '主管', '学历', '专业', '技能', '能力掌握']
             // 上面设置Excel的表格第一行的标题
-            const filterVal = ['article_no', 'article_name', 'manufacturer_no', 'manufacturer_name', 'life', 'price', 'specs_name', 'unit_name', 'fam_name', 'kin_name', 'clas_name']
+            const filterVal = ['job_no', 'name', 'phone', 'sex', 'department', 'position', 'cost_category', 'line_type', 'entry_date', 'barth', 'director', 'education', 'major', 'skill', 'station']
             const data = this.formatJson(filterVal, cacheData)
-            export_json_to_excel(tHeader, data, '物品详细信息')
+            export_json_to_excel(tHeader, data, '人才信息')
         })
         } else {
           this.$message.error(data.msg)
         }
-      })
-      },
-      template () {
-        require.ensure([], () => {
-          const { export_json_to_excel } = require('@/vendor/Export2Excel')
-          const tHeader = ['料号', '品名', '厂商代码', '厂商', '保质期', '单价', '规格', '单位', '一类', '二类', '三类']
-          // 上面设置Excel的表格第一行的标题
-          const filterVal = ['article_no', 'article_name', 'manufacturer_no', 'manufacturer_name', 'life', 'price', 'specs', 'unit', 'family', 'kind', 'class']
-          const list = [{'article_no':'CCUN07616', 'article_name':'大美工刀', 'manufacturer_no':'19501028', 'manufacturer_name':'震坤行', 'life':'', 'price':'2.59', 'specs':'1把/包', 'unit':'把', 'family':'耗材', 'kind':'刀具', 'class':'美工刀'},
-            {'article_no':'CLND04138', 'article_name':'无铁劳保鞋 牛刚王 009', 'manufacturer_no':'250651', 'manufacturer_name':'兴百汇', 'life':'', 'price':'86.182', 'specs':'10双/箱', 'unit':'双', 'family':'耗材', 'kind':'鞋子', 'class':'劳保鞋'},
-            {'article_no':'CLND04139', 'article_name':'无尘服', 'manufacturer_no':'250651', 'manufacturer_name':'兴百汇', 'life':'', 'price':'86.182', 'specs':'50件/箱', 'unit':'件', 'family':'耗材', 'kind':'衣服', 'class':'无尘服'}]
-          const data = this.formatJson(filterVal, list)
-          export_json_to_excel(tHeader, data, '物品信息模板')
       })
       },
       // 获取数据列表
