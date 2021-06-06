@@ -10,7 +10,7 @@
   //window.SITE_CONFIG['baseUrl'] = 'http://10.128.19.168:8099/HKService';
   // window.SITE_CONFIG['baseUrl'] = 'http://desktop-jay:8082/HKService'
   // window.SITE_CONFIG['baseUrl'] = 'http://3q2189y798.qicp.vip:32411/renren-fast';
-    window.SITE_CONFIG['baseUrl'] = 'http://10.128.212.175:8082/HKService';
+    window.SITE_CONFIG['baseUrl'] = 'http://10.128.61.36:8082/HKService';
   //  window.SITE_CONFIG['baseUrl'] = 'OP2PVDSVS';
   // 192.168.11.101
   //  window.SITE_CONFIG['baseUrl'] = 'http://localhost:8080/renren-fast';

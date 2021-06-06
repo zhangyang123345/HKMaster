@@ -23,7 +23,8 @@ const globalRoutes = [
   { path: 'improve/caseDataShow', component: _import('modules/improve/caseDataShow'), name: 'caseDataShow', meta: { title: '登录' } },
   { path: '/show', component: _import('common/show'), name: 'show', meta: { title: 'show' } },
   { path: '/homeNew', component: _import('common/homeNew'), name: 'homeNew', meta: { title: 'homeNew' } },
-  { path: '/homeNew1', component: _import('common/homeNew1'), name: 'homeNew1', meta: { title: 'homeNew1' } }
+  { path: '/homeNew1', component: _import('common/homeNew1'), name: 'homeNew1', meta: { title: 'homeNew1' } },
+  { path: '/logbook', component: _import('common/logbook'), name: 'logbook', meta: { title: 'logbook' } }
 ]
 
 // 主入口路由(需嵌套上左右整体布局)
